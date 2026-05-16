@@ -62,6 +62,28 @@ type Quest = {
   reward?: boolean;
 };
 
+export type DashboardScreenProps = {
+  userName: string;
+  level: number;
+  xpInLevel: number;
+  xpForNextLevel: number;
+  progressPercent: number;
+  streak: number;
+  evolutionStage: number;
+  evolutionFormLabel: string;
+  questsCompletedToday: number;
+  questsTotal: number;
+};
+
+/** Русская плюрализация для коротких счётчиков (1 день / 2 дня / 5 дней). */
+function pluralRu(n: number, one: string, few: string, many: string): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
 const quests: Quest[] = [
   {
     title: "Пройти шаги",
@@ -87,15 +109,27 @@ const quests: Quest[] = [
   },
 ];
 
-export function DashboardScreen() {
+export function DashboardScreen({
+  userName,
+  level,
+  xpInLevel,
+  xpForNextLevel,
+  progressPercent,
+  streak,
+  evolutionStage,
+  evolutionFormLabel,
+  questsCompletedToday,
+  questsTotal,
+}: DashboardScreenProps) {
   const prefersReduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const reduced = mounted && prefersReduced === true;
 
-  const xpCurrent = 2450;
-  const xpMax = 3600;
-  const xpPct = Math.round((xpCurrent / xpMax) * 100);
+  const xpCurrent = xpInLevel;
+  const xpMax = xpForNextLevel;
+  const xpPct = Math.max(0, Math.min(100, progressPercent));
+  const streakWord = pluralRu(streak, "день", "дня", "дней");
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-black text-zinc-100">
@@ -116,7 +150,7 @@ export function DashboardScreen() {
               BFG
             </p>
             <h1 className="mt-2 text-xl font-bold text-white [font-family:var(--font-unbounded)] sm:text-2xl">
-              Привет, Алекс
+              Привет, {userName}
             </h1>
             <p className="mt-1 text-sm text-zinc-500 [font-family:var(--font-onest)]">
               Big Fitness Game · твоя вселенная прогресса
@@ -130,9 +164,9 @@ export function DashboardScreen() {
               <span className="text-base" aria-hidden>
                 🔥
               </span>
-              12
+              {streak}
             </p>
-            <p className="text-[10px] text-zinc-500">дней подряд</p>
+            <p className="text-[10px] text-zinc-500">{streakWord} подряд</p>
           </GameCard>
         </motion.header>
 
@@ -145,7 +179,9 @@ export function DashboardScreen() {
             <div className="relative flex flex-col items-center text-center">
               <HeroAvatar />
               <div className="mt-4 flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-semibold text-sky-200 [font-family:var(--font-onest)]">
-                Уровень <span className="text-white [font-family:var(--font-unbounded)]">12</span>
+                Уровень <span className="text-white [font-family:var(--font-unbounded)]">{level}</span>
+                <span className="text-zinc-500">·</span>
+                <span className="text-zinc-300">{evolutionFormLabel}</span>
               </div>
 
               <div className="mt-5 w-full max-w-xs">
@@ -244,10 +280,14 @@ export function DashboardScreen() {
             </Link>
           </div>
           <GameCard className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4 sm:gap-2">
-            <StatPill label="Уровень" value="12" accent />
-            <StatPill label="Энергия" value="85%" />
-            <StatPill label="Неделя" value="4/5" sub="тренировок" />
-            <StatPill label="Завершено" value="23" sub="тренировок всего" />
+            <StatPill label="Уровень" value={String(level)} accent />
+            <StatPill label="Стадия" value={String(evolutionStage)} sub={evolutionFormLabel} />
+            <StatPill label="Серия" value={String(streak)} sub={streakWord} />
+            <StatPill
+              label="Квесты"
+              value={`${questsCompletedToday}/${questsTotal}`}
+              sub="сегодня"
+            />
           </GameCard>
         </motion.section>
 

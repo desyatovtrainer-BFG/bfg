@@ -50,3 +50,19 @@ export function hasEvolved(previousLevel: number, newLevel: number): boolean {
   return getAvatarEvolutionForLevel(previousLevel).stage !==
     getAvatarEvolutionForLevel(newLevel).stage;
 }
+
+/**
+ * Русские подписи стадий — UI рисует их рядом с аватаром.
+ * Маппинг по `form`, чтобы не зависеть от номера стадии при правках лестницы.
+ */
+const AVATAR_FORM_LABEL_RU: Record<string, string> = {
+  starter: "Искра пути",
+  awakened: "Пробуждение",
+  attuned: "Поток силы",
+  ascendant: "Восхождение",
+  transcendent: "Превосходство",
+};
+
+export function getAvatarFormLabel(form: string): string {
+  return AVATAR_FORM_LABEL_RU[form] ?? form;
+}
