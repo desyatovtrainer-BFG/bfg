@@ -18,7 +18,13 @@
 
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/get-user";
-import { awardXp, getAvatarEvolutionForLevel, type AwardXpResult } from "@/lib/progression";
+import {
+  awardXp,
+  getAvatarEvolutionForLevel,
+  touchStreak,
+  type AwardXpResult,
+  type StreakUpdate,
+} from "@/lib/progression";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { findDailyQuest } from "./daily-quests";
 import { todayISO } from "./get-today-completions";
@@ -30,6 +36,12 @@ export type CompleteDailyQuestResponse = {
         questTitle: string;
         /** true, если квест уже был закрыт сегодня и XP не начислялся повторно. */
         alreadyCompleted: boolean;
+        /**
+         * Снимок стрика после действия. null, если touchStreak упал —
+         * UI просто не показывает обновление серии. Также null в ветке
+         * `alreadyCompleted`, где стрик уже был учтён ранее сегодня.
+         */
+        streak: StreakUpdate | null;
       })
     | null;
   error: string | null;
@@ -77,6 +89,10 @@ export async function completeDailyQuestAction(
             questId: quest.id,
             questTitle: quest.title,
             alreadyCompleted: true,
+            // Стрик за сегодня уже был зачтён первым успешным действием —
+            // повторно трогать БД не нужно. UI показывает текущее значение
+            // из `profiles` (через DashboardPage / прогресс-экран).
+            streak: null,
           }
         : null,
       error: snapshot ? null : "Не удалось прочитать профиль.",
@@ -92,6 +108,14 @@ export async function completeDailyQuestAction(
     return { data: null, error: error ?? "Не удалось начислить XP." };
   }
 
+  // Закрытие квеста — такое же «зачётное» действие, как и тренировка.
+  // Падение стрика не валит начисление XP: ошибку логируем, в ответе
+  // отдадим streak: null и UI не покажет обновление серии.
+  const streakRes = await touchStreak(supabase, user.id);
+  if (streakRes.error) {
+    console.error("[completeDailyQuestAction] touchStreak", streakRes.error);
+  }
+
   revalidatePath("/dashboard");
   revalidatePath("/progress");
   revalidatePath("/avatar");
@@ -103,6 +127,7 @@ export async function completeDailyQuestAction(
       questId: quest.id,
       questTitle: quest.title,
       alreadyCompleted: false,
+      streak: streakRes.data,
     },
     error: null,
   };

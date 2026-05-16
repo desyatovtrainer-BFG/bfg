@@ -8,6 +8,7 @@
  *   - xp-rewards.ts        — таблица наград (баланс в одном месте)
  *   - avatar-evolution.ts  — лестница стадий аватара по уровню
  *   - award-xp.ts          — серверный апдейт profiles/avatars
+ *   - streak.ts            — серия активных дней (touchStreak)
  */
 
 export {
@@ -27,3 +28,10 @@ export {
 } from "./avatar-evolution";
 
 export { awardXp, type AwardXpInput, type AwardXpResult } from "./award-xp";
+
+export {
+  touchStreak,
+  todayUtcISO,
+  yesterdayOf,
+  type StreakUpdate,
+} from "./streak";
