@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/get-user";
+import { ensureBfgProfile } from "@/lib/profile";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { BottomNav } from "../components/dashboard/bottom-nav";
 
 /**
@@ -18,6 +20,17 @@ export default async function AppShellLayout({
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
+  }
+
+  // Ленивое создание BFG-профиля и аватара: страхуем кейс, когда signUp
+  // прошёл с email confirmation и строки не успели создаться сразу,
+  // а также бэкфилим старых пользователей без avatars. Вызов идемпотентный
+  // (select → insert), поэтому стоит копейки. Ошибки логируем, но рендер
+  // не блокируем — иначе залогиненный юзер не увидит вообще ничего.
+  const supabase = await createSupabaseServerClient();
+  const { error: ensureError } = await ensureBfgProfile(supabase, user);
+  if (ensureError) {
+    console.error("[AppShellLayout] ensureBfgProfile failed", ensureError);
   }
 
   return (

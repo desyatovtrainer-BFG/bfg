@@ -1,5 +1,6 @@
 "use server";
 
+import { ensureBfgProfile } from "@/lib/profile";
 import { createSupabaseServerClient } from "@/lib/supabase";
 
 export type AuthResult = { error: string | null };
@@ -36,9 +37,28 @@ export async function signUpWithPassword(formData: FormData): Promise<AuthResult
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({ email, password });
 
-  return { error: error?.message ?? null };
+  if (error) {
+    return { error: error.message };
+  }
+
+  // Если email confirmation выключен — Supabase сразу выдаёт сессию,
+  // и под её JWT мы можем создать BFG-профиль и аватар. Если же
+  // confirmation включён — `session` пустая, RLS отклонит insert,
+  // поэтому строки создадим лениво на первом заходе в защищённый layout
+  // (см. app/(app)/layout.tsx → ensureBfgProfile).
+  if (data.session && data.user) {
+    const { error: ensureError } = await ensureBfgProfile(supabase, data.user);
+    if (ensureError) {
+      // Аккаунт создан, но BFG-инициализация упала — сообщаем наверх,
+      // чтобы UI не делал вид, будто всё ок. Сама ошибка уже залогирована
+      // внутри ensureBfgProfile.
+      return { error: ensureError };
+    }
+  }
+
+  return { error: null };
 }
 
 export async function signOut(): Promise<AuthResult> {
