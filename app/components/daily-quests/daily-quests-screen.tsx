@@ -1,63 +1,32 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  buildDailyQuestList,
+  completeDailyQuestAction,
+  DAILY_QUEST_ORDER,
+  type CompleteDailyQuestResponse,
+} from "@/lib/quests";
 import { DailyCompletionBanner } from "./daily-completion-banner";
 import { QuestCard } from "./quest-card";
 import type { DailyQuest, QuestState } from "./types";
 
-function initialQuests(): DailyQuest[] {
-  return [
-    {
-      id: "steps",
-      kind: "steps",
-      title: "Пройти шаги",
-      subtitle: "Поле силы под ногами — каждый шаг кормит твою легенду.",
-      state: "active",
-      progress: { current: 7800, max: 10000 },
-      rewards: { xp: 80, coins: 25, streakBoostPercent: 2 },
-    },
-    {
-      id: "workout",
-      kind: "workout",
-      title: "Сделать тренировку",
-      subtitle: "Один сеанс — и ты уже не тот, кто проснулся утром.",
-      state: "completed",
-      rewards: { xp: 140, coins: 45, streakBoostPercent: 5 },
-    },
-    {
-      id: "stretch",
-      kind: "stretch",
-      title: "Выполнить растяжку",
-      subtitle: "Мягкое продление — чтобы завтра ударить сильнее.",
-      state: "locked",
-      lockReason:
-        "Контракт скрыт, пока не зафиксирована тренировка. Сначала закрой «Тренировку» — и путь откроется.",
-      rewards: { xp: 60, coins: 20 },
-    },
-    {
-      id: "streak",
-      kind: "streak_hold",
-      title: "Удержать серию",
-      subtitle: "Не дай пламени дня погаснуть — один вход, одно действие.",
-      state: "active",
-      rewards: { xp: 50, coins: 15, streakBoostPercent: 8 },
-    },
-    {
-      id: "hydration",
-      kind: "hydration",
-      title: "Гидратация",
-      subtitle: "Вода — как мана: без неё заклинания тела слабеют.",
-      state: "active",
-      progress: { current: 1200, max: 2000, unitLabel: "мл" },
-      rewards: { xp: 40, coins: 18 },
-    },
-  ];
-}
+type DailyQuestsScreenProps = {
+  /** Закрытые сегодня контракты — приходят с сервера, чтобы UI был сразу правильным. */
+  initialCompletedIds?: ReadonlyArray<string>;
+};
 
-function unlockStretchWhenWorkoutClaimed(list: DailyQuest[]): DailyQuest[] {
-  const workoutDone = list.find((q) => q.id === "workout")?.state === "reward_claimed";
+type QuestFeedback = NonNullable<CompleteDailyQuestResponse["data"]>;
+
+function unlockStretchWhenWorkoutClosed(list: DailyQuest[]): DailyQuest[] {
+  // «Stretch» открывается, как только workout перестал быть «активным» —
+  // т.е. локально перешёл в completed или reward_claimed. Серверная
+  // персистентность ловится через `reward_claimed` из initialCompletedIds.
+  const workoutDone = list.some(
+    (q) => q.id === "workout" && (q.state === "completed" || q.state === "reward_claimed"),
+  );
   return list.map((q) => {
     if (q.id !== "stretch" || q.state !== "locked") return q;
     if (!workoutDone) return q;
@@ -70,34 +39,57 @@ function unlockStretchWhenWorkoutClaimed(list: DailyQuest[]): DailyQuest[] {
   });
 }
 
-export function DailyQuestsScreen() {
+export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScreenProps) {
   const prefersReduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const reducedMotion = mounted && prefersReduced === true;
 
-  const [quests, setQuests] = useState<DailyQuest[]>(initialQuests);
+  const [quests, setQuests] = useState<DailyQuest[]>(() =>
+    buildDailyQuestList(initialCompletedIds),
+  );
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<QuestFeedback | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
-  const questsView = useMemo(() => unlockStretchWhenWorkoutClaimed(quests), [quests]);
+  const questsView = useMemo(() => unlockStretchWhenWorkoutClosed(quests), [quests]);
 
-  const allRewardsClaimed = useMemo(
+  const allClaimed = useMemo(
     () => questsView.length > 0 && questsView.every((q) => q.state === "reward_claimed"),
     [questsView],
   );
 
   const completeQuest = useCallback((id: string) => {
-    setQuests((prev) =>
-      prev.map((q) => (q.id === id && q.state === "active" ? { ...q, state: "completed" as const } : q)),
-    );
+    setError(null);
+    setPendingId(id);
+    startTransition(async () => {
+      const res = await completeDailyQuestAction(id);
+      setPendingId(null);
+      if (res.error || !res.data) {
+        setError(res.error ?? "Не удалось закрыть контракт.");
+        return;
+      }
+      // XP уже начислен на сервере (или контракт уже был закрыт сегодня —
+      // тогда alreadyCompleted=true и xpGained=0). В обоих случаях UI
+      // должен показать карточку как «сокровище ждёт».
+      setQuests((prev) =>
+        prev.map((q) => (q.id === id && q.state === "active" ? { ...q, state: "completed" } : q)),
+      );
+      setFeedback(res.data);
+    });
   }, []);
 
   const claimReward = useCallback((id: string) => {
+    // Клиентский шаг «забрать сокровище» — без сервера. XP уже начислен на
+    // completeQuest; здесь только эмоциональное закрытие карточки.
     setQuests((prev) =>
-      prev.map((q) => (q.id === id && q.state === "completed" ? { ...q, state: "reward_claimed" as const } : q)),
+      prev.map((q) =>
+        q.id === id && q.state === "completed" ? { ...q, state: "reward_claimed" } : q,
+      ),
     );
+    setFeedback((curr) => (curr && curr.questId === id ? null : curr));
   }, []);
-
-  const order = ["steps", "workout", "stretch", "streak", "hydration"];
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-black text-zinc-100">
@@ -141,7 +133,42 @@ export function DailyQuestsScreen() {
           </p>
         </motion.header>
 
-        <DailyCompletionBanner show={allRewardsClaimed} reducedMotion={reducedMotion} />
+        <DailyCompletionBanner show={allClaimed} reducedMotion={reducedMotion} />
+
+        <AnimatePresence>
+          {feedback ? (
+            <motion.div
+              key={`fb-${feedback.questId}-${feedback.totalXp}`}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-4 rounded-2xl border border-amber-400/30 bg-amber-500/[0.08] px-4 py-3 text-sm text-amber-100 [font-family:var(--font-onest)]"
+              aria-live="polite"
+            >
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-200/80">
+                Контракт закрыт
+              </p>
+              <p className="mt-1">
+                «{feedback.questTitle}»
+                {feedback.alreadyCompleted
+                  ? " — уже закрыт сегодня. Возвращайся завтра за новым слоем."
+                  : ` · +${feedback.xpGained} XP · уровень ${feedback.newLevel}${
+                      feedback.leveledUp ? " · новый уровень" : ""
+                    }${feedback.evolved ? " · эволюция аватара" : ""}`}
+              </p>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        {error ? (
+          <p
+            className="mb-4 rounded-2xl border border-rose-500/30 bg-rose-500/[0.08] px-4 py-3 text-sm text-rose-200 [font-family:var(--font-onest)]"
+            role="alert"
+          >
+            {error}
+          </p>
+        ) : null}
 
         <motion.section
           initial="hidden"
@@ -152,26 +179,29 @@ export function DailyQuestsScreen() {
           }}
           className="space-y-4"
         >
-          {order
-            .map((id) => questsView.find((q) => q.id === id))
+          {DAILY_QUEST_ORDER.map((id) => questsView.find((q) => q.id === id))
             .filter((q): q is DailyQuest => Boolean(q))
-            .map((quest) => (
-              <motion.div
-                key={quest.id}
-                variants={{
-                  hidden: { opacity: 0, y: 16 },
-                  show: { opacity: 1, y: 0 },
-                }}
-                transition={{ type: "spring", stiffness: 320, damping: 26 }}
-              >
-                <QuestCard
-                  quest={quest}
-                  reducedMotion={reducedMotion}
-                  onComplete={completeQuest}
-                  onClaimReward={claimReward}
-                />
-              </motion.div>
-            ))}
+            .map((quest) => {
+              const isPending = pendingId === quest.id;
+              return (
+                <motion.div
+                  key={quest.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 16 },
+                    show: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                  className={isPending ? "pointer-events-none opacity-80" : undefined}
+                >
+                  <QuestCard
+                    quest={quest}
+                    reducedMotion={reducedMotion}
+                    onComplete={completeQuest}
+                    onClaimReward={claimReward}
+                  />
+                </motion.div>
+              );
+            })}
         </motion.section>
 
         <motion.p
