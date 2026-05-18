@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: var(--font-onest), system-ui, sans-serif;
 }
+
+/*
+ * Утилита для горизонтального swipe-слайдера сессии тренировки:
+ * нативная полоса прокрутки ломает атмосферу полноэкранного видео-опыта.
+ * Tailwind v4 в проекте по-прежнему не даёт scrollbar-hidden из коробки,
+ * поэтому держим один short-class здесь.
+ */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
