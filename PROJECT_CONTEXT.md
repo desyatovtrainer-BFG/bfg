@@ -138,6 +138,8 @@ types/
 
 - QUEST_[SYSTEM.md](http://SYSTEM.md)
 
+- WORKOUT_CONTENT_GUIDE.md — ручное управление контентом тренировок через Supabase Table Editor (MVP, без админки)
+
 ---
 
 ## Agent Workflow Rules

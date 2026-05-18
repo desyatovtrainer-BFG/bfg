@@ -1,0 +1,250 @@
+# BFG — Гайд по контенту тренировок (MVP)
+
+Документ описывает, как добавлять и редактировать тренировки **вручную через Supabase Table Editor** без публичной админки.
+На MVP мы сознательно не строим UI-админку: контента мало, а Table Editor уже даёт всё, что нужно — фильтры, сортировку, редактирование строк и SQL-консоль.
+
+> ⚠️ Любые изменения в БД сразу видны живым пользователям. Все правки делай аккуратно и сначала пробуй на новой тренировке с `is_active = false`.
+
+---
+
+## 1. Что где лежит
+
+Контент тренировок живёт в двух таблицах:
+
+| Таблица                    | Что это                                | Связь                                    |
+| -------------------------- | -------------------------------------- | ---------------------------------------- |
+| `public.workouts`          | Шапка тренировки (название, сложность) | —                                        |
+| `public.workout_exercises` | Шаги внутри тренировки (видео + текст) | `workout_id → workouts.id` (on delete cascade) |
+
+Схема и комментарии — в миграциях:
+
+- `supabase/migrations/0004_workouts.sql`
+- `supabase/migrations/0005_workout_exercises.sql`
+
+Типы и хелперы (в т.ч. сборка embed-URL Kinescope) — в `lib/workouts/types.ts`.
+
+---
+
+## 2. Доступ к Table Editor
+
+1. Открой [Supabase Dashboard](https://supabase.com/dashboard) → проект BFG.
+2. Слева в меню: **Table Editor**.
+3. Выбери схему `public`. Нужные таблицы — `workouts` и `workout_exercises`.
+
+Альтернативно — **SQL Editor** для массовых правок (см. §7).
+
+---
+
+## 3. Добавить тренировку (workout)
+
+Открой таблицу `public.workouts` → кнопка **Insert → Insert row**.
+
+| Колонка          | Тип       | Что вписывать                                                                                              |
+| ---------------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| `id`             | `text`    | Стабильный slug в kebab-case: `morning-flow`, `core-blast`. Используется в URL `/workouts/<id>`. Не менять после публикации. |
+| `title`          | `text`    | Название для пользователя: `Утренний поток`.                                                               |
+| `description`    | `text`    | 1–2 предложения. Спокойный тон, без агрессивной мотивации (см. `BFG_RULES.md`).                            |
+| `difficulty`     | `text`    | Ровно одно из: `easy`, `medium`, `hard`. См. §4.                                                          |
+| `duration_min`   | `integer` | Целое число минут, > 0. См. §5.                                                                            |
+| `category`       | `text`    | Свободный тег: `mobility`, `strength`, `cardio`, `breath`. Показывается на карточке.                       |
+| `thumbnail_url`  | `text`    | Можно оставить пустым (`NULL`). Если есть — полный `https://…`.                                            |
+| `video_provider` | `text`    | На старте: `none`. Когда появится Kinescope — `kinescope`. См. §6.                                         |
+| `video_id`       | `text`    | На старте: пусто (`NULL`). См. §6.                                                                         |
+| `is_active`      | `bool`    | `true` — видна пользователям. `false` — черновик. См. §8.                                                  |
+| `created_at`     | timestamp | Не трогать, заполняется по умолчанию.                                                                      |
+
+**Совет.** Сначала создавай тренировку с `is_active = false`, добавь все упражнения, проверь — потом ставь `true`.
+
+---
+
+## 4. Сложность (`difficulty`)
+
+Допустимы **только три значения**, по CHECK-констрейнту в БД:
+
+- `easy` — лёгкая (русский лейбл «Лёгкая», акцент cyan).
+- `medium` — средняя («Средняя», violet).
+- `hard` — высокая («Высокая», rose).
+
+Цвет акцента карточки и подпись формируются автоматически (`lib/workouts/types.ts`). Менять словари переводов **только в коде**, не в БД.
+
+Любое другое значение Postgres отклонит.
+
+---
+
+## 5. Длительность
+
+### 5.1. У тренировки — `workouts.duration_min`
+
+Целое число минут, > 0. Это то, что видит пользователь как тег на карточке (`10 мин`).
+
+Это **витринное** значение для UI — мы НЕ считаем его автоматически из суммы упражнений. Указывай примерное общее время с разогревом и заминкой.
+
+### 5.2. У упражнения — `workout_exercises.duration_sec`
+
+Целое число секунд, > 0. Форматирование в UI делает `formatExerciseDuration`:
+- `< 60` → `45 сек`
+- кратно 60 → `2 мин`
+- иначе → `1 мин 30 сек`
+
+Сумма `duration_sec` шагов **не обязана** строго равняться `duration_min × 60`. Это разумное приближение, а не инвариант.
+
+---
+
+## 6. Видео (Kinescope)
+
+Архитектура поддерживает Kinescope из коробки. Embed-URL **в БД не хранится** — он собирается в коде из `video_provider` + `video_id` функцией `getExerciseVideoEmbedUrl` / `getWorkoutVideoEmbedUrl`.
+
+Сейчас разрешены два значения `video_provider`:
+
+- `none` — карточка/шаг без видео; UI показывает спокойный плейсхолдер «Видео скоро появится».
+- `kinescope` — российский видеохостинг ([kinescope.io](https://kinescope.io)), работает в РФ без VPN. Приоритет MVP.
+
+> YouTube/Vimeo и другие провайдеры **не добавлять** без согласования: ломается доступ в РФ.
+
+### 6.1. Где видео на сессии тренировки
+
+На MVP видео-плеер рисуется **на каждом упражнении** (`workout_exercises`), а не на шапке. Поля `workouts.video_provider` / `workouts.video_id` сохранены для совместимости, но **в UI сессии не используются**. Оставляй у шапки `video_provider = 'none'`, `video_id = NULL`.
+
+### 6.2. Как привязать Kinescope-ролик к упражнению
+
+1. Залей видео в кабинете Kinescope.
+2. Скопируй его **Video ID** (это короткий идентификатор из URL/embed-кода Kinescope, формата `xxxxxxxx` или `xxxx-xxxx-…`).
+3. В Table Editor открой нужную строку в `workout_exercises`:
+   - `video_provider` → `kinescope`
+   - `video_id` → вставь скопированный ID **без** `https://`, **без** `/embed/`, **без** параметров.
+4. Сохрани. UI на `/workouts/<id>` автоматически отрисует iframe `https://kinescope.io/embed/<video_id>`.
+
+> Если в `video_id` сохранить полный URL — iframe сломается. Кладём **только ID**.
+
+### 6.3. Снять видео с упражнения
+
+- `video_provider` → `none`
+- `video_id` → `NULL`
+
+UI снова покажет плейсхолдер «Видео скоро появится».
+
+---
+
+## 7. Добавить упражнения к тренировке
+
+Открой таблицу `public.workout_exercises` → **Insert → Insert row**.
+
+| Колонка          | Тип       | Что вписывать                                                                                       |
+| ---------------- | --------- | --------------------------------------------------------------------------------------------------- |
+| `id`             | `uuid`    | **Не трогать.** Сгенерируется автоматически (`gen_random_uuid()`).                                  |
+| `workout_id`     | `text`    | `id` тренировки-родителя из `workouts` (например, `morning-flow`).                                  |
+| `order_index`    | `integer` | Порядок шага, начиная с `0`. Уникален в рамках `workout_id`. См. ниже.                              |
+| `title`          | `text`    | Название упражнения: `Кошка-корова`.                                                                |
+| `description`    | `text`    | Короткое описание/подсказка. Можно оставить пустым.                                                 |
+| `duration_sec`   | `integer` | Секунды, > 0. См. §5.2.                                                                             |
+| `video_provider` | `text`    | `none` или `kinescope`. См. §6.                                                                     |
+| `video_id`       | `text`    | ID ролика Kinescope или `NULL`. См. §6.                                                             |
+| `is_active`      | `bool`    | `true` — шаг виден. `false` — скрыт. См. §8.                                                        |
+| `created_at`     | timestamp | Не трогать.                                                                                         |
+
+### 7.1. Правила `order_index`
+
+- Стартуем с `0` (первый шаг), затем `1`, `2`, …
+- Уникальный constraint `(workout_id, order_index)` — одно «место» = одно упражнение.
+- Чтобы вставить шаг **в середину**, надо сдвинуть последующие. Делать через SQL Editor (см. ниже), иначе CONFLICT.
+
+### 7.2. Пример: вставить новый шаг между 1 и 2
+
+```sql
+-- 1. Сдвигаем хвост на 1 вниз, начиная с временного отрицательного значения,
+--    чтобы не упасть в unique constraint по дороге.
+update public.workout_exercises
+set order_index = -order_index - 1
+where workout_id = 'morning-flow' and order_index >= 2;
+
+update public.workout_exercises
+set order_index = -order_index
+where workout_id = 'morning-flow' and order_index < 0;
+
+-- 2. Вставляем новый шаг на освободившееся место.
+insert into public.workout_exercises
+  (workout_id, order_index, title, description, duration_sec,
+   video_provider, video_id, is_active)
+values
+  ('morning-flow', 2, 'Новый шаг', 'Описание.', 120, 'none', null, true);
+```
+
+### 7.3. Пример: добавить пакет шагов одним SQL
+
+```sql
+insert into public.workout_exercises
+  (workout_id, order_index, title, description, duration_sec,
+   video_provider, video_id, is_active)
+values
+  ('core-blast', 0, 'Разогрев',  'Лёгкая динамика.',       120, 'none', null, true),
+  ('core-blast', 1, 'Планка',    'Удерживай корпус.',      180, 'none', null, true),
+  ('core-blast', 2, 'Скручивания','Спокойный темп.',       180, 'none', null, true)
+on conflict (workout_id, order_index) do nothing;
+```
+
+---
+
+## 8. Состояние active / inactive
+
+Поле `is_active` есть и у тренировки, и у каждого упражнения. Управляется RLS:
+
+- **`workouts.is_active = false`** → тренировка **не появится** в списке `/workouts` и недоступна по прямой ссылке `/workouts/<id>`. Используй как «черновик» или «временно скрыть».
+- **`workout_exercises.is_active = false`** → шаг **не отрисуется** в сессии, но тренировка остаётся доступной. Полезно, чтобы временно убрать одно упражнение без удаления.
+
+> Не путай с физическим удалением: удалить тренировку → каскадом удалятся все её упражнения (`on delete cascade`). Для отката хватит `is_active = false`.
+
+### 8.1. Скрыть тренировку из каталога
+
+```sql
+update public.workouts
+set is_active = false
+where id = 'morning-flow';
+```
+
+### 8.2. Включить обратно
+
+```sql
+update public.workouts
+set is_active = true
+where id = 'morning-flow';
+```
+
+---
+
+## 9. Чек-лист публикации новой тренировки
+
+1. [ ] Создал строку в `workouts` с `is_active = false`.
+2. [ ] Проверил `id` (slug, kebab-case, уникален).
+3. [ ] `difficulty` ∈ `{easy, medium, hard}`.
+4. [ ] `duration_min` отражает реальное время сессии.
+5. [ ] Добавил упражнения в `workout_exercises` с `order_index` от `0` без дыр.
+6. [ ] Для каждого шага: либо `video_provider='none'` (плейсхолдер), либо `kinescope` + чистый `video_id`.
+7. [ ] Открыл `/workouts/<id>` под тестовым юзером (временно поставив `is_active = true` или зайдя с service-role в админке), убедился, что плеер и текст отображаются.
+8. [ ] Поставил `workouts.is_active = true`.
+9. [ ] Проверил, что тренировка видна на `/workouts` обычному юзеру.
+
+---
+
+## 10. Частые ошибки
+
+| Симптом                                        | Причина                                                                |
+| ---------------------------------------------- | ---------------------------------------------------------------------- |
+| `new row for relation "workouts" violates check constraint` | `difficulty` не из `{easy, medium, hard}` или `duration_min <= 0`. |
+| Тренировка не появляется в списке              | `is_active = false` или RLS не пускает (юзер не залогинен).             |
+| Сессия открывается, но шагов нет               | У всех упражнений `is_active = false`, либо миграция 0005 не накатана.  |
+| Плеер показывает плейсхолдер вместо видео      | `video_provider = 'none'` или `video_id` пустой / содержит лишние символы. |
+| `duplicate key value violates unique constraint "workout_exercises_workout_id_order_index_key"` | Два шага с одинаковым `order_index` у одной тренировки. |
+| Сломалась прямая ссылка `/workouts/<id>`        | Поменяли `id` у существующей тренировки. **Не делай этого.**           |
+
+---
+
+## 11. Что мы НЕ делаем на MVP
+
+- Не строим публичную UI-админку (Table Editor закрывает потребность).
+- Не открываем `insert/update/delete` через RLS для клиента — контент пишется только service-role.
+- Не храним embed-URL в БД — собираем в коде.
+- Не добавляем провайдеров видео, недоступных в РФ без VPN.
+- Не считаем `duration_min` автоматически из суммы упражнений.
+- Не делаем чек-листы выполненных упражнений, таймеры, счётчики повторов (см. `BFG_RULES.md` — эмоция > статистика).
+
+Когда контента станет много и Table Editor начнёт мешать — тогда вернёмся к разговору про админку. Сейчас приоритет — эмоциональная петля, а не CMS.

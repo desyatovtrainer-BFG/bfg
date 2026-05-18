@@ -27,6 +27,10 @@
 -- insert/update/delete — контент заливаем service role'ом.
 --
 -- Идемпотентно. Применить вручную через Supabase SQL Editor.
+--
+-- Как добавлять упражнения, привязывать Kinescope video_id и
+-- управлять порядком/active — см. WORKOUT_CONTENT_GUIDE.md
+-- (разделы §6 «Видео» и §7 «Упражнения»).
 
 create extension if not exists "pgcrypto";
 

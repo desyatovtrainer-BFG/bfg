@@ -20,6 +20,9 @@
 -- не создаём, чтобы клиент случайно ничего не записал.
 --
 -- Идемпотентно. Применить вручную через Supabase SQL Editor.
+--
+-- Как добавлять/редактировать контент после миграции — см.
+-- WORKOUT_CONTENT_GUIDE.md в корне репозитория (раздел §3 — workouts).
 
 create table if not exists public.workouts (
   id text primary key,
