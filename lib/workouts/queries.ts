@@ -9,10 +9,20 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { mapWorkoutRow, type Workout, type WorkoutRow } from "./types";
+import {
+  mapWorkoutExerciseRow,
+  mapWorkoutRow,
+  type Workout,
+  type WorkoutExercise,
+  type WorkoutExerciseRow,
+  type WorkoutRow,
+} from "./types";
 
 const WORKOUT_COLUMNS =
   "id, title, description, difficulty, duration_min, category, thumbnail_url, video_provider, video_id, is_active";
+
+const WORKOUT_EXERCISE_COLUMNS =
+  "id, workout_id, order_index, title, description, duration_sec, video_provider, video_id, is_active";
 
 export async function listActiveWorkouts(
   supabase: SupabaseClient,
@@ -49,4 +59,50 @@ export async function getWorkoutById(
   if (!data) return null;
 
   return mapWorkoutRow(data as WorkoutRow);
+}
+
+/**
+ * Активные упражнения тренировки в нужном порядке.
+ *
+ * RLS пропускает только `is_active = true`, но фильтр оставляем в коде
+ * на случай отладочного отключения RLS — UI всё равно не должен видеть
+ * черновики. Сортируем по `order_index` (уникален в рамках workout_id),
+ * получаем стабильный детерминированный порядок без рандомных сюрпризов.
+ */
+export async function listWorkoutExercises(
+  supabase: SupabaseClient,
+  workoutId: string,
+): Promise<WorkoutExercise[]> {
+  const { data, error } = await supabase
+    .from("workout_exercises")
+    .select(WORKOUT_EXERCISE_COLUMNS)
+    .eq("workout_id", workoutId)
+    .eq("is_active", true)
+    .order("order_index", { ascending: true });
+
+  if (error) {
+    console.error("[listWorkoutExercises]", error);
+    return [];
+  }
+
+  return ((data ?? []) as WorkoutExerciseRow[]).map(mapWorkoutExerciseRow);
+}
+
+/**
+ * Тренировка + её активные упражнения одним вызовом.
+ *
+ * Удобный composer для экрана сессии: два запроса параллельно, чтобы
+ * не платить за лишний раунд-трип. Если миграция 0005 ещё не накатана —
+ * exercises вернутся пустым массивом, и UI отрисует empty-state без падения.
+ */
+export async function getWorkoutWithExercises(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<{ workout: Workout; exercises: WorkoutExercise[] } | null> {
+  const [workout, exercises] = await Promise.all([
+    getWorkoutById(supabase, id),
+    listWorkoutExercises(supabase, id),
+  ]);
+  if (!workout) return null;
+  return { workout, exercises };
 }

@@ -3,24 +3,36 @@
  *
  *   import {
  *     listActiveWorkouts,
- *     getWorkoutVideoEmbedUrl,
+ *     getWorkoutWithExercises,
+ *     getExerciseVideoEmbedUrl,
  *     completeWorkoutAction,
  *     type Workout,
+ *     type WorkoutExercise,
  *   } from "@/lib/workouts";
  */
 
 export {
   mapWorkoutRow,
+  mapWorkoutExerciseRow,
   formatWorkoutDuration,
+  formatExerciseDuration,
   getWorkoutVideoEmbedUrl,
+  getExerciseVideoEmbedUrl,
   WORKOUT_DIFFICULTY_LABELS,
   WORKOUT_DIFFICULTY_ACCENT,
   type Workout,
   type WorkoutRow,
+  type WorkoutExercise,
+  type WorkoutExerciseRow,
   type WorkoutDifficulty,
   type WorkoutVideoProvider,
 } from "./types";
-export { listActiveWorkouts, getWorkoutById } from "./queries";
+export {
+  listActiveWorkouts,
+  getWorkoutById,
+  listWorkoutExercises,
+  getWorkoutWithExercises,
+} from "./queries";
 export {
   buildCompanionFeedback,
   type CompanionFeedback,

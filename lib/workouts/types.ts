@@ -91,21 +91,95 @@ export function formatWorkoutDuration(durationMin: number): string {
 }
 
 /**
- * Сборка embed-URL для будущего <iframe>.
+ * Доменная модель упражнения внутри тренировки (camelCase, для UI).
  *
- * Возвращает null, если у тренировки нет видео — это значит, что UI
- * должен отрендерить карточку без плеера (MVP-режим). Когда появится
- * реальный Kinescope-ролик, эта же функция вернёт пригодный URL
- * без правок типов и схемы БД.
+ * Тренировка теперь — это упорядоченная последовательность упражнений
+ * (см. миграцию 0005). Поля workouts.video_provider / workouts.video_id
+ * больше не используются в UI сессии, но в схеме остаются — миграции
+ * в проде идут вручную, и сносить колонки лишний раз опасно.
+ */
+export type WorkoutExercise = {
+  id: string;
+  workoutId: string;
+  orderIndex: number;
+  title: string;
+  description: string;
+  /** Длительность шага в секундах. В БД — `duration_sec`. */
+  durationSec: number;
+  videoProvider: WorkoutVideoProvider;
+  videoId: string | null;
+  isActive: boolean;
+};
+
+export type WorkoutExerciseRow = {
+  id: string;
+  workout_id: string;
+  order_index: number;
+  title: string;
+  description: string;
+  duration_sec: number;
+  video_provider: WorkoutVideoProvider;
+  video_id: string | null;
+  is_active: boolean;
+};
+
+export function mapWorkoutExerciseRow(
+  row: WorkoutExerciseRow,
+): WorkoutExercise {
+  return {
+    id: row.id,
+    workoutId: row.workout_id,
+    orderIndex: row.order_index,
+    title: row.title,
+    description: row.description,
+    durationSec: row.duration_sec,
+    videoProvider: row.video_provider,
+    videoId: row.video_id,
+    isActive: row.is_active,
+  };
+}
+
+/** Короткий тег длительности упражнения: '45 сек', '2 мин', '1 мин 30 сек'. */
+export function formatExerciseDuration(durationSec: number): string {
+  if (durationSec < 60) return `${durationSec} сек`;
+  const minutes = Math.floor(durationSec / 60);
+  const seconds = durationSec % 60;
+  if (seconds === 0) return `${minutes} мин`;
+  return `${minutes} мин ${seconds} сек`;
+}
+
+/**
+ * Внутренний сборщик embed-URL по провайдеру и id.
+ *
+ * Один источник истины для всех видео в проекте — и для самой тренировки,
+ * и для отдельного упражнения. Возвращает null, если видео не назначено;
+ * UI в этом случае рисует спокойный плейсхолдер.
  *
  * Документация: https://docs.kinescope.io/embed/iframe
  */
-export function getWorkoutVideoEmbedUrl(workout: Workout): string | null {
-  if (!workout.videoId) return null;
-  switch (workout.videoProvider) {
+function buildVideoEmbedUrl(
+  provider: WorkoutVideoProvider,
+  videoId: string | null,
+): string | null {
+  if (!videoId) return null;
+  switch (provider) {
     case "kinescope":
-      return `https://kinescope.io/embed/${workout.videoId}`;
+      return `https://kinescope.io/embed/${videoId}`;
     case "none":
       return null;
   }
+}
+
+/** Embed-URL для шапки тренировки (legacy — на случай, если контент-редактор
+ *  всё-таки проставит видео на уровне тренировки). UI сессии теперь рисует
+ *  плеер по упражнениям, см. `getExerciseVideoEmbedUrl`. */
+export function getWorkoutVideoEmbedUrl(workout: Workout): string | null {
+  return buildVideoEmbedUrl(workout.videoProvider, workout.videoId);
+}
+
+/** Embed-URL для конкретного упражнения. */
+export function getExerciseVideoEmbedUrl(
+  exercise: WorkoutExercise,
+): string | null {
+  return buildVideoEmbedUrl(exercise.videoProvider, exercise.videoId);
 }
