@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AvatarHero } from "@/app/components/avatar/avatar-hero";
+import { CosmeticRewards } from "@/app/components/avatar/cosmetic-rewards";
 import { getCurrentUser } from "@/lib/auth/get-user";
+import { getUnlockedCosmetics } from "@/lib/cosmetics";
 import {
   getAvatarAuraLabel,
   getAvatarEvolutionForLevel,
@@ -69,6 +71,11 @@ export default async function AvatarPage() {
   const stage = Number(row?.evolution_stage ?? fallback.stage);
   const glowIntensity = Number(row?.glow_intensity ?? fallback.glowIntensity);
 
+  // Косметика считается чисто из (level, stage) — это детерминированный
+  // каталог из lib/cosmetics, без отдельной таблицы. Один источник истины,
+  // никаких миграций ради MVP.
+  const cosmetics = getUnlockedCosmetics(level, stage);
+
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-black text-zinc-100">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(100%_65%_at_50%_-15%,rgba(56,189,248,0.1),transparent_52%),radial-gradient(85%_50%_at_100%_40%,rgba(167,139,250,0.08),transparent_50%),radial-gradient(70%_45%_at_0%_85%,rgba(251,113,133,0.06),transparent_55%)]" />
@@ -111,6 +118,10 @@ export default async function AvatarPage() {
             glowIntensity={glowIntensity}
             flavorText={getAvatarStageFlavor(stage)}
           />
+        </section>
+
+        <section className="mb-8">
+          <CosmeticRewards cosmetics={cosmetics} />
         </section>
 
         <footer className="text-center">
