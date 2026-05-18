@@ -21,8 +21,10 @@ export {
 export { XP_REWARDS, getXpReward, type XpRewardSource } from "./xp-rewards";
 
 export {
+  getAvatarAuraLabel,
   getAvatarEvolutionForLevel,
   getAvatarFormLabel,
+  getAvatarStageFlavor,
   hasEvolved,
   type AvatarEvolution,
 } from "./avatar-evolution";

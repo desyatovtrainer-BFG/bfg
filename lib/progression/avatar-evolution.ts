@@ -66,3 +66,40 @@ const AVATAR_FORM_LABEL_RU: Record<string, string> = {
 export function getAvatarFormLabel(form: string): string {
   return AVATAR_FORM_LABEL_RU[form] ?? form;
 }
+
+/**
+ * Русские подписи аур. Маппинг по строке из БД, чтобы UI говорил
+ * «Сияние», а не «radiant_glow».
+ */
+const AVATAR_AURA_LABEL_RU: Record<string, string> = {
+  soft_glow: "Мягкое свечение",
+  focused_glow: "Сфокусированный свет",
+  radiant_glow: "Сияние",
+  prismatic_glow: "Призматический свет",
+  stellar_glow: "Звёздная аура",
+};
+
+export function getAvatarAuraLabel(aura: string): string {
+  return AVATAR_AURA_LABEL_RU[aura] ?? aura;
+}
+
+/**
+ * Короткие эмоциональные подписи к стадиям. Не «лор», а ощущение —
+ * AVATAR_SYSTEM.md: эволюция должна чувствоваться, а не объясняться.
+ * Маппинг по номеру стадии, потому что это естественная шкала
+ * (1..5) и не ломается, если в `avatars` где-то рассинхронизирован `form`.
+ */
+const AVATAR_STAGE_FLAVOR_RU: Record<number, string> = {
+  1: "Искра только зажглась. Каждый шаг закрепляет твой путь.",
+  2: "Свет внутри становится устойчивым. Тело учится слышать намерение.",
+  3: "Ты входишь в поток. Сила стала привычкой.",
+  4: "Образ становится ярче. Ты узнаваем по движению.",
+  5: "Твоя форма звучит как звезда. Путь продолжается.",
+};
+
+export function getAvatarStageFlavor(stage: number): string {
+  return (
+    AVATAR_STAGE_FLAVOR_RU[stage] ??
+    "Эволюция продолжается. Каждый день — это новое движение."
+  );
+}
