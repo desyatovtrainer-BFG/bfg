@@ -27,7 +27,7 @@ import {
   buildCompanionFeedback,
   type CompanionFeedback,
 } from "./companion-feedback";
-import { findMvpWorkout } from "./mvp-workouts";
+import { getWorkoutById } from "./queries";
 
 export type CompleteWorkoutResponse = {
   data:
@@ -49,17 +49,22 @@ export type CompleteWorkoutResponse = {
 export async function completeWorkoutAction(
   workoutId: string,
 ): Promise<CompleteWorkoutResponse> {
-  const workout = findMvpWorkout(workoutId);
-  if (!workout) {
-    return { data: null, error: "Тренировка не найдена." };
-  }
-
   const user = await getCurrentUser();
   if (!user) {
     return { data: null, error: "Не авторизован." };
   }
 
   const supabase = await createSupabaseServerClient();
+
+  // Проверяем существование тренировки по БД (а не по статическому списку):
+  // так RLS и флаг is_active автоматически отсекают неактивный/удалённый
+  // контент. Если миграция 0004 ещё не применена — getWorkoutById вернёт
+  // null, и мы корректно сообщим пользователю.
+  const workout = await getWorkoutById(supabase, workoutId);
+  if (!workout) {
+    return { data: null, error: "Тренировка не найдена." };
+  }
+
   const { data, error } = await awardXp(supabase, user.id, {
     source: "WORKOUT_COMPLETE",
   });

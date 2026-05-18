@@ -3,14 +3,15 @@
 /**
  * MVP-экран тренировок.
  *
- * Намеренно простой: список из заранее заданных тренировок и одна
- * кнопка «Завершить тренировку» на каждую. Никакого таймера, никакой
- * истории, никакого мульти-степ потока — это всё появится позже, когда
- * MVP-петля «движение → XP → эмоция» будет проверена.
+ * Данные приходят из server component (страница /workouts читает
+ * каталог из Supabase). Здесь — только рендер и петля «нажал →
+ * получил XP → увидел реакцию компаньона».
  *
- * После успешного завершения показываем GameCard с реакцией компаньона
- * прямо под списком. Карточка живёт до следующего нажатия — чтобы
- * пользователь успел прочитать и почувствовать момент.
+ * Архитектурно мы уже готовы к Kinescope: у каждой тренировки есть
+ * videoProvider / videoId, и хелпер `getWorkoutVideoEmbedUrl` соберёт
+ * embed-URL, когда у контента появятся реальные ролики. На MVP мы
+ * сознательно НЕ рендерим плеер — карточки остаются плоскими, чтобы
+ * проверить эмоциональную петлю без отвлекающего видео.
  */
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,21 +19,28 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import {
   completeWorkoutAction,
+  formatWorkoutDuration,
+  WORKOUT_DIFFICULTY_ACCENT,
+  WORKOUT_DIFFICULTY_LABELS,
   type CompleteWorkoutResponse,
-} from "@/lib/workouts/actions";
-import { MVP_WORKOUTS, type MvpWorkout } from "@/lib/workouts/mvp-workouts";
+  type Workout,
+} from "@/lib/workouts";
 import { GameButton } from "../ui/game-button";
 import { GameCard } from "../ui/game-card";
 
 type FeedbackState = NonNullable<CompleteWorkoutResponse["data"]>;
 
-export function WorkoutsScreen() {
+type WorkoutsScreenProps = {
+  workouts: Workout[];
+};
+
+export function WorkoutsScreen({ workouts }: WorkoutsScreenProps) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
-  const handleComplete = (workout: MvpWorkout) => {
+  const handleComplete = (workout: Workout) => {
     setPendingId(workout.id);
     setError(null);
     startTransition(async () => {
@@ -63,39 +71,21 @@ export function WorkoutsScreen() {
           </p>
         </header>
 
-        <ul className="flex flex-col gap-3">
-          {MVP_WORKOUTS.map((w) => {
-            const isPending = pendingId === w.id;
-            return (
+        {workouts.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {workouts.map((w) => (
               <li key={w.id}>
-                <GameCard glow={w.accent} className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className="text-base font-semibold text-white [font-family:var(--font-onest)]">
-                        {w.title}
-                      </h2>
-                      <p className="mt-1 text-sm text-zinc-500 [font-family:var(--font-onest)]">
-                        {w.subtitle}
-                      </p>
-                    </div>
-                    <span className="shrink-0 rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-zinc-300 [font-family:var(--font-onest)]">
-                      {w.duration}
-                    </span>
-                  </div>
-                  <GameButton
-                    variant="primary"
-                    type="button"
-                    onClick={() => handleComplete(w)}
-                    disabled={isPending}
-                    className="mt-4 w-full py-3 text-sm"
-                  >
-                    {isPending ? "Завершаем…" : "Завершить тренировку"}
-                  </GameButton>
-                </GameCard>
+                <WorkoutCard
+                  workout={w}
+                  isPending={pendingId === w.id}
+                  onComplete={handleComplete}
+                />
               </li>
-            );
-          })}
-        </ul>
+            ))}
+          </ul>
+        )}
 
         <AnimatePresence>
           {feedback ? (
@@ -129,6 +119,69 @@ export function WorkoutsScreen() {
         </div>
       </div>
     </div>
+  );
+}
+
+function WorkoutCard({
+  workout,
+  isPending,
+  onComplete,
+}: {
+  workout: Workout;
+  isPending: boolean;
+  onComplete: (workout: Workout) => void;
+}) {
+  const accent = WORKOUT_DIFFICULTY_ACCENT[workout.difficulty];
+
+  return (
+    <GameCard glow={accent} className="p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-base font-semibold text-white [font-family:var(--font-onest)]">
+            {workout.title}
+          </h2>
+          <p className="mt-1 text-sm text-zinc-500 [font-family:var(--font-onest)]">
+            {workout.description}
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-zinc-300 [font-family:var(--font-onest)]">
+          {formatWorkoutDuration(workout.durationMin)}
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <MetaTag>{WORKOUT_DIFFICULTY_LABELS[workout.difficulty]}</MetaTag>
+        <MetaTag>{workout.category}</MetaTag>
+      </div>
+
+      <GameButton
+        variant="primary"
+        type="button"
+        onClick={() => onComplete(workout)}
+        disabled={isPending}
+        className="mt-4 w-full py-3 text-sm"
+      >
+        {isPending ? "Завершаем…" : "Завершить тренировку"}
+      </GameButton>
+    </GameCard>
+  );
+}
+
+function MetaTag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-zinc-400 [font-family:var(--font-onest)]">
+      {children}
+    </span>
+  );
+}
+
+function EmptyState() {
+  return (
+    <GameCard glow="none" className="p-5 text-center">
+      <p className="text-sm leading-relaxed text-zinc-400 [font-family:var(--font-onest)]">
+        Каталог тренировок пока пуст. Загляни позже — путь продолжается.
+      </p>
+    </GameCard>
   );
 }
 
