@@ -8,10 +8,11 @@ import {
   completeDailyQuestAction,
   DAILY_QUEST_ORDER,
   type CompleteDailyQuestResponse,
+  type DailyQuest,
+  type QuestState,
 } from "@/lib/quests";
 import { DailyCompletionBanner } from "./daily-completion-banner";
 import { QuestCard } from "./quest-card";
-import type { DailyQuest, QuestState } from "./types";
 
 type DailyQuestsScreenProps = {
   /** Закрытые сегодня контракты — приходят с сервера, чтобы UI был сразу правильным. */

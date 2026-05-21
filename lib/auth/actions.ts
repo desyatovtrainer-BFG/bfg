@@ -12,6 +12,11 @@ export type AuthResult = { error: string | null };
  * тосты — это ответственность UI-слоя, который мы подключим в следующих
  * итерациях. Куки сессии обновляются автоматически: серверный клиент
  * пишет их через `cookies()`, а на следующем запросе proxy.ts освежит токен.
+ *
+ * Ошибки наружу: только короткие спокойные русские тексты. Сырые сообщения
+ * Supabase (включая то, есть ли такой email, какой формат пароля и пр.)
+ * никогда не возвращаем клиенту — это требование BFG_SECURITY.md §7.1.
+ * Детали логируем в серверной консоли с тегом фичи.
  */
 
 export async function signInWithPassword(formData: FormData): Promise<AuthResult> {
@@ -25,7 +30,12 @@ export async function signInWithPassword(formData: FormData): Promise<AuthResult
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-  return { error: error?.message ?? null };
+  if (error) {
+    console.error("[signInWithPassword]", error);
+    return { error: "Не удалось войти. Проверь почту и пароль." };
+  }
+
+  return { error: null };
 }
 
 export async function signUpWithPassword(formData: FormData): Promise<AuthResult> {
@@ -40,7 +50,8 @@ export async function signUpWithPassword(formData: FormData): Promise<AuthResult
   const { data, error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    return { error: error.message };
+    console.error("[signUpWithPassword]", error);
+    return { error: "Не удалось зарегистрироваться. Попробуй ещё раз." };
   }
 
   // Если email confirmation выключен — Supabase сразу выдаёт сессию,
@@ -51,10 +62,9 @@ export async function signUpWithPassword(formData: FormData): Promise<AuthResult
   if (data.session && data.user) {
     const { error: ensureError } = await ensureBfgProfile(supabase, data.user);
     if (ensureError) {
-      // Аккаунт создан, но BFG-инициализация упала — сообщаем наверх,
-      // чтобы UI не делал вид, будто всё ок. Сама ошибка уже залогирована
-      // внутри ensureBfgProfile.
-      return { error: ensureError };
+      // Аккаунт создан, но BFG-инициализация упала — сообщаем наверх
+      // спокойным сообщением; подробности уже залогированы в ensureBfgProfile.
+      return { error: "Аккаунт создан, но не удалось подготовить профиль. Попробуй войти ещё раз." };
     }
   }
 
@@ -64,5 +74,9 @@ export async function signUpWithPassword(formData: FormData): Promise<AuthResult
 export async function signOut(): Promise<AuthResult> {
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signOut();
-  return { error: error?.message ?? null };
+  if (error) {
+    console.error("[signOut]", error);
+    return { error: "Сейчас не получилось выйти. Попробуй ещё раз." };
+  }
+  return { error: null };
 }

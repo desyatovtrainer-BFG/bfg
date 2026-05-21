@@ -25,8 +25,10 @@ export {
   getAvatarEvolutionForLevel,
   getAvatarFormLabel,
   getAvatarStageFlavor,
+  getEvolutionProgress,
   hasEvolved,
   type AvatarEvolution,
+  type EvolutionProgress,
 } from "./avatar-evolution";
 
 export { awardXp, type AwardXpInput, type AwardXpResult } from "./award-xp";

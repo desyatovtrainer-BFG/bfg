@@ -25,31 +25,44 @@ const section = {
   },
 };
 
-/** Демо-состояние: позже заменить на данные с бэкенда / стора */
-const DEMO = {
-  level: 12,
-  title: "Сияющий искатель",
-  xpInLevel: 3120,
-  xpForNextLevel: 3600,
-  motivationalStatus:
-    "Ты держишь ритм сильнее, чем вчера. Каждое действие — голос вселенной BFG: «ты можешь ещё».",
-  streakDays: 12,
-  streakProtection:
-    "Щит серии активен: сегодняшний вход уже засчитан. Пропуск дня не обнуляет путь — но пламя станет тише.",
-  streakMotivation:
-    "Возвращайся завтра — и пламя снова взметнется выше. Ты создаёшь привычку побеждать.",
-  dailyXp: 150,
-  streakBonusXp: 50,
+export type ProgressionHubProps = {
+  level: number;
+  /** Подпись текущей формы аватара (русская). */
+  title: string;
+  xpInLevel: number;
+  xpForNextLevel: number;
+  streakDays: number;
+  /** Размер дневной награды (XP) — из XP_REWARDS, считается на сервере. */
+  dailyXp: number;
+  /** Размер бонуса за серию (XP) — из XP_REWARDS. */
+  streakBonusXp: number;
   evolution: {
-    current: "Пульс поля",
-    next: "Страж потока",
-    progress: 67,
-    flavor:
-      "Тело запоминает смелость. Чем стабильнее движение, тем ярче следующий силуэт — это не косметика, а твоя история силы.",
-  },
+    currentFormLabel: string;
+    nextFormLabel: string;
+    progressPercent: number;
+    flavorText: string;
+  };
+  /** Короткие эмоциональные тексты — собраны на сервере из состояния прогрессии. */
+  motivationalStatus: string;
+  statusTag: string;
+  streakProtection: string;
+  streakMotivation: string;
 };
 
-export function ProgressionHub() {
+export function ProgressionHub({
+  level,
+  title,
+  xpInLevel,
+  xpForNextLevel,
+  streakDays,
+  dailyXp,
+  streakBonusXp,
+  evolution,
+  motivationalStatus,
+  statusTag,
+  streakProtection,
+  streakMotivation,
+}: ProgressionHubProps) {
   const prefersReduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -93,39 +106,39 @@ export function ProgressionHub() {
 
         <motion.div variants={section} className="mb-5">
           <UserLevelCard
-            level={DEMO.level}
-            title={DEMO.title}
-            xpCurrent={DEMO.xpInLevel}
-            xpToNextLevel={DEMO.xpForNextLevel}
-            motivationalStatus={DEMO.motivationalStatus}
-            statusTag="На волне прогресса"
+            level={level}
+            title={title}
+            xpCurrent={xpInLevel}
+            xpToNextLevel={xpForNextLevel}
+            motivationalStatus={motivationalStatus}
+            statusTag={statusTag}
             reducedMotion={reducedMotion}
           />
         </motion.div>
 
         <motion.div variants={section} className="mb-5">
           <DailyRewardPanel
-            dailyXp={DEMO.dailyXp}
-            streakBonusXp={DEMO.streakBonusXp}
+            dailyXp={dailyXp}
+            streakBonusXp={streakBonusXp}
             reducedMotion={reducedMotion}
           />
         </motion.div>
 
         <motion.div variants={section} className="mb-5">
           <StreakPanel
-            days={DEMO.streakDays}
-            protectionHint={DEMO.streakProtection}
-            motivationalLine={DEMO.streakMotivation}
+            days={streakDays}
+            protectionHint={streakProtection}
+            motivationalLine={streakMotivation}
             reducedMotion={reducedMotion}
           />
         </motion.div>
 
         <motion.div variants={section} className="mb-8">
           <AvatarEvolutionBlock
-            currentFormLabel={DEMO.evolution.current}
-            nextFormLabel={DEMO.evolution.next}
-            progressPercent={DEMO.evolution.progress}
-            flavorText={DEMO.evolution.flavor}
+            currentFormLabel={evolution.currentFormLabel}
+            nextFormLabel={evolution.nextFormLabel}
+            progressPercent={evolution.progressPercent}
+            flavorText={evolution.flavorText}
             reducedMotion={reducedMotion}
           />
         </motion.div>

@@ -77,7 +77,7 @@ export async function completeDailyQuestAction(
   // профиля, чтобы UI ровно перешёл в reward_claimed.
   if (insertError && insertError.code !== "23505") {
     console.error("[completeDailyQuestAction] insert", insertError);
-    return { data: null, error: insertError.message };
+    return { data: null, error: "Не удалось закрыть контракт." };
   }
 
   if (insertError && insertError.code === "23505") {
@@ -105,7 +105,8 @@ export async function completeDailyQuestAction(
   });
 
   if (error || !data) {
-    return { data: null, error: error ?? "Не удалось начислить XP." };
+    console.error("[completeDailyQuestAction] awardXp", error);
+    return { data: null, error: "Не удалось начислить XP." };
   }
 
   // Закрытие квеста — такое же «зачётное» действие, как и тренировка.

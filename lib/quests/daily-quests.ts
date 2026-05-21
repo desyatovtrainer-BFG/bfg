@@ -10,7 +10,7 @@
  * не цепочка достижений.
  */
 
-import type { DailyQuest, QuestKind, QuestProgress, QuestRewards } from "@/app/components/daily-quests/types";
+import type { DailyQuest, QuestKind, QuestProgress, QuestRewards } from "./types";
 
 export type DailyQuestTemplate = {
   id: string;

@@ -3,7 +3,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { DevXpTestButton } from "./dev-xp-test-button";
 import { GameButton } from "../ui/game-button";
 import { GameCard } from "../ui/game-card";
 
@@ -306,9 +305,6 @@ export function DashboardScreen({
                 AI помощник
               </GameButton>
             </div>
-            {/* DEV-only: ручной тест XP-прогрессии. Удалить вместе с
-                lib/progression/dev-actions.ts перед релизом. */}
-            <DevXpTestButton />
           </div>
         </motion.section>
       </motion.div>

@@ -3,11 +3,17 @@
 /**
  * Server Action: завершение тренировки.
  *
- * MVP-петля: нажали «Завершить» → начислили XP через awardXp →
- * собрали короткий ответ для UI (XP, новый уровень, эволюция,
- * реплика компаньона). Никакой истории тренировок и никакого
- * планирования сессий — это придёт, когда у тренировок появятся
- * настоящие данные.
+ * MVP-петля: нажали «Завершить» → проверили идемпотентность в БД →
+ * начислили XP через awardXp → собрали короткий ответ для UI
+ * (XP, новый уровень, эволюция, реплика компаньона). Никакой истории
+ * тренировок и никакого планирования сессий — это придёт, когда
+ * у тренировок появятся настоящие данные.
+ *
+ * Защита от XP-фарма: вставляем строку в `workout_completions` ДО
+ * начисления XP. UNIQUE (user_id, workout_id, completed_on) гарантирует,
+ * что повторный клик по «Завершить» одной и той же тренировки в течение
+ * дня вернёт `alreadyCompleted: true` и XP больше не начислится.
+ * См. supabase/migrations/0006_workout_completions.sql.
  *
  * Авторизация: `awardXp` ходит в Supabase под сессией текущего юзера,
  * поэтому RLS — наш страховочный слой. Здесь дополнительно отсекаем
@@ -18,7 +24,10 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/get-user";
 import {
   awardXp,
+  getAvatarEvolutionForLevel,
+  todayUtcISO,
   touchStreak,
+  XP_REWARDS,
   type AwardXpResult,
   type StreakUpdate,
 } from "@/lib/progression";
@@ -35,10 +44,13 @@ export type CompleteWorkoutResponse = {
         workoutId: string;
         workoutTitle: string;
         companion: CompanionFeedback;
+        /** true, если эта тренировка уже была закрыта сегодня и XP не начислялся повторно. */
+        alreadyCompleted: boolean;
         /**
          * Снимок стрика после действия. null, если touchStreak упал —
          * UI просто не покажет обновление серии, прогрессия всё равно
-         * начислена.
+         * начислена. Также null в ветке `alreadyCompleted`, где стрик
+         * уже был учтён ранее сегодня.
          */
         streak: StreakUpdate | null;
       })
@@ -65,12 +77,57 @@ export async function completeWorkoutAction(
     return { data: null, error: "Тренировка не найдена." };
   }
 
+  const today = todayUtcISO();
+
+  // Идемпотентный шаг: вставляем запись о завершении ДО awardXp. UNIQUE
+  // (user_id, workout_id, completed_on) даёт 23505 на повторе — это не
+  // ошибка, а корректное «уже было сегодня». XP не начисляем, отдаём
+  // текущий снимок прогрессии, как при первом закрытии.
+  const xpAmount = XP_REWARDS.WORKOUT_COMPLETE;
+  const { error: insertError } = await supabase
+    .from("workout_completions")
+    .insert({
+      user_id: user.id,
+      workout_id: workout.id,
+      completed_on: today,
+      xp_awarded: xpAmount,
+    });
+
+  if (insertError && insertError.code === "23505") {
+    const snapshot = await readProgressionSnapshot(supabase, user.id);
+    if (!snapshot) {
+      return { data: null, error: "Не удалось прочитать профиль." };
+    }
+    const companion = buildCompanionFeedback({
+      leveledUp: false,
+      evolved: false,
+      streak: undefined,
+    });
+    return {
+      data: {
+        ...snapshot,
+        workoutId: workout.id,
+        workoutTitle: workout.title,
+        companion,
+        alreadyCompleted: true,
+        streak: null,
+      },
+      error: null,
+    };
+  }
+
+  if (insertError) {
+    console.error("[completeWorkoutAction] insert", insertError);
+    return { data: null, error: "Не удалось завершить тренировку." };
+  }
+
   const { data, error } = await awardXp(supabase, user.id, {
     source: "WORKOUT_COMPLETE",
   });
 
   if (error || !data) {
-    return { data: null, error: error ?? "Не удалось начислить XP." };
+    console.error("[completeWorkoutAction] awardXp", error);
+    return { data: null, error: "Не удалось начислить XP." };
   }
 
   // Серия активных дней — отдельный апдейт. Падение тут не должно ломать
@@ -104,8 +161,43 @@ export async function completeWorkoutAction(
       workoutId: workout.id,
       workoutTitle: workout.title,
       companion,
+      alreadyCompleted: false,
       streak: streakRes.data,
     },
     error: null,
+  };
+}
+
+/**
+ * Снимок XP/уровня без начисления — нужен только для пути «уже закрыт сегодня»,
+ * чтобы клиент мог показать тот же результат, что увидел бы при первом нажатии.
+ * Структурно совпадает с readProgressionSnapshot в lib/quests/actions.ts.
+ */
+async function readProgressionSnapshot(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+): Promise<AwardXpResult | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("xp, level")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) {
+      console.error("[completeWorkoutAction] readProgressionSnapshot", error);
+    }
+    return null;
+  }
+
+  const level = Number(data.level ?? 1);
+  return {
+    xpGained: 0,
+    totalXp: Number(data.xp ?? 0),
+    previousLevel: level,
+    newLevel: level,
+    leveledUp: false,
+    evolved: false,
+    evolution: getAvatarEvolutionForLevel(level),
   };
 }

@@ -51,6 +51,55 @@ export function hasEvolved(previousLevel: number, newLevel: number): boolean {
     getAvatarEvolutionForLevel(newLevel).stage;
 }
 
+export type EvolutionProgress = {
+  current: AvatarEvolution;
+  /** null, если current — уже последняя стадия лестницы. */
+  next: AvatarEvolution | null;
+  /** 0..100 — прогресс между порогами текущей и следующей стадии. На максимуме = 100. */
+  progressPercent: number;
+};
+
+/**
+ * Прогресс эволюции для UI: где между current и next стадиями находится игрок
+ * по своему текущему `level`. Чистая функция от уровня — поэтому годится
+ * и для серверного рендера, и для тестов, и для будущих recomputation-задач.
+ */
+export function getEvolutionProgress(level: number): EvolutionProgress {
+  let currentIdx = 0;
+  for (let i = 0; i < EVOLUTION_LADDER.length; i += 1) {
+    if (level >= EVOLUTION_LADDER[i]!.minLevel) currentIdx = i;
+  }
+  const currentTier = EVOLUTION_LADDER[currentIdx]!;
+  const nextTier = EVOLUTION_LADDER[currentIdx + 1];
+
+  const current: AvatarEvolution = {
+    stage: currentTier.stage,
+    form: currentTier.form,
+    aura: currentTier.aura,
+    glowIntensity: currentTier.glowIntensity,
+  };
+
+  if (!nextTier) {
+    return { current, next: null, progressPercent: 100 };
+  }
+
+  const span = nextTier.minLevel - currentTier.minLevel;
+  const into = Math.max(0, level - currentTier.minLevel);
+  const progressPercent =
+    span <= 0 ? 0 : Math.min(100, Math.max(0, Math.round((into / span) * 100)));
+
+  return {
+    current,
+    next: {
+      stage: nextTier.stage,
+      form: nextTier.form,
+      aura: nextTier.aura,
+      glowIntensity: nextTier.glowIntensity,
+    },
+    progressPercent,
+  };
+}
+
 /**
  * Русские подписи стадий — UI рисует их рядом с аватаром.
  * Маппинг по `form`, чтобы не зависеть от номера стадии при правках лестницы.

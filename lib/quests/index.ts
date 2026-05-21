@@ -21,3 +21,12 @@ export {
   completeDailyQuestAction,
   type CompleteDailyQuestResponse,
 } from "./actions";
+
+export {
+  QUEST_KIND_LABEL,
+  type DailyQuest,
+  type QuestKind,
+  type QuestProgress,
+  type QuestRewards,
+  type QuestState,
+} from "./types";

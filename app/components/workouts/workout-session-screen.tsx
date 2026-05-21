@@ -467,14 +467,16 @@ function DesktopArrows({
 }
 
 function FeedbackOverlay({ feedback }: { feedback: FeedbackState }) {
-  const { companion, xpGained, newLevel, leveledUp, evolved, evolution } =
+  const { companion, xpGained, newLevel, leveledUp, evolved, evolution, alreadyCompleted } =
     feedback;
 
-  const headline = evolved
-    ? "Эволюция аватара"
-    : leveledUp
-      ? "Новый уровень"
-      : "Тренировка завершена";
+  const headline = alreadyCompleted
+    ? "Сегодня уже засчитано"
+    : evolved
+      ? "Эволюция аватара"
+      : leveledUp
+        ? "Новый уровень"
+        : "Тренировка завершена";
 
   return (
     <motion.div
@@ -499,7 +501,11 @@ function FeedbackOverlay({ feedback }: { feedback: FeedbackState }) {
         </p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <FeedbackChip>+{xpGained} опыта</FeedbackChip>
+          {alreadyCompleted ? (
+            <FeedbackChip>XP уже начислен</FeedbackChip>
+          ) : (
+            <FeedbackChip>+{xpGained} опыта</FeedbackChip>
+          )}
           {leveledUp ? (
             <FeedbackChip accent="violet">Уровень {newLevel}</FeedbackChip>
           ) : null}

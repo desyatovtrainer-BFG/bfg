@@ -1,4 +1,13 @@
-/** Модель ежедневных квестов BFG (frontend foundation). */
+/**
+ * Типы ежедневных квестов (MVP).
+ *
+ * Живут в `lib/quests/`, потому что используются и серверным слоем
+ * (каталог в `daily-quests.ts`, action в `actions.ts`), и UI-слоем
+ * (`app/components/daily-quests/*`). По правилам архитектуры BFG
+ * cross-component типы фичи лежат в `lib/<feature>/types.ts`, а
+ * `app/components/<feature>` импортирует их из публичной поверхности
+ * через `@/lib/quests`.
+ */
 
 export type QuestKind =
   | "steps"

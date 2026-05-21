@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useState } from "react";
+import type { DailyQuest, QuestKind, QuestState } from "@/lib/quests";
 import { GameButton } from "../ui/game-button";
-import type { DailyQuest, QuestKind, QuestState } from "./types";
 
 export type QuestCardProps = {
   quest: DailyQuest;
