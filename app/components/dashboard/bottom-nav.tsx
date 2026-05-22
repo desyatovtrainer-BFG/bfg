@@ -14,6 +14,10 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  // Скрываем навбар на экране сессии тренировки — /workouts/[id].
+  // Список тренировок (/workouts) навбар сохраняет.
+  if (pathname.startsWith("/workouts/")) return null;
+
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.08] bg-black/75 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-2xl"

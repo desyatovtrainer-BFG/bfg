@@ -22,7 +22,7 @@ const WORKOUT_COLUMNS =
   "id, title, description, difficulty, duration_min, category, thumbnail_url, video_provider, video_id, is_active";
 
 const WORKOUT_EXERCISE_COLUMNS =
-  "id, workout_id, order_index, title, description, duration_sec, video_provider, video_id, is_active";
+  "id, workout_id, order_index, title, description, duration_sec, video_provider, video_id, is_active, superset_group_id";
 
 export async function listActiveWorkouts(
   supabase: SupabaseClient,

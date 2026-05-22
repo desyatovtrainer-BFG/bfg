@@ -42,3 +42,8 @@ export {
   completeWorkoutAction,
   type CompleteWorkoutResponse,
 } from "./actions";
+export {
+  detectSupersets,
+  type SupersetInfo,
+  type SupersetPosition,
+} from "./superset";

@@ -100,6 +100,10 @@ export function formatWorkoutDuration(durationMin: number): string {
  * (см. миграцию 0005). Поля workouts.video_provider / workouts.video_id
  * больше не используются в UI сессии, но в схеме остаются — миграции
  * в проде идут вручную, и сносить колонки лишний раз опасно.
+ *
+ * supersetGroupId (миграция 0007): два упражнения с одинаковым
+ * ненулевым значением образуют суперсет. Текущие тренировки имеют null —
+ * поведение сессии не меняется. Группировка реализуется в PR8+.
  */
 export type WorkoutExercise = {
   id: string;
@@ -112,6 +116,8 @@ export type WorkoutExercise = {
   videoProvider: WorkoutVideoProvider;
   videoId: string | null;
   isActive: boolean;
+  /** null → обычное упражнение. Ненулевой UUID → часть суперсета. */
+  supersetGroupId: string | null;
 };
 
 export type WorkoutExerciseRow = {
@@ -124,6 +130,7 @@ export type WorkoutExerciseRow = {
   video_provider: WorkoutVideoProvider;
   video_id: string | null;
   is_active: boolean;
+  superset_group_id: string | null;
 };
 
 export function mapWorkoutExerciseRow(
@@ -139,6 +146,7 @@ export function mapWorkoutExerciseRow(
     videoProvider: row.video_provider,
     videoId: row.video_id,
     isActive: row.is_active,
+    supersetGroupId: row.superset_group_id,
   };
 }
 
