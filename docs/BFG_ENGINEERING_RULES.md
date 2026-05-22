@@ -198,7 +198,50 @@ BFG must work in Russia without a mandatory VPN. This is a product constraint, n
 
 ---
 
-## 15. When in doubt
+## 15. AI Cost Optimization Rules
+
+- **Sonnet is the default model.** Use it for all routine tasks: code, fixes, refactors, reviews.
+- **Opus only for** architecture decisions, security audits, or cross-cutting refactors requiring sustained multi-step reasoning.
+- Keep diffs small and focused whenever possible.
+- ❌ Do not read the entire `docs/` folder unless the task explicitly spans multiple documents. Read only the relevant companion doc.
+- ❌ Do not attach full files when a targeted snippet (with `offset`/`limit`) suffices.
+- ❌ Do not regenerate large boilerplate blocks when a surgical edit will do.
+
+---
+
+## 16. Agent Session Rules
+
+- **One logical task per agent session.** Start a new chat when the phase changes (e.g., "design schema" → new chat → "wire server action").
+- ❌ Do not pile unrelated work into a single conversation. Accumulated stale context increases cost and error rate.
+- When a session exceeds ~30 turns or the accumulated diff is hard to follow, start a fresh agent.
+- `docs/` is persistent project memory. Write decisions there instead of repeating context across sessions.
+- ❌ Do not carry forward a session that contains superseded, contradicted, or irrelevant context.
+
+---
+
+## 17. Prompt Engineering Rules
+
+- **Approval before edit.** For non-trivial changes: describe the plan, wait for confirmation, then execute. Never rewrite unrelated code silently.
+- One clear goal per prompt. Avoid prompts that combine planning, implementation, and verification in a single shot.
+- Provide explicit constraints upfront (which files may be touched, which rules apply) rather than correcting after the fact.
+- Reference specific docs or file paths instead of vague descriptions (`docs/BFG_SECURITY.md §3` beats "follow the security rules").
+- When correcting the agent, provide a minimal counter-example — not a paragraph of explanation.
+- ❌ Avoid giant context-dump prompts. If the background exceeds ~200 words, it probably belongs in a `docs/` file.
+
+---
+
+## 18. Context Management Rules
+
+- Pin only files directly relevant to the current task. Irrelevant open files consume context and introduce noise.
+- ❌ Do not include unrelated open editors in the agent context window.
+- Write decisions, constraints, and non-obvious rationale into `docs/` so any future session can recover them with a single targeted read.
+- Prefer dense structured docs (bullet lists, tables) over prose — agents parse density better than paragraphs.
+- Assume every new session starts cold. Provide one authoritative reference per topic; do not rely on conversational memory carrying over.
+- When a doc grows beyond ~300 lines, split it by concern. Long docs poison context as much as long files do.
+
+---
+
+## 19. When in doubt
 
 1. Re-read [`BFG_MVP_SCOPE.md`](./BFG_MVP_SCOPE.md). Is this in scope?
 2. Re-read [`BFG_SECURITY.md`](./BFG_SECURITY.md). Does this trust the frontend with anything it shouldn't?
