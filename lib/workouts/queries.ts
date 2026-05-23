@@ -31,6 +31,7 @@ export async function listActiveWorkouts(
     .from("workouts")
     .select(WORKOUT_COLUMNS)
     .eq("is_active", true)
+    .order("display_order", { ascending: true })
     .order("created_at", { ascending: true });
 
   if (error) {
