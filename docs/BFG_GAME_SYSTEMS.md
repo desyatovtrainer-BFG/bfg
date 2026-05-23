@@ -147,6 +147,8 @@ Catalog defined in code (`lib/quests/daily-quests.ts`). Completions persisted to
 - Video provider on MVP is `none` or `kinescope`. Anything else breaks the Russia constraint. See [`BFG_ENGINEERING_RULES.md`](./BFG_ENGINEERING_RULES.md) §10.
 - Embed URLs are **composed in code** from `video_provider + video_id`. Never store full embed URLs in the DB.
 - The session screen renders `workout_exercises`, in `order_index` ASC. `workouts.video_*` fields are kept for compatibility but unused.
+- Exercise prescriptions are **time-based** (`duration_sec`) or **reps-based** (reps expressed as ranges such as "10–12", "15–20"). For reps-based exercises, `duration_sec` can still hold the estimated completion time for session pacing and UI flow. Circuit workouts are allowed; "circuit" describes order/structure, not a time-pressure mode.
+- **No AMRAP in the near architecture.** "Do as much as possible in N minutes" requires active timers, rep counters, and score tracking that are out of MVP scope. Use fixed time, a time range, or a reps range instead.
 - On completion: a Server Action (`lib/workouts/actions.ts`) grants `WORKOUT_COMPLETE` XP, touches streak, and optionally produces a companion reaction (see [`BFG_AI_COMPANION.md`](./BFG_AI_COMPANION.md)).
 - Future: `public.workout_completions` log replaces ad-hoc completion handling. Until then, double-completion is prevented at the Server Action layer.
 
