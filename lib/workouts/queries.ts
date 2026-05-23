@@ -17,6 +17,7 @@ import {
   type WorkoutExerciseRow,
   type WorkoutRow,
 } from "./types";
+import { validateSupersetContent } from "./superset";
 
 const WORKOUT_COLUMNS =
   "id, title, description, difficulty, duration_min, category, thumbnail_url, video_provider, video_id, is_active";
@@ -86,7 +87,13 @@ export async function listWorkoutExercises(
     return [];
   }
 
-  return ((data ?? []) as WorkoutExerciseRow[]).map(mapWorkoutExerciseRow);
+  const exercises = ((data ?? []) as WorkoutExerciseRow[]).map(mapWorkoutExerciseRow);
+
+  for (const violation of validateSupersetContent(workoutId, exercises)) {
+    console.warn("[listWorkoutExercises]", violation);
+  }
+
+  return exercises;
 }
 
 /**
