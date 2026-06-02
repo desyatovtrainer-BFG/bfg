@@ -28,26 +28,18 @@ export type DailyQuestTemplate = {
 
 export const DAILY_QUESTS: ReadonlyArray<DailyQuestTemplate> = [
   {
-    id: "steps",
-    kind: "steps",
-    title: "Пройти шаги",
-    subtitle: "Поле силы под ногами — каждый шаг кормит твою легенду.",
-    rewards: { xp: 80, coins: 25, streakBoostPercent: 2 },
-    defaultProgress: { current: 7800, max: 10000 },
-  },
-  {
     id: "workout",
     kind: "workout",
     title: "Сделать тренировку",
     subtitle: "Один сеанс — и ты уже не тот, кто проснулся утром.",
-    rewards: { xp: 140, coins: 45, streakBoostPercent: 5 },
+    rewards: { xp: 140 },
   },
   {
     id: "stretch",
     kind: "stretch",
     title: "Выполнить растяжку",
     subtitle: "Мягкое продление — чтобы завтра ударить сильнее.",
-    rewards: { xp: 60, coins: 20 },
+    rewards: { xp: 60 },
     unlocksAfter: "workout",
     lockReason:
       "Контракт скрыт, пока не зафиксирована тренировка. Сначала закрой «Тренировку» — и путь откроется.",
@@ -58,14 +50,14 @@ export const DAILY_QUESTS: ReadonlyArray<DailyQuestTemplate> = [
     kind: "streak_hold",
     title: "Удержать серию",
     subtitle: "Не дай пламени дня погаснуть — один вход, одно действие.",
-    rewards: { xp: 50, coins: 15, streakBoostPercent: 8 },
+    rewards: { xp: 50 },
   },
   {
     id: "hydration",
     kind: "hydration",
     title: "Гидратация",
     subtitle: "Вода — как мана: без неё заклинания тела слабеют.",
-    rewards: { xp: 40, coins: 18 },
+    rewards: { xp: 40 },
     defaultProgress: { current: 1200, max: 2000, unitLabel: "мл" },
   },
 ];

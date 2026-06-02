@@ -67,20 +67,6 @@ function RewardsLine({ rewards }: { rewards: DailyQuest["rewards"] }) {
   return (
     <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs [font-family:var(--font-onest)]">
       <span className="font-semibold tabular-nums text-amber-200/95">+{rewards.xp} XP</span>
-      <span className="text-zinc-500">·</span>
-      <span className="font-semibold tabular-nums text-amber-100/90">
-        +{rewards.coins}{" "}
-        <span className="text-amber-400/90" aria-hidden>
-          ◆
-        </span>{" "}
-        монет
-      </span>
-      {rewards.streakBoostPercent != null ? (
-        <>
-          <span className="text-zinc-500">·</span>
-          <span className="text-rose-200/85">серия +{rewards.streakBoostPercent}%</span>
-        </>
-      ) : null}
     </div>
   );
 }

@@ -20,9 +20,6 @@ export type QuestState = "locked" | "active" | "completed" | "reward_claimed";
 
 export type QuestRewards = {
   xp: number;
-  coins: number;
-  /** Доп. процент к множителю серии (визуал), целое */
-  streakBoostPercent?: number;
 };
 
 export type QuestProgress = {
