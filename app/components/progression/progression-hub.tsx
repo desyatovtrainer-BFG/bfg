@@ -45,7 +45,7 @@ export type ProgressionHubProps = {
   /** Короткие эмоциональные тексты — собраны на сервере из состояния прогрессии. */
   motivationalStatus: string;
   statusTag: string;
-  streakProtection: string;
+  streakNote: string;
   streakMotivation: string;
 };
 
@@ -60,7 +60,7 @@ export function ProgressionHub({
   evolution,
   motivationalStatus,
   statusTag,
-  streakProtection,
+  streakNote,
   streakMotivation,
 }: ProgressionHubProps) {
   const prefersReduced = useReducedMotion();
@@ -127,7 +127,7 @@ export function ProgressionHub({
         <motion.div variants={section} className="mb-5">
           <StreakPanel
             days={streakDays}
-            protectionHint={streakProtection}
+            streakNote={streakNote}
             motivationalLine={streakMotivation}
             reducedMotion={reducedMotion}
           />

@@ -5,15 +5,15 @@ import { GameCard } from "../ui/game-card";
 
 export type StreakPanelProps = {
   days: number;
-  /** Текст про «защиту» серии */
-  protectionHint: string;
+  /** Нейтральный текст о том, как работает серия. */
+  streakNote: string;
   motivationalLine: string;
   reducedMotion?: boolean;
 };
 
 export function StreakPanel({
   days,
-  protectionHint,
+  streakNote,
   motivationalLine,
   reducedMotion = false,
 }: StreakPanelProps) {
@@ -57,16 +57,13 @@ export function StreakPanel({
           </div>
         </div>
 
-        <div className="flex items-start gap-3 rounded-xl border border-white/[0.07] bg-black/30 px-3 py-2.5 sm:max-w-[14rem]">
-          <ShieldIcon className="mt-0.5 h-8 w-8 shrink-0 text-sky-400/90" />
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-300/90 [font-family:var(--font-onest)]">
-              Защита серии
-            </p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-400 [font-family:var(--font-onest)]">
-              {protectionHint}
-            </p>
-          </div>
+        <div className="rounded-xl border border-white/[0.07] bg-black/30 px-3 py-2.5 sm:max-w-[14rem]">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400 [font-family:var(--font-onest)]">
+            О серии
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-zinc-400 [font-family:var(--font-onest)]">
+            {streakNote}
+          </p>
         </div>
       </div>
 
@@ -74,27 +71,5 @@ export function StreakPanel({
         {motivationalLine}
       </p>
     </GameCard>
-  );
-}
-
-function ShieldIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden>
-      <path
-        d="M16 3L6 7v9c0 6.5 4.3 12.5 10 14 5.7-1.5 10-7.5 10-14V7l-10-4z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-        className="opacity-90"
-      />
-      <path
-        d="M16 9v8l4 2"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="opacity-60"
-      />
-    </svg>
   );
 }

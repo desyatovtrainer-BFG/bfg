@@ -60,7 +60,7 @@ export default async function ProgressPage() {
       }}
       motivationalStatus={buildMotivationalStatus(lp.level, streak)}
       statusTag={buildStatusTag(streak, lp.progress)}
-      streakProtection={buildStreakProtection(streak)}
+      streakNote={buildStreakNote(streak)}
       streakMotivation={buildStreakMotivation(streak)}
     />
   );
@@ -115,7 +115,7 @@ function buildStatusTag(streak: number, progress: number): string {
   return "В резонансе с целью";
 }
 
-function buildStreakProtection(streak: number): string {
+function buildStreakNote(streak: number): string {
   if (streak === 0) {
     return "Серия ещё не запущена. Сделай шаг сегодня — пламя начнёт гореть.";
   }

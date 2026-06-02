@@ -302,7 +302,7 @@ export function DashboardScreen({
                 Аватар
               </GameButton>
               <GameButton href="/companion" variant="secondary" className="w-full py-3 text-sm">
-                AI помощник
+                Компаньон
               </GameButton>
             </div>
           </div>
