@@ -57,6 +57,7 @@ Per-user state. `id` = `auth.users.id`.
 | `xp`                      | `integer`   | Total XP. Server-only writes.                  |
 | `level`                   | `integer`   | Derived from XP via `calculateLevel`.          |
 | `streak`                  | `integer`   | Consecutive active days.                       |
+| `title`                   | `text`      | Display label set at profile creation. Default: `'Начало пути'`. |
 | `last_active_on`          | `date`      | Last day that "counted" toward streak.         |
 | `subscription_status`     | `text`      | `free_trial` \| `active` \| `expired`          |
 | `trial_started_at`        | `timestamptz` | Set at profile creation; drives trial expiry. |
@@ -68,7 +69,7 @@ RLS:
 - No `insert` from the client — profile is bootstrapped via `ensureBfgProfile` server-side.
 - No `delete`.
 
-Migrations: `0002_profile_last_active.sql`, `0003_subscription.sql`.
+Migrations: `0000_initial_schema.sql`, `0002_profile_last_active.sql`, `0003_subscription.sql`.
 
 ### 3.3 `public.avatars`
 Per-user avatar visual state.
@@ -82,6 +83,8 @@ Per-user avatar visual state.
 | `glow_intensity`  | `integer` | 0–100, drives shader-ish glow.         |
 
 RLS: `select` and `update` own row only. Server (under user session) writes via `awardXp` when the level crosses an evolution threshold.
+
+Migration: `0000_initial_schema.sql`.
 
 ### 3.4 `public.daily_quest_completions`
 One row per (`user`, `quest_id`, `date`). Idempotent by unique constraint.
