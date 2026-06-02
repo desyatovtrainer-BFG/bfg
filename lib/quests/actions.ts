@@ -63,6 +63,16 @@ export async function completeDailyQuestAction(
   const supabase = await createSupabaseServerClient();
   const today = todayISO();
 
+  // Снимок XP до INSERT: сохраняется в записи о завершении. В ветке 23505
+  // позволяет определить, был ли XP начислен при первой попытке, и
+  // восстановить его, если нет. См. логику восстановления ниже.
+  const { data: preProfile } = await supabase
+    .from("profiles")
+    .select("xp")
+    .eq("id", user.id)
+    .maybeSingle();
+  const xpBefore = Number(preProfile?.xp ?? 0);
+
   const { error: insertError } = await supabase
     .from("daily_quest_completions")
     .insert({
@@ -70,6 +80,7 @@ export async function completeDailyQuestAction(
       quest_id: quest.id,
       completed_on: today,
       xp_awarded: quest.rewards.xp,
+      xp_before: xpBefore,
     });
 
   // 23505 = unique_violation → квест уже закрыт сегодня. Это нормально:
@@ -81,21 +92,73 @@ export async function completeDailyQuestAction(
   }
 
   if (insertError && insertError.code === "23505") {
+    // Запись о завершении уже существует. Проверяем, был ли XP начислен
+    // при первой попытке: сравниваем текущий xp профиля с xp_before +
+    // xp_awarded из существующей записи. Если XP не был начислен —
+    // восстанавливаем его здесь же, не требуя повторного действия от юзера.
+    const { data: existingRow } = await supabase
+      .from("daily_quest_completions")
+      .select("xp_before")
+      .eq("user_id", user.id)
+      .eq("quest_id", quest.id)
+      .eq("completed_on", today)
+      .maybeSingle();
+
     const snapshot = await readProgressionSnapshot(supabase, user.id);
+    if (!snapshot) {
+      return { data: null, error: "Не удалось прочитать профиль." };
+    }
+
+    const recordXpBefore = Number(existingRow?.xp_before ?? 0);
+    const xpWasApplied = snapshot.totalXp >= recordXpBefore + quest.rewards.xp;
+
+    if (xpWasApplied) {
+      return {
+        data: {
+          ...snapshot,
+          questId: quest.id,
+          questTitle: quest.title,
+          alreadyCompleted: true,
+          // Стрик за сегодня уже был зачтён первым успешным действием —
+          // повторно трогать БД не нужно.
+          streak: null,
+        },
+        error: null,
+      };
+    }
+
+    // XP не был начислен при первой попытке — восстанавливаем.
+    console.warn("[completeDailyQuestAction] recovering XP after prior awardXp failure");
+    const { data: recoveredData, error: recoveredError } = await awardXp(
+      supabase,
+      user.id,
+      { amount: quest.rewards.xp, reason: `daily_quest:${quest.id}` },
+    );
+
+    if (recoveredError || !recoveredData) {
+      console.error("[completeDailyQuestAction] recovery awardXp", recoveredError);
+      return { data: null, error: "Не удалось начислить XP." };
+    }
+
+    const recoveredStreakRes = await touchStreak(supabase, user.id);
+    if (recoveredStreakRes.error) {
+      console.error("[completeDailyQuestAction] recovery touchStreak", recoveredStreakRes.error);
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/progress");
+    revalidatePath("/avatar");
+    revalidatePath("/quests");
+
     return {
-      data: snapshot
-        ? {
-            ...snapshot,
-            questId: quest.id,
-            questTitle: quest.title,
-            alreadyCompleted: true,
-            // Стрик за сегодня уже был зачтён первым успешным действием —
-            // повторно трогать БД не нужно. UI показывает текущее значение
-            // из `profiles` (через DashboardPage / прогресс-экран).
-            streak: null,
-          }
-        : null,
-      error: snapshot ? null : "Не удалось прочитать профиль.",
+      data: {
+        ...recoveredData,
+        questId: quest.id,
+        questTitle: quest.title,
+        alreadyCompleted: false,
+        streak: recoveredStreakRes.data,
+      },
+      error: null,
     };
   }
 

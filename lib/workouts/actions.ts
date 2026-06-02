@@ -79,6 +79,16 @@ export async function completeWorkoutAction(
 
   const today = todayUtcISO();
 
+  // Снимок XP до INSERT: сохраняется в записи о завершении. В ветке 23505
+  // позволяет определить, был ли XP начислен при первой попытке, и
+  // восстановить его, если нет. См. логику восстановления ниже.
+  const { data: preProfile } = await supabase
+    .from("profiles")
+    .select("xp")
+    .eq("id", user.id)
+    .maybeSingle();
+  const xpBefore = Number(preProfile?.xp ?? 0);
+
   // Идемпотентный шаг: вставляем запись о завершении ДО awardXp. UNIQUE
   // (user_id, workout_id, completed_on) даёт 23505 на повторе — это не
   // ошибка, а корректное «уже было сегодня». XP не начисляем, отдаём
@@ -91,26 +101,90 @@ export async function completeWorkoutAction(
       workout_id: workout.id,
       completed_on: today,
       xp_awarded: xpAmount,
+      xp_before: xpBefore,
     });
 
   if (insertError && insertError.code === "23505") {
+    // Запись о завершении уже существует. Проверяем, был ли XP начислен
+    // при первой попытке: сравниваем текущий xp профиля с xp_before +
+    // xp_awarded из существующей записи. Если XP не был начислен —
+    // восстанавливаем его здесь же, не требуя повторного действия от юзера.
+    const { data: existingRow } = await supabase
+      .from("workout_completions")
+      .select("xp_before")
+      .eq("user_id", user.id)
+      .eq("workout_id", workout.id)
+      .eq("completed_on", today)
+      .maybeSingle();
+
     const snapshot = await readProgressionSnapshot(supabase, user.id);
     if (!snapshot) {
       return { data: null, error: "Не удалось прочитать профиль." };
     }
-    const companion = buildCompanionFeedback({
-      leveledUp: false,
-      evolved: false,
-      streak: undefined,
+
+    const recordXpBefore = Number(existingRow?.xp_before ?? 0);
+    const xpWasApplied = snapshot.totalXp >= recordXpBefore + xpAmount;
+
+    if (xpWasApplied) {
+      const companion = buildCompanionFeedback({
+        leveledUp: false,
+        evolved: false,
+        streak: undefined,
+      });
+      return {
+        data: {
+          ...snapshot,
+          workoutId: workout.id,
+          workoutTitle: workout.title,
+          companion,
+          alreadyCompleted: true,
+          streak: null,
+        },
+        error: null,
+      };
+    }
+
+    // XP не был начислен при первой попытке — восстанавливаем.
+    console.warn("[completeWorkoutAction] recovering XP after prior awardXp failure");
+    const { data: recoveredData, error: recoveredError } = await awardXp(
+      supabase,
+      user.id,
+      { source: "WORKOUT_COMPLETE" },
+    );
+
+    if (recoveredError || !recoveredData) {
+      console.error("[completeWorkoutAction] recovery awardXp", recoveredError);
+      return { data: null, error: "Не удалось начислить XP." };
+    }
+
+    const recoveredStreakRes = await touchStreak(supabase, user.id);
+    if (recoveredStreakRes.error) {
+      console.error("[completeWorkoutAction] recovery touchStreak", recoveredStreakRes.error);
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/progress");
+    revalidatePath("/avatar");
+
+    const recoveredCompanion = buildCompanionFeedback({
+      leveledUp: recoveredData.leveledUp,
+      evolved: recoveredData.evolved,
+      streak: recoveredStreakRes.data
+        ? {
+            increased: recoveredStreakRes.data.increased,
+            newStreak: recoveredStreakRes.data.newStreak,
+          }
+        : undefined,
     });
+
     return {
       data: {
-        ...snapshot,
+        ...recoveredData,
         workoutId: workout.id,
         workoutTitle: workout.title,
-        companion,
-        alreadyCompleted: true,
-        streak: null,
+        companion: recoveredCompanion,
+        alreadyCompleted: false,
+        streak: recoveredStreakRes.data,
       },
       error: null,
     };
