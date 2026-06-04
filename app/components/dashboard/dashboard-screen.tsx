@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { DailyQuest, QuestState } from "@/lib/quests";
 import { GameButton } from "../ui/game-button";
 import { GameCard } from "../ui/game-card";
 
@@ -53,13 +54,6 @@ function HeroAvatar() {
   );
 }
 
-type Quest = {
-  title: string;
-  subtitle: string;
-  progress?: { current: number; max: number; label: string };
-  glow: "cyan" | "violet" | "rose" | "none";
-  reward?: boolean;
-};
 
 export type DashboardScreenProps = {
   userName: string;
@@ -72,6 +66,7 @@ export type DashboardScreenProps = {
   evolutionFormLabel: string;
   questsCompletedToday: number;
   questsTotal: number;
+  quests: DailyQuest[];
 };
 
 /** Русская плюрализация для коротких счётчиков (1 день / 2 дня / 5 дней). */
@@ -83,30 +78,6 @@ function pluralRu(n: number, one: string, few: string, many: string): string {
   return many;
 }
 
-const quests: Quest[] = [
-  {
-    title: "Пройти шаги",
-    subtitle: "Ежедневная активность",
-    progress: { current: 8420, max: 10000, label: "шагов" },
-    glow: "cyan",
-  },
-  {
-    title: "Сделать тренировку",
-    subtitle: "Силовая или кардио",
-    glow: "violet",
-  },
-  {
-    title: "Планка",
-    subtitle: "Удерживать 60 секунд",
-    glow: "rose",
-  },
-  {
-    title: "Ежедневная награда",
-    subtitle: "Забери бонус за вход",
-    glow: "cyan",
-    reward: true,
-  },
-];
 
 export function DashboardScreen({
   userName,
@@ -119,6 +90,7 @@ export function DashboardScreen({
   evolutionFormLabel,
   questsCompletedToday,
   questsTotal,
+  quests,
 }: DashboardScreenProps) {
   const prefersReduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
@@ -223,47 +195,45 @@ export function DashboardScreen({
             </div>
           </div>
           <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {quests.map((q) => (
-              <GameCard
-                key={q.title}
-                glow={q.glow}
-                className={`min-w-[82%] shrink-0 snap-center p-4 sm:min-w-[48%] ${q.reward ? "border-amber-400/20 shadow-[0_0_36px_-14px_rgba(251,191,36,0.25)]" : ""}`}
-              >
-                {q.reward ? (
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-amber-300/90 [font-family:var(--font-onest)]">
-                    Награда дня
+            {quests.map((quest) => {
+              const isLocked = quest.state === "locked";
+              const isDone = quest.state === "reward_claimed" || quest.state === "completed";
+              return (
+                <GameCard
+                  key={quest.id}
+                  glow={questCardGlow(quest.state)}
+                  className={[
+                    "min-w-[82%] shrink-0 snap-center p-4 sm:min-w-[48%]",
+                    isLocked ? "opacity-50" : "",
+                    isDone ? "border-amber-400/20" : "",
+                  ].filter(Boolean).join(" ")}
+                >
+                  <p className={[
+                    "text-[10px] font-bold uppercase tracking-wider [font-family:var(--font-onest)]",
+                    isDone ? "text-amber-300/90" : isLocked ? "text-zinc-600" : "text-sky-300/90",
+                  ].join(" ")}>
+                    {isDone ? "✓ Выполнено" : isLocked ? "🔒 Закрыт" : "Контракт активен"}
                   </p>
-                ) : null}
-                <h3 className="font-semibold text-white [font-family:var(--font-onest)]">{q.title}</h3>
-                <p className="mt-1 text-sm text-zinc-500 [font-family:var(--font-onest)]">{q.subtitle}</p>
-                {q.progress ? (
-                  <div className="mt-3">
-                    <div className="mb-1 flex justify-between text-xs text-zinc-500">
-                      <span>{q.progress.label}</span>
-                      <span className="tabular-nums text-zinc-400">
-                        {q.progress.current.toLocaleString("ru-RU")} /{" "}
-                        {q.progress.max.toLocaleString("ru-RU")}
-                      </span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-zinc-800">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-sky-500 to-cyan-400"
-                        style={{ width: `${(q.progress.current / q.progress.max) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ) : null}
-                {q.reward ? (
-                  <GameButton variant="secondary" className="mt-4 w-full py-2.5 text-sm" type="button">
-                    Забрать
-                  </GameButton>
-                ) : (
-                  <GameButton variant="ghost" className="mt-4 w-full py-2.5 text-sm" type="button">
-                    К выполнению
-                  </GameButton>
-                )}
-              </GameCard>
-            ))}
+                  <h3 className={[
+                    "mt-1 font-semibold [font-family:var(--font-onest)]",
+                    isLocked ? "text-zinc-500" : isDone ? "text-zinc-400" : "text-white",
+                  ].join(" ")}>
+                    {quest.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-zinc-500 [font-family:var(--font-onest)]">
+                    {quest.subtitle}
+                  </p>
+                  {!isLocked ? (
+                    <p className={[
+                      "mt-3 text-xs font-semibold tabular-nums [font-family:var(--font-onest)]",
+                      isDone ? "text-amber-300/60" : "text-amber-200/80",
+                    ].join(" ")}>
+                      +{quest.rewards.xp} XP
+                    </p>
+                  ) : null}
+                </GameCard>
+              );
+            })}
           </div>
         </motion.section>
 
@@ -310,6 +280,12 @@ export function DashboardScreen({
       </motion.div>
     </div>
   );
+}
+
+function questCardGlow(state: QuestState): "cyan" | "gold" | "none" {
+  if (state === "active") return "cyan";
+  if (state === "completed" || state === "reward_claimed") return "gold";
+  return "none";
 }
 
 function StatPill({

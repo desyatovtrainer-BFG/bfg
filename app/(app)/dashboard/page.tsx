@@ -5,7 +5,7 @@ import {
   getAvatarFormLabel,
   getLevelProgress,
 } from "@/lib/progression";
-import { DAILY_QUEST_ORDER, getTodayCompletedQuestIds } from "@/lib/quests";
+import { buildDailyQuestList, DAILY_QUEST_ORDER, getTodayCompletedQuestIds } from "@/lib/quests";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { DashboardScreen } from "../../components/dashboard/dashboard-screen";
 
@@ -47,6 +47,7 @@ export default async function DashboardPage() {
         evolutionFormLabel={getAvatarFormLabel(evolution.form)}
         questsCompletedToday={0}
         questsTotal={DAILY_QUEST_ORDER.length}
+        quests={buildDailyQuestList([])}
       />
     );
   }
@@ -83,6 +84,7 @@ export default async function DashboardPage() {
       evolutionFormLabel={getAvatarFormLabel(evolution.form)}
       questsCompletedToday={completedIds.length}
       questsTotal={DAILY_QUEST_ORDER.length}
+      quests={buildDailyQuestList(completedIds)}
     />
   );
 }
