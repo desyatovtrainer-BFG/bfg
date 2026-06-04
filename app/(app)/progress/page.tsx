@@ -5,7 +5,6 @@ import {
   getAvatarStageFlavor,
   getEvolutionProgress,
   getLevelProgress,
-  XP_REWARDS,
 } from "@/lib/progression";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { ProgressionHub } from "../../components/progression/progression-hub";
@@ -50,8 +49,6 @@ export default async function ProgressPage() {
       xpInLevel={lp.xpIntoLevel}
       xpForNextLevel={lp.xpForNextLevel}
       streakDays={streak}
-      dailyXp={XP_REWARDS.DAILY_LOGIN}
-      streakBonusXp={XP_REWARDS.STREAK_BONUS}
       evolution={{
         currentFormLabel,
         nextFormLabel,

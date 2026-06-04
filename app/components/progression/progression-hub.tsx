@@ -4,7 +4,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AvatarEvolutionBlock } from "./avatar-evolution-block";
-import { DailyRewardPanel } from "./daily-reward-panel";
 import { StreakPanel } from "./streak-panel";
 import { UserLevelCard } from "./user-level-card";
 
@@ -32,10 +31,6 @@ export type ProgressionHubProps = {
   xpInLevel: number;
   xpForNextLevel: number;
   streakDays: number;
-  /** Размер дневной награды (XP) — из XP_REWARDS, считается на сервере. */
-  dailyXp: number;
-  /** Размер бонуса за серию (XP) — из XP_REWARDS. */
-  streakBonusXp: number;
   evolution: {
     currentFormLabel: string;
     nextFormLabel: string;
@@ -55,8 +50,6 @@ export function ProgressionHub({
   xpInLevel,
   xpForNextLevel,
   streakDays,
-  dailyXp,
-  streakBonusXp,
   evolution,
   motivationalStatus,
   statusTag,
@@ -112,14 +105,6 @@ export function ProgressionHub({
             xpToNextLevel={xpForNextLevel}
             motivationalStatus={motivationalStatus}
             statusTag={statusTag}
-            reducedMotion={reducedMotion}
-          />
-        </motion.div>
-
-        <motion.div variants={section} className="mb-5">
-          <DailyRewardPanel
-            dailyXp={dailyXp}
-            streakBonusXp={streakBonusXp}
             reducedMotion={reducedMotion}
           />
         </motion.div>
