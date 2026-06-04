@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/get-user";
+import { buildCompanionMessage } from "@/lib/companion";
 import {
   getAvatarEvolutionForLevel,
   getAvatarFormLabel,
@@ -35,6 +36,14 @@ export default async function DashboardPage() {
   // на случай гонки сессии. UI рисуем «нулевыми» дефолтами, без падения.
   if (!user) {
     const evolution = getAvatarEvolutionForLevel(1);
+    const fallbackMsg = buildCompanionMessage({
+      userId: "anon",
+      level: 1,
+      xpInLevel: 0,
+      xpForNextLevel: 100,
+      streak: 0,
+      lastActiveOn: null,
+    });
     return (
       <DashboardScreen
         userName="Воин"
@@ -48,6 +57,7 @@ export default async function DashboardPage() {
         questsCompletedToday={0}
         questsTotal={DAILY_QUEST_ORDER.length}
         quests={buildDailyQuestList([])}
+        companionPrimary={fallbackMsg.primary}
       />
     );
   }
@@ -57,7 +67,7 @@ export default async function DashboardPage() {
   const [profileRes, completedIds] = await Promise.all([
     supabase
       .from("profiles")
-      .select("xp, streak")
+      .select("xp, streak, last_active_on")
       .eq("id", user.id)
       .maybeSingle(),
     getTodayCompletedQuestIds(supabase, user.id),
@@ -69,8 +79,20 @@ export default async function DashboardPage() {
 
   const totalXp = Number(profileRes.data?.xp ?? 0);
   const streak = Number(profileRes.data?.streak ?? 0);
+  const lastActiveOn = profileRes.data?.last_active_on
+    ? String(profileRes.data.last_active_on).slice(0, 10)
+    : null;
   const lp = getLevelProgress(totalXp);
   const evolution = getAvatarEvolutionForLevel(lp.level);
+
+  const companionMsg = buildCompanionMessage({
+    userId: user.id,
+    level: lp.level,
+    xpInLevel: lp.xpIntoLevel,
+    xpForNextLevel: lp.xpForNextLevel,
+    streak,
+    lastActiveOn,
+  });
 
   return (
     <DashboardScreen
@@ -85,6 +107,7 @@ export default async function DashboardPage() {
       questsCompletedToday={completedIds.length}
       questsTotal={DAILY_QUEST_ORDER.length}
       quests={buildDailyQuestList(completedIds)}
+      companionPrimary={companionMsg.primary}
     />
   );
 }

@@ -24,19 +24,32 @@ const fadeUp = {
   },
 };
 
-function HeroAvatar() {
+const HERO_STAGE_COLORS: Record<number, { primary: string; rgb: string; secondary: string }> = {
+  1: { primary: "#38bdf8", rgb: "56,189,248",  secondary: "#a78bfa" },
+  2: { primary: "#22d3ee", rgb: "34,211,238",  secondary: "#a78bfa" },
+  3: { primary: "#a78bfa", rgb: "167,139,250", secondary: "#38bdf8" },
+  4: { primary: "#e879f9", rgb: "232,121,249", secondary: "#a78bfa" },
+  5: { primary: "#fbbf24", rgb: "251,191,36",  secondary: "#fb7185" },
+};
+
+function HeroAvatar({ stage }: { stage: number }) {
+  const c = HERO_STAGE_COLORS[Math.min(5, Math.max(1, stage))] ?? HERO_STAGE_COLORS[1]!;
   return (
     <div className="relative mx-auto h-36 w-28 sm:h-40 sm:w-32">
-      <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_35%,rgba(56,189,248,0.25),transparent_62%)] blur-2xl" />
+      <div
+        className="absolute inset-0 rounded-full blur-2xl"
+        style={{ background: `radial-gradient(circle at 50% 35%, rgba(${c.rgb},0.25), transparent 62%)` }}
+      />
       <svg
         viewBox="0 0 120 200"
-        className="relative z-[1] h-full w-full drop-shadow-[0_0_20px_rgba(56,189,248,0.35)]"
+        className="relative z-[1] h-full w-full"
+        style={{ filter: `drop-shadow(0 0 20px rgba(${c.rgb},0.35))` }}
         aria-hidden
       >
         <defs>
           <linearGradient id="dash-sil" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#38bdf8" />
-            <stop offset="100%" stopColor="#a78bfa" />
+            <stop offset="0%" stopColor={c.primary} />
+            <stop offset="100%" stopColor={c.secondary} />
           </linearGradient>
         </defs>
         <path
@@ -67,6 +80,7 @@ export type DashboardScreenProps = {
   questsCompletedToday: number;
   questsTotal: number;
   quests: DailyQuest[];
+  companionPrimary: string;
 };
 
 /** Русская плюрализация для коротких счётчиков (1 день / 2 дня / 5 дней). */
@@ -91,6 +105,7 @@ export function DashboardScreen({
   questsCompletedToday,
   questsTotal,
   quests,
+  companionPrimary,
 }: DashboardScreenProps) {
   const prefersReduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
@@ -148,7 +163,7 @@ export function DashboardScreen({
             <div className="absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-sky-500/10 blur-3xl" />
 
             <div className="relative flex flex-col items-center text-center">
-              <HeroAvatar />
+              <HeroAvatar stage={evolutionStage} />
               <div className="mt-4 flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-semibold text-sky-200 [font-family:var(--font-onest)]">
                 Уровень <span className="text-white [font-family:var(--font-unbounded)]">{level}</span>
                 <span className="text-zinc-500">·</span>
@@ -174,7 +189,7 @@ export function DashboardScreen({
               </div>
 
               <p className="mt-4 max-w-sm text-pretty text-sm leading-relaxed text-zinc-400 [font-family:var(--font-onest)]">
-                Сегодня ты на шаг ближе к своей лучшей версии. Один рывок — и вселенная заметит.
+                {companionPrimary}
               </p>
             </div>
           </GameCard>
