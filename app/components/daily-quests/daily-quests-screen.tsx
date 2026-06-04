@@ -158,6 +158,9 @@ export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScree
                       feedback.leveledUp ? " · новый уровень" : ""
                     }${feedback.evolved ? " · эволюция аватара" : ""}`}
               </p>
+              <p className="mt-2 text-sm text-zinc-400 [font-family:var(--font-onest)]">
+                {feedback.companion.message}
+              </p>
             </motion.div>
           ) : null}
         </AnimatePresence>

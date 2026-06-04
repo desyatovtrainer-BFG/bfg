@@ -26,6 +26,10 @@ import {
   type StreakUpdate,
 } from "@/lib/progression";
 import { createSupabaseServerClient } from "@/lib/supabase";
+import {
+  buildCompanionFeedback,
+  type CompanionFeedback,
+} from "@/lib/workouts/companion-feedback";
 import { findDailyQuest } from "./daily-quests";
 import { todayISO } from "./get-today-completions";
 
@@ -42,6 +46,7 @@ export type CompleteDailyQuestResponse = {
          * `alreadyCompleted`, где стрик уже был учтён ранее сегодня.
          */
         streak: StreakUpdate | null;
+        companion: CompanionFeedback;
       })
     | null;
   error: string | null;
@@ -122,6 +127,7 @@ export async function completeDailyQuestAction(
           // Стрик за сегодня уже был зачтён первым успешным действием —
           // повторно трогать БД не нужно.
           streak: null,
+          companion: buildCompanionFeedback({ leveledUp: false, evolved: false }),
         },
         error: null,
       };
@@ -157,6 +163,11 @@ export async function completeDailyQuestAction(
         questTitle: quest.title,
         alreadyCompleted: false,
         streak: recoveredStreakRes.data,
+        companion: buildCompanionFeedback({
+          leveledUp: recoveredData.leveledUp,
+          evolved: recoveredData.evolved,
+          streak: recoveredStreakRes.data ?? undefined,
+        }),
       },
       error: null,
     };
@@ -192,6 +203,11 @@ export async function completeDailyQuestAction(
       questTitle: quest.title,
       alreadyCompleted: false,
       streak: streakRes.data,
+      companion: buildCompanionFeedback({
+        leveledUp: data.leveledUp,
+        evolved: data.evolved,
+        streak: streakRes.data ?? undefined,
+      }),
     },
     error: null,
   };
