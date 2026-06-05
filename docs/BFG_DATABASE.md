@@ -96,6 +96,7 @@ One row per (`user`, `quest_id`, `date`). Idempotent by unique constraint.
 | `quest_id`      | `text`    | Quest identifier from `lib/quests`       |
 | `completed_on`  | `date`    | `default current_date`                   |
 | `xp_awarded`    | `integer` | Snapshot of XP given (server-side)       |
+| `xp_before`     | `integer` | `profiles.xp` at insert time; used for XP recovery if `awardXp` fails after INSERT succeeds |
 | `created_at`    | `timestamptz` | `default now()`                       |
 | unique          | (`user_id`, `quest_id`, `completed_on`) | guards double-claim     |
 
@@ -104,7 +105,7 @@ RLS:
 - `insert` own (with `with check (auth.uid() = user_id)`).
 - No `update` / `delete` from the client.
 
-Migration: `0001_daily_quest_completions.sql`.
+Migrations: `0001_daily_quest_completions.sql`, `0009_completion_xp_before.sql`.
 
 ### 3.5 `public.workouts`
 Workout catalog. Public read for authenticated users; writes are admin-only via service role.
@@ -150,6 +151,29 @@ RLS:
 - No client mutation.
 
 Migration: `0005_workout_exercises.sql`.
+
+### 3.7 `public.workout_completions`
+Idempotency guard for workout completion. One row per (`user`, `workout`, `date`). Prevents double XP on double-click, tab race, or request replay. Modelled after `daily_quest_completions` (§3.4).
+
+**Note:** this is not the full append-only analytics log originally planned in the roadmap. It is a narrow write-guard. A future audit log may supersede or extend it.
+
+| Column          | Type          | Notes                                          |
+| --------------- | ------------- | ---------------------------------------------- |
+| `id`            | `uuid` PK     | `default gen_random_uuid()`                    |
+| `user_id`       | `uuid`        | FK to `auth.users.id`, on delete cascade       |
+| `workout_id`    | `text`        | FK to `workouts.id`, on delete cascade         |
+| `completed_on`  | `date`        | `default current_date`                         |
+| `xp_awarded`    | `integer`     | Snapshot of XP granted (server-side)           |
+| `xp_before`     | `integer`     | `profiles.xp` at insert time; used for XP recovery if `awardXp` fails after INSERT succeeds |
+| `created_at`    | `timestamptz` | `default now()`                                |
+| unique          | (`user_id`, `workout_id`, `completed_on`) | guards double-completion      |
+
+RLS:
+- `select` own.
+- `insert` own (with `with check (auth.uid() = user_id)`).
+- No `update` / `delete` from the client.
+
+Migrations: `0006_workout_completions.sql`, `0009_completion_xp_before.sql`.
 
 ---
 
@@ -252,7 +276,6 @@ Rule: a derived column is only ever written by **server code**. Never expose a S
 Reasoning is in [`BFG_MVP_SCOPE.md`](./BFG_MVP_SCOPE.md). These are reserved names so we keep them consistent when added.
 
 - `public.xp_events` — append-only log of XP grants. Needed for anti-cheat + recomputation. To be added before public launch.
-- `public.workout_completions` — append-only log of finished workouts. Will replace ad-hoc XP grants on workout complete.
 - `public.companion_messages` — log of companion phrases shown to the user. Needed for memory + tone consistency.
 - `public.subscription_payments` — provider-specific payment records.
 - `public.cosmetic_inventory` — owned cosmetics per user (currently catalog-only).
