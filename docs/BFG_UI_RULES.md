@@ -138,7 +138,7 @@ The `GameButton` and `GameCard` components in `app/components/ui/` are the refer
 ## 10. Images, video, and icons
 
 - Images: `next/image`. Always set `sizes`. Always have width/height or a containing aspect ratio.
-- LCP image (dashboard hero / avatar) is preloaded and prioritized.
+- LCP image (dashboard hero / avatar) is preloaded and prioritized. The avatar is the body of the unified presence — render it alongside the companion voice as a single unit on the dashboard, not as an independent image asset.
 - Video: only Kinescope on MVP. Embed URL composed in code from `video_provider + video_id`. See [`BFG_DATABASE.md`](./BFG_DATABASE.md) §3.5.
 - Icons: import individually from the icon library. Do not bundle whole sets.
 - No image CDNs that fail in Russia. Use Supabase Storage public URLs when content is user-uploaded.
@@ -147,7 +147,7 @@ The `GameButton` and `GameCard` components in `app/components/ui/` are the refer
 
 ## 11. Russian UI copy rules
 
-- Use formal but warm "ты" (we are an inner voice, not a brand).
+- Use formal but warm "ты" (we are the voice-role of a unified presence — the companion text speaks; the avatar body is seen — not a brand).
 - No exclamation marks for motivation. They are reserved for actual exclamations.
 - No corporate fitness vocabulary ("crush your goals", "be your best self" translated to Russian — both unwelcome).
 - Numbers and units in Russian: `мин`, `сек`, `XP`, `ур.`

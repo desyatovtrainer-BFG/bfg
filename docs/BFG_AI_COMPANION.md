@@ -12,6 +12,8 @@ Engineering contract for the companion system. The companion is a **product feat
 
 ## 1. Role of the companion
 
+**The companion is the voice of the avatar.** Avatar = body. Companion = voice. One presence, two roles. The companion does not observe the avatar from outside — it *is* the avatar, speaking.
+
 - The companion is the **continuity layer** of the experience. It acknowledges return, streak, and evolution.
 - It is **read-only** with respect to progression. It cannot award XP, change levels, or unlock cosmetics. It only reads state and produces text.
 - It is **deterministic in MVP** (local FNV-1a hash over user + day + state). No external API call is required to show a phrase. This is the Russia-without-VPN safety net.
@@ -49,6 +51,8 @@ Phrases are **stable within a day** for a given user/state. The seed is `userId|
 | `soft_return`    | 2–6 days since last activity                      | Warm, safe return                      |
 | `warm_return`    | 7+ days since last activity                       | Welcoming, no shame, no count of days  |
 
+**Phrase perspective:** Phrases reflect the entity's own awareness — it speaks *from* continuity with the user, not as an external observer. `evolution_stage` is self-knowledge; the entity knows what form it currently inhabits.
+
 Tone rules (non-negotiable):
 
 - Short, one sentence preferred.
@@ -83,6 +87,7 @@ Roadmap step, not MVP. When we introduce LLM-augmented phrases:
 5. The Edge Function returns `{ data: { state, primary, secondary }, error }`. The UI contract is unchanged.
 6. We cache responses per `(user, state, day)` so we do not pay for and re-roll the tone of the day.
 7. If the Edge Function fails or times out (>1s), we **fall back** to the deterministic rule-based phrase. The user never sees a loading spinner for the companion.
+8. **The system prompt must frame the AI as the voice of a unified presence.** The entity has a body (avatar, at `evolution_stage`) and a voice (companion text). The prompt must not frame the AI as a separate character observing an avatar. Phrases should reflect the entity's self-awareness of shared continuity with the user.
 
 ---
 
@@ -93,7 +98,7 @@ Detailed in [`BFG_SECURITY.md`](./BFG_SECURITY.md) §"AI security". Summary:
 - The browser never holds an AI provider key.
 - The companion is **never** an arbitrary chat surface in MVP. No free-form input from the user that is forwarded to an LLM.
 - If we later add user input (e.g. "ask the companion"), all inputs are sanitized, length-capped, and rate-limited at the Edge Function. We never inject untrusted user text into a system prompt without isolating it as user content.
-- No PII (email, real name, location, age) is included in LLM prompts. The companion may know `level`, `streak`, `daysSinceActive`, `evolution_stage`. Nothing else.
+- No PII (email, real name, location, age) is included in LLM prompts. The companion has **self-knowledge** of `level`, `streak`, `daysSinceActive`, `evolution_stage` — this is the entity's knowledge of itself, not external data about a separate avatar.
 - Output filtering: a small denylist + length check. If the model produces toxic motivation, push notifications, ads, or anything off-brand, we drop and use the deterministic fallback.
 
 ---

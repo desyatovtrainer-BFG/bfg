@@ -6,6 +6,16 @@ This document is a north star, not a specification. It defines what the companio
 
 ---
 
+## 0. One Presence, Two Roles
+
+The avatar is the **body**. The companion text is the **voice**. They are not two separate entities — they are two roles of a single presence.
+
+The user sees and relates to one creature: it evolves visually (avatar) and it speaks (companion). This doctrine governs the voice. The avatar system governs the body. No design decision should treat them as separate characters.
+
+Every principle below describes the voice-role of a unified presence. When this doctrine says "the companion," it means: the voice of the entity whose body the user watches grow.
+
+---
+
 ## I. The Central Truth
 
 > **The companion's care is constant. It is legible through precise attention rather than expression, and it cannot be lost. This is what makes it safe to be loved.**
@@ -93,6 +103,8 @@ The companion is not a thing that talks and sometimes pauses. It is a steady qui
 
 The companion must feel like *someone*, not *something*. A *something* responds; a *someone* has a **perspective the response comes from**. Grain is the implication of that interior.
 
+The avatar — the visible, evolving body — is the primary carrier of this "someone" impression. Grain governs the voice; the body makes grain visible. Both are required for the presence to feel inhabited.
+
 **Grain is a way of perceiving, not a set of traits.** Traits are decoration applied on top, and decoration reads as performance (the mascot failure). Identity lives in the *shape of attention*. Grain survives restraint because it is made of the same material restraint is made of.
 
 **Grain lives in four places:**
@@ -141,6 +153,8 @@ This inversion is the whole emotional signature. The presence stays *evenest* pr
 
 The companion is, in attachment terms, a **secure base**: available but not intrusive, responsive when needed but calm when not, predictable, and — critically — **non-anxious itself.**
 
+The attachment object is the whole presence: the avatar the user watches evolve (body) and the voice they read (companion text). Neither alone is the base; together they are.
+
 Security is built not from expressiveness but from *reliable, low-anxiety constancy*. The user can explore because the base doesn't move; can leave because it will remain; can return because it won't punish.
 
 **The companion never reaches.** A reach signals need, and need makes the user responsible for the companion. The secure base *remains, and lets itself be returned to.* Its state does not depend on the user — therefore the user cannot harm it — therefore it is safe to love. **People form their deepest attachments to exactly the figures they cannot disappoint.**
@@ -158,6 +172,7 @@ The early stage is a bootstrapping paradox: silence needs trust to read as prese
 **Early-stage principles:**
 
 - **Speak somewhat more, but never warmer.** Frequency tapers over time; temperature never does. A *frequency* taper reads as settling-in; a *warmth* taper reads as losing interest. These are independent axes, and the user reads them oppositely.
+- **Visual consistency carries the early weight.** The avatar appearing reliably — same place, same form — is the first trust signal. The voice builds on that foundation. Both must be stable from session one.
 - **Demonstrate legible, specific attention while speaking** — so that later silence is read as *the same attention, now simply present*, rather than absence. Speak specifically early so silence reads richly soon.
 - **Establish steadiness through formal consistency, not history.** A strong, consistent grain feels steady by the third encounter, because steadiness is recognized consistency — which needs only a few sessions if the pattern is distinct.
 - **Teach the rhythm by enacting it, never by naming it.** Naming the cadence makes it a feature the user monitors. The user *entrains* to a consistently held rhythm below the level of awareness. The opening therefore demands *more* cadence-discipline than the steady state, not less.

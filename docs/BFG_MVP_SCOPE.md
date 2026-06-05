@@ -14,10 +14,10 @@ The MVP scope is the **smallest BFG that is worth playing**. Anything outside th
 The MVP is "shippable" when a real user in Russia, on a mid-range Android phone, without VPN, can:
 
 1. **Sign up** with email + password.
-2. **See their dashboard** with companion, avatar, level, XP, streak.
+2. **See their dashboard** with their presence (avatar body + companion voice), level, XP, streak.
 3. **Complete a daily quest** and receive XP, with the change visible.
 4. **Open a workout**, watch a Kinescope video for each exercise, mark the workout as completed.
-5. **Receive XP, see the level / streak / avatar update**, get a calm companion reaction.
+5. **Receive XP, see the level / streak / avatar update**, hear the presence speak.
 6. **Return tomorrow** and see streak continuity (or a soft restart if a day was missed).
 7. **Be on a 30-day free trial** without payment required, and not lose progress when the trial ends.
 
@@ -30,13 +30,13 @@ That's the loop. Everything else is out of MVP.
 ### 2.1 Product
 - Email/password authentication via Supabase.
 - BFG profile bootstrap on first login.
-- Dashboard screen with companion, avatar, level, streak.
+- Dashboard screen with their presence (avatar body + companion voice), level, streak.
 - Daily quests screen with idempotent claim.
 - Workouts catalog screen.
 - Workout session screen with per-exercise Kinescope video.
 - Profile screen with subscription state.
-- Avatar screen with current stage description.
-- Companion screen (read-only reflective phrase).
+- Avatar screen with current stage description. *(Body-role of the unified presence.)*
+- Companion screen (read-only reflective phrase). *(Voice-role of the unified presence.)*
 - Progression screen (XP bar, streak panel, evolution block).
 
 ### 2.2 Systems
@@ -45,7 +45,7 @@ That's the loop. Everything else is out of MVP.
 - Avatar evolution by level threshold (5-stage ladder).
 - Streak: idempotent per day, soft restart on break, no shaming.
 - 30-day trial subscription state, no payment yet.
-- Companion: deterministic Russian phrases by state.
+- Companion: deterministic Russian phrases by state. *(Avatar evolution = body-role; companion phrases = voice-role of the same presence.)*
 
 ### 2.3 Engineering
 - Next.js 16 App Router, Server Components by default.
@@ -82,7 +82,7 @@ These are explicitly **not built** during MVP. Don't be helpful here. Don't "jus
 - `workout_completions` log (added at soft launch).
 - Streak freeze / break protection.
 - Quest chains, multi-day arcs.
-- Multi-companion or evolving companions.
+- Multiple presences (each = one avatar body + one companion voice, inseparable).
 - Memory of past phrases.
 
 ### 3.3 Engineering out of scope
@@ -135,7 +135,7 @@ See `BFG_SECURITY.md` §release checklist for the full list. Includes:
 
 - Sign up → see dashboard.
 - Complete a daily quest → XP increases, streak updates.
-- Complete a workout → XP/level/avatar update, companion reacts.
+- Complete a workout → XP/level/avatar update, the presence speaks.
 - Reload after each action → state persists.
 - Try double-claim of the same quest → blocked.
 - Try POST to a Server Action with someone else's user id → blocked by RLS.

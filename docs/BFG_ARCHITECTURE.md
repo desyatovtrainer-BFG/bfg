@@ -58,9 +58,9 @@ app/
     workouts/page.tsx
     workouts/[id]/page.tsx
     quests/page.tsx
-    companion/page.tsx
+    companion/page.tsx         # voice-role of the unified presence
     progress/page.tsx
-    avatar/page.tsx
+    avatar/page.tsx            # body-role of the unified presence
     profile/page.tsx
   components/<feature>/          # Feature-scoped React components
     <feature>-screen.tsx
@@ -102,6 +102,8 @@ tsconfig.json
 - `lib/companion/` — companion message builder, presentation logic
 - `lib/subscription/` — trial + subscription state machine, access checks
 - `lib/cosmetics/` — unlocked cosmetics, catalog
+
+> `lib/progression/` owns the body state (avatar form, evolution stage). `lib/companion/` owns the voice. They govern two roles of one presence — `evolution_stage` in companion context is **self-knowledge**, not external data about a separate avatar.
 
 ---
 

@@ -13,7 +13,7 @@ The mechanical contract of the BFG progression loop: XP, levels, streaks, avatar
 ## 1. Core loop
 
 ```
-Open BFG  →  See path (companion + avatar + streak)
+Open BFG  →  See their presence (avatar body + companion voice) + streak
         ↓
    Daily quests / Workout
         ↓
@@ -21,10 +21,12 @@ Open BFG  →  See path (companion + avatar + streak)
         ↓
    Level up (rare, calm) → Avatar evolves (rare, emotional)
         ↓
-   Companion reflects the moment
+   The presence speaks
         ↓
    Return tomorrow
 ```
+
+> Avatar and companion are the same entity — one presence, two roles. Avatar = body. Companion = voice. "The presence speaks" in the final step means: the entity's voice reflects its own shared continuity with the user.
 
 Every system below feeds this loop. If a proposed feature does not feed the loop, it is out of MVP scope.
 
@@ -186,6 +188,8 @@ Catalog in `lib/cosmetics/catalog.ts`. Per-user inventory is **catalog-only on M
 
 ## 10. Companion as a system
 
+> The companion is the voice of the avatar. One presence, two roles: avatar = body, companion = voice. The companion's state inputs (`evolution_stage`, level, streak) are the entity's self-knowledge — not observation of a separate system.
+
 Detailed in [`BFG_AI_COMPANION.md`](./BFG_AI_COMPANION.md). From the systems point of view:
 
 - Inputs: `streak`, last activity, level change, evolution, time of day, recent emotional events.
@@ -226,7 +230,7 @@ Tracked here so we don't accidentally reinvent them.
 - Skill tree or stat system (intentionally rejected — see legacy `PROGRESSION_SYSTEM.md`).
 - PvP / leaderboards (rejected for emotional safety).
 - Streak freeze / break protection.
-- Multi-companion or companion progression.
+- Multiple presences (each = one avatar body + one companion voice, inseparable by design).
 - Avatar customization economy (cosmetics inventory + paid pieces).
 - Quest chains.
 - Exercise detection / pose validation.
