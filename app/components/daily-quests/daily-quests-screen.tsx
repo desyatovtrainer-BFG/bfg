@@ -2,14 +2,13 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   buildDailyQuestList,
   completeDailyQuestAction,
   DAILY_QUEST_ORDER,
   type CompleteDailyQuestResponse,
   type DailyQuest,
-  type QuestState,
 } from "@/lib/quests";
 import { DailyCompletionBanner } from "./daily-completion-banner";
 import { QuestCard } from "./quest-card";
@@ -21,24 +20,6 @@ type DailyQuestsScreenProps = {
 
 type QuestFeedback = NonNullable<CompleteDailyQuestResponse["data"]>;
 
-function unlockStretchWhenWorkoutClosed(list: DailyQuest[]): DailyQuest[] {
-  // «Stretch» открывается, как только workout перестал быть «активным» —
-  // т.е. локально перешёл в completed или reward_claimed. Серверная
-  // персистентность ловится через `reward_claimed` из initialCompletedIds.
-  const workoutDone = list.some(
-    (q) => q.id === "workout" && (q.state === "completed" || q.state === "reward_claimed"),
-  );
-  return list.map((q) => {
-    if (q.id !== "stretch" || q.state !== "locked") return q;
-    if (!workoutDone) return q;
-    return {
-      ...q,
-      state: "active" as QuestState,
-      lockReason: undefined,
-      progress: { current: 0, max: 15, unitLabel: "мин" },
-    };
-  });
-}
 
 export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScreenProps) {
   const prefersReduced = useReducedMotion();
@@ -50,37 +31,48 @@ export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScree
     buildDailyQuestList(initialCompletedIds),
   );
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const inFlightRef = useRef<Set<string>>(new Set());
   const [feedback, setFeedback] = useState<QuestFeedback | null>(null);
   const [burstingId, setBurstingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
-
-  const questsView = useMemo(() => unlockStretchWhenWorkoutClosed(quests), [quests]);
 
   const allClaimed = useMemo(
-    () => questsView.length > 0 && questsView.every((q) => q.state === "reward_claimed"),
-    [questsView],
+    () => quests.length > 0 && quests.every((q) => q.state === "reward_claimed"),
+    [quests],
   );
 
   const completeQuest = useCallback((id: string) => {
+    if (inFlightRef.current.has(id)) return;
+    inFlightRef.current.add(id);
     setError(null);
     setPendingId(id);
-    startTransition(async () => {
-      const res = await completeDailyQuestAction(id);
-      setPendingId(null);
-      if (res.error || !res.data) {
-        setError(res.error ?? "Не удалось закрыть контракт.");
-        return;
+    // Прямой async-вызов без startTransition: в React 18 startTransition не
+    // поддерживает async-функции — состояния после await обрабатываются вне
+    // перехода, что конфликтует с автоматическим RSC-обновлением от revalidatePath.
+    // setPendingId(null) вынесен в finally — карточка гарантированно разблокируется
+    // даже если Server Action выбросит исключение (сетевая ошибка и т.п.).
+    void (async () => {
+      try {
+        const res = await completeDailyQuestAction(id);
+        if (res.error || !res.data) {
+          setError(res.error ?? "Не удалось закрыть контракт.");
+          return;
+        }
+        // XP начислен на сервере. Карточка сразу переходит в reward_claimed;
+        // burst-анимация запускается через isBursting-проп, без второго нажатия.
+        setQuests((prev) =>
+          prev.map((q) => (q.id === id && q.state === "active" ? { ...q, state: "reward_claimed" } : q)),
+        );
+        setFeedback(res.data);
+        setBurstingId(id);
+        window.setTimeout(() => setBurstingId(null), 750);
+      } catch {
+        setError("Не удалось закрыть контракт. Попробуй ещё раз.");
+      } finally {
+        inFlightRef.current.delete(id);
+        setPendingId(null);
       }
-      // XP начислен на сервере. Карточка сразу переходит в reward_claimed;
-      // burst-анимация запускается через isBursting-проп, без второго нажатия.
-      setQuests((prev) =>
-        prev.map((q) => (q.id === id && q.state === "active" ? { ...q, state: "reward_claimed" } : q)),
-      );
-      setFeedback(res.data);
-      setBurstingId(id);
-      window.setTimeout(() => setBurstingId(null), 750);
-    });
+    })();
   }, []);
 
 
@@ -175,7 +167,7 @@ export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScree
           }}
           className="space-y-4"
         >
-          {DAILY_QUEST_ORDER.map((id) => questsView.find((q) => q.id === id))
+          {DAILY_QUEST_ORDER.map((id) => quests.find((q) => q.id === id))
             .filter((q): q is DailyQuest => Boolean(q))
             .map((quest) => {
               const isPending = pendingId === quest.id;

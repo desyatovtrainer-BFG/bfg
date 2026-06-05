@@ -90,7 +90,7 @@ export function QuestCard({
     if (!isBursting || reducedMotion) return;
     setClaimBurst(true);
     const t = window.setTimeout(() => setClaimBurst(false), 700);
-    return () => window.clearTimeout(t);
+    return () => { window.clearTimeout(t); setClaimBurst(false); };
   }, [isBursting, reducedMotion]);
 
   return (

@@ -20,10 +20,6 @@ export type DailyQuestTemplate = {
   rewards: QuestRewards;
   /** Прогресс по умолчанию — для квестов с измеряемой целью. */
   defaultProgress?: QuestProgress;
-  /** Зависит ли от другого квеста (MVP — мягкая блокировка). */
-  unlocksAfter?: string;
-  /** Игровая причина блокировки, если есть `unlocksAfter`. */
-  lockReason?: string;
 };
 
 export const DAILY_QUESTS: ReadonlyArray<DailyQuestTemplate> = [
@@ -40,9 +36,6 @@ export const DAILY_QUESTS: ReadonlyArray<DailyQuestTemplate> = [
     title: "Выполнить растяжку",
     subtitle: "Мягкое продление — чтобы завтра ударить сильнее.",
     rewards: { xp: 60 },
-    unlocksAfter: "workout",
-    lockReason:
-      "Контракт скрыт, пока не зафиксирована тренировка. Сначала закрой «Тренировку» — и путь откроется.",
     defaultProgress: { current: 0, max: 15, unitLabel: "мин" },
   },
   {
@@ -73,12 +66,8 @@ export function findDailyQuest(id: string): DailyQuestTemplate | undefined {
  * Собирает DailyQuest[] для UI из шаблонов и множества уже закрытых сегодня id.
  *
  * Правила состояния:
- *   - id есть в `completedIds` → `reward_claimed` (сегодняшний контракт уже закрыт);
- *   - есть `unlocksAfter` и предыдущий ещё не закрыт → `locked`;
+ *   - id есть в `completedIds` → `reward_claimed`;
  *   - иначе → `active` со стартовым прогрессом.
- *
- * Состояние `completed` (между «зафиксировать» и «забрать») — чисто клиентское
- * и появляется в UI только локально, в памяти текущей сессии.
  */
 export function buildDailyQuestList(completedIds: ReadonlyArray<string>): DailyQuest[] {
   const done = new Set(completedIds);
@@ -92,18 +81,6 @@ export function buildDailyQuestList(completedIds: ReadonlyArray<string>): DailyQ
         subtitle: tpl.subtitle,
         rewards: tpl.rewards,
         state: "reward_claimed",
-      };
-    }
-
-    if (tpl.unlocksAfter && !done.has(tpl.unlocksAfter)) {
-      return {
-        id: tpl.id,
-        kind: tpl.kind,
-        title: tpl.title,
-        subtitle: tpl.subtitle,
-        rewards: tpl.rewards,
-        state: "locked",
-        lockReason: tpl.lockReason,
       };
     }
 
