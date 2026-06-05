@@ -51,6 +51,7 @@ export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScree
   );
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<QuestFeedback | null>(null);
+  const [burstingId, setBurstingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
@@ -71,26 +72,17 @@ export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScree
         setError(res.error ?? "Не удалось закрыть контракт.");
         return;
       }
-      // XP уже начислен на сервере (или контракт уже был закрыт сегодня —
-      // тогда alreadyCompleted=true и xpGained=0). В обоих случаях UI
-      // должен показать карточку как «сокровище ждёт».
+      // XP начислен на сервере. Карточка сразу переходит в reward_claimed;
+      // burst-анимация запускается через isBursting-проп, без второго нажатия.
       setQuests((prev) =>
-        prev.map((q) => (q.id === id && q.state === "active" ? { ...q, state: "completed" } : q)),
+        prev.map((q) => (q.id === id && q.state === "active" ? { ...q, state: "reward_claimed" } : q)),
       );
       setFeedback(res.data);
+      setBurstingId(id);
+      window.setTimeout(() => setBurstingId(null), 750);
     });
   }, []);
 
-  const claimReward = useCallback((id: string) => {
-    // Клиентский шаг «забрать сокровище» — без сервера. XP уже начислен на
-    // completeQuest; здесь только эмоциональное закрытие карточки.
-    setQuests((prev) =>
-      prev.map((q) =>
-        q.id === id && q.state === "completed" ? { ...q, state: "reward_claimed" } : q,
-      ),
-    );
-    setFeedback((curr) => (curr && curr.questId === id ? null : curr));
-  }, []);
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-black text-zinc-100">
@@ -201,7 +193,7 @@ export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScree
                     quest={quest}
                     reducedMotion={reducedMotion}
                     onComplete={completeQuest}
-                    onClaimReward={claimReward}
+                    isBursting={burstingId === quest.id}
                   />
                 </motion.div>
               );

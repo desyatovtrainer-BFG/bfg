@@ -1,17 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import type { DailyQuest, QuestKind, QuestState } from "@/lib/quests";
 import { GameButton } from "../ui/game-button";
 
 export type QuestCardProps = {
   quest: DailyQuest;
   reducedMotion?: boolean;
-  /** Активный: зафиксировать выполнение (демо-переход в completed) */
   onComplete?: (id: string) => void;
-  /** Completed: забрать награду */
-  onClaimReward?: (id: string) => void;
+  /** true в момент, когда экран подтвердил server-success — запускает burst-анимацию. */
+  isBursting?: boolean;
 };
 
 function QuestGlyph({ kind }: { kind: QuestKind }) {
@@ -75,7 +74,7 @@ export function QuestCard({
   quest,
   reducedMotion = false,
   onComplete,
-  onClaimReward,
+  isBursting = false,
 }: QuestCardProps) {
   const [claimBurst, setClaimBurst] = useState(false);
   const s = stateStyles(quest.state);
@@ -84,18 +83,15 @@ export function QuestCard({
       ? Math.min(100, Math.round((quest.progress.current / quest.progress.max) * 100))
       : 0;
 
-  const handleClaim = useCallback(() => {
-    if (quest.state !== "completed" || !onClaimReward) return;
-    if (reducedMotion) {
-      onClaimReward(quest.id);
-      return;
-    }
+  // Burst запускается после server-success (isBursting=true из экрана),
+  // а не при нажатии кнопки — гарантирует, что анимация соответствует
+  // реальному начислению XP.
+  useEffect(() => {
+    if (!isBursting || reducedMotion) return;
     setClaimBurst(true);
-    window.setTimeout(() => {
-      onClaimReward(quest.id);
-      setClaimBurst(false);
-    }, 700);
-  }, [onClaimReward, quest.id, quest.state, reducedMotion]);
+    const t = window.setTimeout(() => setClaimBurst(false), 700);
+    return () => window.clearTimeout(t);
+  }, [isBursting, reducedMotion]);
 
   return (
     <motion.article
@@ -118,14 +114,6 @@ export function QuestCard({
         />
       ) : null}
 
-      {quest.state === "completed" && !reducedMotion ? (
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-2xl border border-amber-400/25"
-          animate={{ opacity: [0.35, 0.75, 0.35] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-        />
-      ) : null}
 
       <div className="relative flex gap-3">
         <QuestGlyph kind={quest.kind} />
@@ -135,9 +123,7 @@ export function QuestCard({
               ? "Закрытый контракт"
               : quest.state === "active"
                 ? "Контракт активен"
-                : quest.state === "completed"
-                  ? "Сокровище ждёт"
-                  : "Контракт закрыт"}
+                : "Контракт закрыт"}
           </p>
           <h3 className="mt-1 text-base font-bold text-white [font-family:var(--font-unbounded)] sm:text-lg">
             {quest.title}
@@ -205,18 +191,6 @@ export function QuestCard({
         </div>
       ) : null}
 
-      {quest.state === "completed" ? (
-        <div className="relative mt-4">
-          <GameButton
-            type="button"
-            variant="secondary"
-            className="w-full border-amber-400/30 bg-amber-500/10 py-3 text-sm text-amber-50 hover:bg-amber-500/20"
-            onClick={handleClaim}
-          >
-            Забрать сокровище
-          </GameButton>
-        </div>
-      ) : null}
 
       <AnimatePresence>
         {claimBurst ? (
