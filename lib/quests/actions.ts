@@ -118,15 +118,19 @@ export async function completeDailyQuestAction(
     const xpWasApplied = snapshot.totalXp >= recordXpBefore + quest.rewards.xp;
 
     if (xpWasApplied) {
+      // XP was applied on the first attempt, but touchStreak may have failed then.
+      // Call it now — it is idempotent: already-counted today returns a no-op.
+      const streakRes = await touchStreak(supabase, user.id);
+      if (streakRes.error) {
+        console.error("[completeDailyQuestAction] retry touchStreak", streakRes.error);
+      }
       return {
         data: {
           ...snapshot,
           questId: quest.id,
           questTitle: quest.title,
           alreadyCompleted: true,
-          // Стрик за сегодня уже был зачтён первым успешным действием —
-          // повторно трогать БД не нужно.
-          streak: null,
+          streak: streakRes.data,
           companion: buildCompanionFeedback({ leveledUp: false, evolved: false }),
         },
         error: null,

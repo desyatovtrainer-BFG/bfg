@@ -126,10 +126,21 @@ export async function completeWorkoutAction(
     const xpWasApplied = snapshot.totalXp >= recordXpBefore + xpAmount;
 
     if (xpWasApplied) {
+      // XP was applied on the first attempt, but touchStreak may have failed then.
+      // Call it now — it is idempotent: already-counted today returns a no-op.
+      const streakRes = await touchStreak(supabase, user.id);
+      if (streakRes.error) {
+        console.error("[completeWorkoutAction] retry touchStreak", streakRes.error);
+      }
       const companion = buildCompanionFeedback({
         leveledUp: false,
         evolved: false,
-        streak: undefined,
+        streak: streakRes.data
+          ? {
+              increased: streakRes.data.increased,
+              newStreak: streakRes.data.newStreak,
+            }
+          : undefined,
       });
       return {
         data: {
@@ -138,7 +149,7 @@ export async function completeWorkoutAction(
           workoutTitle: workout.title,
           companion,
           alreadyCompleted: true,
-          streak: null,
+          streak: streakRes.data,
         },
         error: null,
       };
