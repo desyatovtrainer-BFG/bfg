@@ -32,7 +32,7 @@ This document reflects reality, not intent. Verify against code when precision m
 - `calculateLevel` / `getLevelProgress` in `lib/progression/levels.ts` — pure functions, source of truth for level derivation.
 - `touchStreak` in `lib/progression/streak.ts` — idempotent per-day streak update.
 - `getAvatarEvolutionForLevel` / `hasEvolved` in `lib/progression/avatar-evolution.ts` — 5-stage ladder keyed on level.
-- XP reward sources defined in `lib/progression/xp-rewards.ts`.
+- XP reward sources defined in `lib/progression/xp-rewards.ts`. Active: `WORKOUT_COMPLETE`, `DAILY_QUEST`. `STREAK_BONUS` and `DAILY_LOGIN` are dead constants pending cleanup (streaks never grant XP — milestones trigger presence feedback only; daily login reward removed from MVP). `MILESTONE` is defined but not wired to any action.
 
 ### Daily quests
 - Quest catalog defined in code at `lib/quests/daily-quests.ts`.
@@ -116,6 +116,7 @@ All primary screens are present:
 3. **No `xp_events` log** — XP history is not auditable; post-M1 (M2 / soft launch).
 4. **No `companion_messages` log** — companion phrase history not persisted; post-M1.
 5. **Quest catalog hardcoded in `lib/quests/daily-quests.ts`** — fine for MVP; becomes a DB table post-MVP.
+6. **Dead XP constants in `lib/progression/xp-rewards.ts`** — `STREAK_BONUS` (product decision 2026-06-09: streaks never grant XP; milestones trigger emotional presence feedback only) and `DAILY_LOGIN` (daily login reward removed from MVP) are unused and pending cleanup. Do not wire them up.
 
 ---
 

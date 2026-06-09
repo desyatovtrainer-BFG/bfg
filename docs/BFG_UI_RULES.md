@@ -162,7 +162,7 @@ Reuse, don't reinvent:
 - `GameCard` for any framed content block.
 - `GameButton` for any tappable action with weight.
 - `BottomNav` for app-level navigation.
-- Streak panel, level card, daily reward panel — all in `app/components/progression/`. Open them before designing a new variant.
+- Streak panel, level card — both in `app/components/progression/`. Open them before designing a new variant. (The daily reward panel was removed from MVP.)
 
 ---
 

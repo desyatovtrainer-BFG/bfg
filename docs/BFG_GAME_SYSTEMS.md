@@ -42,13 +42,18 @@ Every system below feeds this loop. If a proposed feature does not feed the loop
 
 Defined in `lib/progression/xp-rewards.ts`. Numbers are small and round on purpose — see [`BFG_MVP_SCOPE.md`](./BFG_MVP_SCOPE.md) §"no XP inflation".
 
+Active sources in MVP:
+
 | Source              | XP   | Triggered by                                  |
 | ------------------- | ---- | --------------------------------------------- |
 | `WORKOUT_COMPLETE`  | 100  | Finishing a workout session                   |
 | `DAILY_QUEST`       |  50  | Claiming a daily quest completion             |
-| `DAILY_LOGIN`       |  20  | First login of the day (daily reward)         |
-| `STREAK_BONUS`      |  50  | When `touchStreak` increases the streak       |
-| `MILESTONE`         |  75  | Emotional milestones (first workout, return)  |
+| `MILESTONE`         |  75  | Reserved for emotional milestones (first workout, return) — defined in code but not yet wired to any action; amount to be validated in the Phase 3 economy rework |
+
+Not XP sources:
+
+- `STREAK_BONUS` — **product decision (2026-06-09): streaks never grant XP.** Streak milestones trigger emotional presence feedback only (companion/avatar reaction — see §4.2 and §10). The constant in `lib/progression/xp-rewards.ts` is dead code pending cleanup; do not wire it up.
+- `DAILY_LOGIN` — the daily login reward path was removed from MVP (the nonfunctional daily reward panel is gone). The constant in `lib/progression/xp-rewards.ts` is dead code pending cleanup.
 
 ### 2.3 Rules
 
@@ -85,11 +90,11 @@ Pure helpers in `lib/progression/levels.ts`. Curve is intentionally gentle then 
 
 ### 4.2 Rules
 
-- A "counting" action is workout completion or daily quest completion. Daily login alone does **not** advance the streak (it grants a daily login XP only).
+- A "counting" action is workout completion or daily quest completion. Daily login alone does **not** advance the streak (and grants no XP — the daily login reward was removed from MVP, see §2.2).
 - `touchStreak` is **idempotent per day**: a second qualifying action the same day does not increase the streak.
 - Gaps cause a soft restart (streak = 1). **No shame, no negative bonus, no break protection** in MVP. Returning is always safe.
 - Streak is computed in UTC (`todayUtcISO`). If users complain about timezone drift, add a `profiles.timezone` column and switch — but only then.
-- `STREAK_BONUS` XP is granted only when the streak **increases** (not on restart).
+- **Streaks never grant XP** (product decision, 2026-06-09). Streak milestones trigger emotional presence feedback only: companion phrases keyed on milestone values already exist (`STREAK_MILESTONES` in `lib/workouts/companion-feedback.ts` and `lib/companion/build-companion-message.ts`); a matching avatar presence moment is future work. The unused `STREAK_BONUS` constant in `lib/progression/xp-rewards.ts` is dead code pending cleanup.
 
 ---
 

@@ -40,7 +40,7 @@ That's the loop. Everything else is out of MVP.
 - Progression screen (XP bar, streak panel, evolution block).
 
 ### 2.2 Systems
-- XP grants from workouts, daily quests, daily login, streak bonus, milestones.
+- XP grants from workouts and daily quests. (Daily login XP removed from MVP. Streak milestones trigger emotional presence feedback only — no XP. `MILESTONE` is reserved for future progression work. See [`BFG_GAME_SYSTEMS.md`](./BFG_GAME_SYSTEMS.md) §2.2.)
 - Level derivation from total XP (`calculateLevel`).
 - Avatar evolution by level threshold (5-stage ladder).
 - Streak: idempotent per day, soft restart on break, no shaming.

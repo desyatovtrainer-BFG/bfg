@@ -85,7 +85,8 @@ Acceptance criteria for M1 are in `BFG_ROADMAP.md §2.2`.
 | `awardXp` single write path | Done |
 | `calculateLevel` / `getLevelProgress` | Done |
 | `touchStreak` idempotent | Done |
-| XP reward sources defined | Done |
+| XP reward sources defined | Done — active: `WORKOUT_COMPLETE`, `DAILY_QUEST`; `STREAK_BONUS` and `DAILY_LOGIN` are dead constants pending cleanup |
+| Streak XP bonus | Removed by product decision (2026-06-09) — streak milestones trigger presence feedback only, never XP |
 | Level curve implemented | Done |
 | Progression screen (XP bar, streak panel) | Done |
 | XP economy validated (velocity target per stage) | NOT done — Phase 3 of Master Roadmap |

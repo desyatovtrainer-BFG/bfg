@@ -171,7 +171,7 @@ These go in Edge Functions with the service-role key. They are not callable from
 
 These map to [`BFG_GAME_SYSTEMS.md`](./BFG_GAME_SYSTEMS.md) §12 anti-cheat philosophy.
 
-- ❌ The client never sends an XP amount. Server Actions accept a typed `XpRewardSource` from a closed enum (`WORKOUT_COMPLETE`, `DAILY_QUEST`, `DAILY_LOGIN`, `STREAK_BONUS`, `MILESTONE`).
+- ❌ The client never sends an XP amount. Server Actions accept a typed `XpRewardSource` from a closed enum. Active sources: `WORKOUT_COMPLETE`, `DAILY_QUEST`. (`MILESTONE` is reserved for future progression work; `STREAK_BONUS` and `DAILY_LOGIN` are dead constants pending cleanup — streaks never grant XP and daily login XP is out of MVP, see [`BFG_GAME_SYSTEMS.md`](./BFG_GAME_SYSTEMS.md) §2.2.)
 - ❌ The client never sends a level. Level is re-derived in `awardXp` from `xp` via `calculateLevel`.
 - ❌ The client never sends an evolution stage. Stage is re-derived from level via `getAvatarEvolutionForLevel`.
 - ❌ The client never sends a streak value. Streak is re-derived from `last_active_on` in `touchStreak`.
