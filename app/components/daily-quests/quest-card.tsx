@@ -16,10 +16,11 @@ export type QuestCardProps = {
 function QuestGlyph({ kind }: { kind: QuestKind }) {
   const map: Record<QuestKind, string> = {
     steps: "◎",
-    workout: "⚔",
     stretch: "〰",
-    streak_hold: "🔥",
     hydration: "💧",
+    walk: "🚶",
+    breathing: "🌬",
+    recovery: "🌙",
   };
   return (
     <span

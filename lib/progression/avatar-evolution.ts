@@ -1,34 +1,43 @@
 /**
  * Триггеры эволюции аватара.
  *
- * MVP-правило (см. AVATAR_SYSTEM.md): эволюция должна ощущаться плавной
- * и заработанной. Поэтому стадия аватара = функция от уровня, а не
- * отдельная экономика. Один источник истины: уровень растёт → аватар
- * меняет ауру, форму и яркость свечения.
+ * Правило (D010/D011, docs/BFG_PRODUCT_DECISIONS.md): эволюция должна
+ * ощущаться плавной и заработанной. Поэтому стадия аватара = функция от
+ * уровня, а не отдельная экономика. Один источник истины: уровень растёт →
+ * аватар меняет ауру, форму и яркость свечения.
+ *
+ * Лестница: 10 стадий, пороги — квадраты уровней (stage N начинается на
+ * уровне N²): 1 / 4 / 9 / 16 / 25 / 36 / 49 / 64 / 81 / 100.
+ * Стадия 10 — финальная вертикальная эволюция.
  *
  * Это чистый helper. Сам апдейт строки `avatars` делает `awardXp`
  * (или будущий avatar-сервис) — здесь только описание стадий.
+ *
+ * ВРЕМЕННО: имена форм/аур и подписи стадий 2–10 — плейсхолдеры
+ * (`stage2`…`stage10`). Финальные имена не утверждены; при утверждении
+ * меняется только этот файл — awardXp выровняет строки в БД при следующем
+ * начислении XP (reconciliation), плюс запланирован pre-launch reset.
  */
 
 export type AvatarEvolution = {
   stage: number;
+  /** 1..10 — насколько ярко светится. Совпадает со stage для простоты. */
+  glowIntensity: number;
   form: string;
   aura: string;
-  /** 1..5 — насколько ярко светится. Совпадает с stage для простоты. */
-  glowIntensity: number;
 };
 
-/**
- * Лестница стадий. Намеренно короткая (5 шагов на MVP) — чтобы каждое
- * перевоплощение было заметным событием, а не косметической мелочью.
- * Пороги по уровню: 1 / 5 / 10 / 20 / 35.
- */
 const EVOLUTION_LADDER: ReadonlyArray<{ minLevel: number } & AvatarEvolution> = [
   { minLevel: 1, stage: 1, form: "starter", aura: "soft_glow", glowIntensity: 1 },
-  { minLevel: 5, stage: 2, form: "awakened", aura: "focused_glow", glowIntensity: 2 },
-  { minLevel: 10, stage: 3, form: "attuned", aura: "radiant_glow", glowIntensity: 3 },
-  { minLevel: 20, stage: 4, form: "ascendant", aura: "prismatic_glow", glowIntensity: 4 },
-  { minLevel: 35, stage: 5, form: "transcendent", aura: "stellar_glow", glowIntensity: 5 },
+  { minLevel: 4, stage: 2, form: "stage2", aura: "aura2", glowIntensity: 2 },
+  { minLevel: 9, stage: 3, form: "stage3", aura: "aura3", glowIntensity: 3 },
+  { minLevel: 16, stage: 4, form: "stage4", aura: "aura4", glowIntensity: 4 },
+  { minLevel: 25, stage: 5, form: "stage5", aura: "aura5", glowIntensity: 5 },
+  { minLevel: 36, stage: 6, form: "stage6", aura: "aura6", glowIntensity: 6 },
+  { minLevel: 49, stage: 7, form: "stage7", aura: "aura7", glowIntensity: 7 },
+  { minLevel: 64, stage: 8, form: "stage8", aura: "aura8", glowIntensity: 8 },
+  { minLevel: 81, stage: 9, form: "stage9", aura: "aura9", glowIntensity: 9 },
+  { minLevel: 100, stage: 10, form: "stage10", aura: "aura10", glowIntensity: 10 },
 ];
 
 /** Какая стадия аватара соответствует данному уровню. */
@@ -103,9 +112,23 @@ export function getEvolutionProgress(level: number): EvolutionProgress {
 /**
  * Русские подписи стадий — UI рисует их рядом с аватаром.
  * Маппинг по `form`, чтобы не зависеть от номера стадии при правках лестницы.
+ *
+ * ВРЕМЕННО: подписи stage2–stage10 — плейсхолдеры до утверждения имён.
+ * Старые ключи (awakened и т.д.) оставлены для строк БД, записанных до
+ * pre-launch reset — graceful-отображение, не источник истины.
  */
 const AVATAR_FORM_LABEL_RU: Record<string, string> = {
   starter: "Искра пути",
+  stage2: "Стадия 2",
+  stage3: "Стадия 3",
+  stage4: "Стадия 4",
+  stage5: "Стадия 5",
+  stage6: "Стадия 6",
+  stage7: "Стадия 7",
+  stage8: "Стадия 8",
+  stage9: "Стадия 9",
+  stage10: "Стадия 10",
+  // legacy-значения (до reset) — старая 5-ступенчатая лестница
   awakened: "Пробуждение",
   attuned: "Поток силы",
   ascendant: "Восхождение",
@@ -119,9 +142,21 @@ export function getAvatarFormLabel(form: string): string {
 /**
  * Русские подписи аур. Маппинг по строке из БД, чтобы UI говорил
  * «Сияние», а не «radiant_glow».
+ *
+ * ВРЕМЕННО: aura2–aura10 — плейсхолдеры до утверждения имён.
  */
 const AVATAR_AURA_LABEL_RU: Record<string, string> = {
   soft_glow: "Мягкое свечение",
+  aura2: "Аура второй стадии",
+  aura3: "Аура третьей стадии",
+  aura4: "Аура четвёртой стадии",
+  aura5: "Аура пятой стадии",
+  aura6: "Аура шестой стадии",
+  aura7: "Аура седьмой стадии",
+  aura8: "Аура восьмой стадии",
+  aura9: "Аура девятой стадии",
+  aura10: "Аура десятой стадии",
+  // legacy-значения (до reset)
   focused_glow: "Сфокусированный свет",
   radiant_glow: "Сияние",
   prismatic_glow: "Призматический свет",
@@ -133,17 +168,23 @@ export function getAvatarAuraLabel(aura: string): string {
 }
 
 /**
- * Короткие эмоциональные подписи к стадиям. Не «лор», а ощущение —
- * AVATAR_SYSTEM.md: эволюция должна чувствоваться, а не объясняться.
- * Маппинг по номеру стадии, потому что это естественная шкала
- * (1..5) и не ломается, если в `avatars` где-то рассинхронизирован `form`.
+ * Короткие эмоциональные подписи к стадиям. Не «лор», а ощущение.
+ * Маппинг по номеру стадии (1..10).
+ *
+ * ВРЕМЕННО: тексты стадий 2–10 — нейтральные плейсхолдеры до утверждения
+ * финального флейвора; стадия 1 сохраняет утверждённый текст.
  */
 const AVATAR_STAGE_FLAVOR_RU: Record<number, string> = {
   1: "Искра только зажглась. Каждый шаг закрепляет твой путь.",
-  2: "Свет внутри становится устойчивым. Тело учится слышать намерение.",
-  3: "Ты входишь в поток. Сила стала привычкой.",
-  4: "Образ становится ярче. Ты узнаваем по движению.",
-  5: "Твоя форма звучит как звезда. Путь продолжается.",
+  2: "Форма меняется. Путь продолжается.",
+  3: "Форма меняется. Путь продолжается.",
+  4: "Форма меняется. Путь продолжается.",
+  5: "Форма меняется. Путь продолжается.",
+  6: "Форма меняется. Путь продолжается.",
+  7: "Форма меняется. Путь продолжается.",
+  8: "Форма меняется. Путь продолжается.",
+  9: "Форма меняется. Путь продолжается.",
+  10: "Форма меняется. Путь продолжается.",
 };
 
 export function getAvatarStageFlavor(stage: number): string {

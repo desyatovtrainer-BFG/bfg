@@ -7,14 +7,32 @@
  * cross-component типы фичи лежат в `lib/<feature>/types.ts`, а
  * `app/components/<feature>` импортирует их из публичной поверхности
  * через `@/lib/quests`.
+ *
+ * Квесты «тренировка» и «удержать серию» удалены по решениям D018/D019
+ * (docs/BFG_PRODUCT_DECISIONS.md): тренировка награждается один раз через
+ * WORKOUT_COMPLETE, а серия никогда не даёт XP.
  */
 
 export type QuestKind =
   | "steps"
-  | "workout"
   | "stretch"
-  | "streak_hold"
-  | "hydration";
+  | "hydration"
+  | "walk"
+  | "breathing"
+  | "recovery";
+
+/**
+ * Поведенческая категория квеста (D033). Дневная подборка не должна
+ * содержать два квеста одной категории — категории и обеспечивают
+ * разнообразие здоровых действий. Список растёт вместе с каталогом.
+ */
+export type QuestCategory =
+  | "training"
+  | "mobility"
+  | "walking"
+  | "recovery"
+  | "hydration"
+  | "breathing";
 
 export type QuestState = "locked" | "active" | "completed" | "reward_claimed";
 
@@ -32,6 +50,7 @@ export type QuestProgress = {
 export type DailyQuest = {
   id: string;
   kind: QuestKind;
+  category: QuestCategory;
   title: string;
   subtitle: string;
   state: QuestState;
@@ -43,8 +62,9 @@ export type DailyQuest = {
 
 export const QUEST_KIND_LABEL: Record<QuestKind, string> = {
   steps: "Шаги",
-  workout: "Тренировка",
   stretch: "Растяжка",
-  streak_hold: "Серия",
   hydration: "Гидратация",
+  walk: "Прогулка",
+  breathing: "Дыхание",
+  recovery: "Восстановление",
 };
