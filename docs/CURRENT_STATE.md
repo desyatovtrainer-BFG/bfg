@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-What actually exists in the BFG codebase today (as of 2026-06-05).
+What actually exists in the BFG codebase today (as of 2026-06-12).
 This document reflects reality, not intent. Verify against code when precision matters.
 
 ---
@@ -28,15 +28,16 @@ This document reflects reality, not intent. Verify against code when precision m
 - `getUser()` in `lib/auth/get-user.ts` is the single server-side identity function.
 
 ### Progression
-- `awardXp` in `lib/progression/award-xp.ts` — single path for all XP writes. Updates `profiles.xp`, recomputes `profiles.level`, triggers avatar evolution if threshold crossed.
-- `calculateLevel` / `getLevelProgress` in `lib/progression/levels.ts` — pure functions, source of truth for level derivation.
+- `awardXp` in `lib/progression/award-xp.ts` — single path for all XP writes. Updates `profiles.xp`, recomputes `profiles.level`, reconciles avatar evolution stage on every call.
+- `calculateLevel` / `getLevelProgress` in `lib/progression/levels.ts` — pure functions, source of truth for level derivation. Flat 50 XP per level, capped at level 100 (registry D012/D013).
 - `touchStreak` in `lib/progression/streak.ts` — idempotent per-day streak update.
-- `getAvatarEvolutionForLevel` / `hasEvolved` in `lib/progression/avatar-evolution.ts` — 5-stage ladder keyed on level.
-- XP reward sources defined in `lib/progression/xp-rewards.ts`. Active: `WORKOUT_COMPLETE`, `DAILY_QUEST`. `STREAK_BONUS` and `DAILY_LOGIN` are dead constants pending cleanup (streaks never grant XP — milestones trigger presence feedback only; daily login reward removed from MVP). `MILESTONE` is defined but not wired to any action.
+- `getAvatarEvolutionForLevel` / `hasEvolved` in `lib/progression/avatar-evolution.ts` — 10-stage ladder at square level thresholds 1/4/9/16/25/36/49/64/81/100 (registry D010/D011). Stage names/labels for stages 2–10 are temporary placeholders pending approval.
+- XP reward sources in `lib/progression/xp-rewards.ts`. Active: `WORKOUT_COMPLETE` = 10 (registry D015). Quest XP is catalog-driven (3–5 by difficulty; temporary uniform 4 — registry D016). `MILESTONE` is defined but unwired; its value is TBD with D014. The dead `STREAK_BONUS` / `DAILY_LOGIN` / `DAILY_QUEST` constants have been removed.
 
 ### Daily quests
-- Quest catalog defined in code at `lib/quests/daily-quests.ts`.
-- `claimDailyQuestAction` in `lib/quests/actions.ts` — inserts into `daily_quest_completions` (unique per `user_id + quest_id + completed_on`), awards XP, touches streak, returns companion feedback.
+- Quest catalog defined in code at `lib/quests/daily-quests.ts` — 5 supportive quests (mobility, hydration, walking, breathing, recovery), each with a behavior `category`. Workout and streak quests removed (registry D018/D019).
+- Daily selection of 3 quests per user/day (registry D017): `selectDailyQuestIds` — deterministic seeded pure function, category de-duplicated (registry D033). No selection table, no cron.
+- `completeDailyQuestAction` in `lib/quests/actions.ts` — recomputes the day's selection server-side and rejects non-selected quest ids before any DB access; then inserts into `daily_quest_completions` (unique per `user_id + quest_id + completed_on`), awards catalog-driven XP, touches streak, returns companion feedback.
 - Quest completion screen at `app/(app)/quests/` with `app/components/daily-quests/`.
 - `xp_before` column on `daily_quest_completions` supports XP recovery if the two-step flow fails (migration 0009).
 
@@ -115,13 +116,15 @@ All primary screens are present:
 2. **No TanStack Query yet** — optimistic UI and background refetch will require it when the UX demands it.
 3. **No `xp_events` log** — XP history is not auditable; post-M1 (M2 / soft launch).
 4. **No `companion_messages` log** — companion phrase history not persisted; post-M1.
-5. **Quest catalog hardcoded in `lib/quests/daily-quests.ts`** — fine for MVP; becomes a DB table post-MVP.
-6. **Dead XP constants in `lib/progression/xp-rewards.ts`** — `STREAK_BONUS` (product decision 2026-06-09: streaks never grant XP; milestones trigger emotional presence feedback only) and `DAILY_LOGIN` (daily login reward removed from MVP) are unused and pending cleanup. Do not wire them up.
+5. **Quest catalog hardcoded in `lib/quests/daily-quests.ts`** — fine for MVP; becomes a DB table post-MVP. Note: the daily selection is a function of the catalog, so a mid-day catalog change reshuffles users' selections that day.
 
 ---
 
 ## Recently completed work (last ~10 commits)
 
+- **Progression economy rebalance (P0A):** workout = 10 XP, flat 50 XP levels capped at 100, 10-stage square evolution ladder, supportive 5-quest catalog with categories, dead XP constants removed.
+- **Daily quest selection layer (P0B):** deterministic 3-per-day selection with category de-duplication and server-side claim validation.
+- **Pre-launch data reset:** profiles XP/level, avatar state, and completion tables reset to the new economy scale.
 - Surfaced avatar/companion presence on the dashboard.
 - Fixed and simplified daily quest completion flow.
 - Showed companion feedback after quest completion.

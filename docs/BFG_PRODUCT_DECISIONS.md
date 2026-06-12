@@ -13,7 +13,7 @@ Rules:
 
 - A decision enters this registry only when accepted.
 - A decision is removed only by a superseding decision, never silently.
-- Implementation Status reflects the codebase at the time of the last registry update (2026-06-10).
+- Implementation Status reflects the codebase at the time of the last registry update (2026-06-12, after the P0A/P0B progression economy rebalance and data reset).
 - When another doc disagrees with this registry, this registry wins and the other doc must be updated.
 
 ---
@@ -262,10 +262,10 @@ Reason:
 Ten transformations sustain a multi-year journey; a hard final stage gives the endgame a clean boundary.
 
 Implementation Status:
-Not Implemented — code has a 5-stage ladder (`lib/progression/avatar-evolution.ts`).
+Implemented — 10-stage ladder in `lib/progression/avatar-evolution.ts`; stage names/auras/flavor for stages 2–10 are temporary placeholders pending approval (visual distinctness tracked under D009).
 
 Related Documents:
-BFG_GAME_SYSTEMS.md §5 (outdated — documents 5 stages)
+BFG_GAME_SYSTEMS.md §5
 
 ---
 
@@ -287,10 +287,10 @@ Reason:
 Monotonically increasing rarity to the very end; formula-clean (stage = ⌊√level⌋); earliest possible first evolution for beginners. Chosen over a linear-accelerating model whose truncated final gap broke rarity at the climax.
 
 Implementation Status:
-Not Implemented
+Implemented — `lib/progression/avatar-evolution.ts`
 
 Related Documents:
-BFG_GAME_SYSTEMS.md §5 (outdated thresholds: 1/5/10/20/35)
+BFG_GAME_SYSTEMS.md §5
 
 ---
 
@@ -312,7 +312,7 @@ Reason:
 A finite, legible vertical ladder gives the journey a real summit; growth continues afterward in breadth, not height.
 
 Implementation Status:
-Not Implemented — current code has no level cap (guard at 999).
+Implemented — `calculateLevel` caps at 100 (`lib/progression/levels.ts`); horizontal systems beyond it remain future work (D025).
 
 Related Documents:
 lib/progression/levels.ts (via CURRENT_STATE.md)
@@ -337,10 +337,10 @@ Reason:
 Predictable rhythm; pacing differentiation comes from stage threshold spacing (Decision 011), not from inflating level costs.
 
 Implementation Status:
-Not Implemented — current curve is 100 + 50·(n−1) per level, uncapped.
+Implemented — flat 50 XP per level in `lib/progression/levels.ts`.
 
 Related Documents:
-BFG_GAME_SYSTEMS.md §3 (outdated curve)
+BFG_GAME_SYSTEMS.md §3
 
 ---
 
@@ -387,10 +387,10 @@ Reason:
 Anchors the economy: a workout-only active user (5/week) reaches Stage 10 in ≈ 2 years, matching the target journey length.
 
 Implementation Status:
-Not Implemented — `WORKOUT_COMPLETE` is 100 XP in `lib/progression/xp-rewards.ts`.
+Implemented — `WORKOUT_COMPLETE: 10` in `lib/progression/xp-rewards.ts`.
 
 Related Documents:
-BFG_GAME_SYSTEMS.md §2.2 (outdated values)
+BFG_GAME_SYSTEMS.md §2.2
 
 ---
 
@@ -412,7 +412,7 @@ Reason:
 Quests support training, never rival it (Decision 020); per action, a workout remains the largest single XP source.
 
 Implementation Status:
-Not Implemented — `DAILY_QUEST` is 50 XP flat; catalog cards display 40–140 XP.
+Partially Implemented — quest XP is catalog-driven and inside the 3–5 band, but currently a temporary uniform 4 XP; per-difficulty values pending approval.
 
 Related Documents:
 BFG_GAME_SYSTEMS.md §2.2, lib/quests/daily-quests.ts (via CURRENT_STATE.md)
@@ -437,10 +437,10 @@ Reason:
 Caps quest aggregation — without a daily bound, a quest-heavy user out-earns trainers and breaks training primacy (verified in Phase 3 simulations). A separate, growing catalog keeps content fresh without inflating the daily XP budget.
 
 Implementation Status:
-Not Implemented — current catalog offers 4 quests, all claimable daily; no selection layer exists.
+Implemented — `selectDailyQuestIds` (deterministic per user/UTC-day) + server-side validation in `completeDailyQuestAction`; catalog holds 5, daily surface is 3.
 
 Related Documents:
-lib/quests/daily-quests.ts (via CURRENT_STATE.md)
+lib/quests/daily-quests.ts, lib/quests/actions.ts (via CURRENT_STATE.md)
 Note: see Registry Notes — Quest Architecture. The M1 checklist item "≥5 daily quests in catalog" refers to the catalog pool, not the daily surface; the two requirements do not conflict.
 
 ---
@@ -463,7 +463,7 @@ Reason:
 The quest double-dipped with workout XP, rewarding the same action twice.
 
 Implementation Status:
-Not Implemented — quest `workout` (140 XP) is still in the catalog.
+Implemented — removed from the catalog (P0A).
 
 Related Documents:
 lib/quests/daily-quests.ts (via CURRENT_STATE.md)
@@ -488,7 +488,7 @@ Reason:
 It paid XP for streak-holding (violating Decision 021 in spirit) and was circular — auto-satisfied by any counting action.
 
 Implementation Status:
-Not Implemented — quest `streak` (50 XP) is still in the catalog.
+Implemented — removed from the catalog (P0A).
 
 Related Documents:
 lib/quests/daily-quests.ts (via CURRENT_STATE.md)
@@ -513,7 +513,7 @@ Reason:
 BFG is a fitness product; progression must reflect training, or the avatar's growth is a lie.
 
 Implementation Status:
-Not Implemented — current numbers violate it (a single quest card pays up to 140 XP vs workout 100).
+Implemented — workout (10 XP) out-earns any single quest (4 XP) 2.5×; the daily quest ceiling is 12 XP across the 3 selected quests (P0A + P0B).
 
 Related Documents:
 BFG_GAME_SYSTEMS.md §2, BFG_MVP_SCOPE.md §2.2
@@ -538,7 +538,7 @@ Reason:
 Streak pressure converted into XP creates loss-anxiety mechanics; the streak is presence continuity, not currency.
 
 Implementation Status:
-Implemented — no streak XP path exists; the dead `STREAK_BONUS` constant awaits cleanup.
+Implemented — no streak XP path exists; the former `STREAK_BONUS` constant has been removed (P0A).
 
 Related Documents:
 BFG_GAME_SYSTEMS.md §2.2 / §4.2, CURRENT_STATE.md
@@ -588,7 +588,7 @@ Reason:
 Login is not a fitness action; rewarding it inflates XP with zero training signal.
 
 Implementation Status:
-Implemented — daily reward panel removed; the dead `DAILY_LOGIN` constant awaits cleanup.
+Implemented — daily reward panel removed; the former `DAILY_LOGIN` constant has been removed (P0A).
 
 Related Documents:
 BFG_GAME_SYSTEMS.md §2.2, CURRENT_STATE.md
@@ -847,7 +847,7 @@ Reason:
 Daily quests should encourage a variety of healthy behaviors, not repeat the same behavior under different names.
 
 Implementation Status:
-Not Implemented — the current catalog is a flat list with no category field and no daily selection logic.
+Implemented — every catalog quest carries a `category`; the daily selection admits at most one quest per category (the category-agnostic fill pass is reachable only in future catalogs with fewer than 3 distinct categories, per the "where possible" clause).
 
 Related Documents:
 lib/quests/daily-quests.ts (via CURRENT_STATE.md), BFG_GAME_SYSTEMS.md §6
@@ -951,15 +951,15 @@ Daily Quest Selection
 
 ## Doc drift (not contradictions)
 
-`BFG_GAME_SYSTEMS.md` (§2.2 XP values, §3.1 level curve, §5.2 stage ladder), `CURRENT_STATE.md`, and `MVP_STATUS.md` describe the pre-rebalance economy (100/50 XP, 5 stages, increasing level cost). They document the implemented state, which Decisions 010–019 intentionally supersede. They require a sync pass when the rebalance is implemented.
+Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implemented (P0A/P0B + data reset) and `BFG_GAME_SYSTEMS.md`, `BFG_MVP_SCOPE.md`, `BFG_SECURITY.md`, `CURRENT_STATE.md`, and `MVP_STATUS.md` were synced to it. Remaining drift is tracked in `BFG_PRODUCT_GAPS.md` (currently: the `CURRENT_PRIORITIES.md` Phase 3 deliverable pointer).
 
 ## Implementation summary
 
 | Status | Count | Decisions |
 |---|---|---|
-| Implemented | 7 | 001, 021, 023, 029, 030, 031, 032 |
-| Partially Implemented | 5 | 002, 007, 009, 022, 035 |
-| Not Implemented | 23 | 003–006, 008, 010–020, 024–028, 033, 034 |
+| Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
+| Partially Implemented | 6 | 002, 007, 009, 016, 022, 035 |
+| Not Implemented | 12 | 003–006, 008, 014, 024–028, 034 |
 
 Total decisions: 35.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).

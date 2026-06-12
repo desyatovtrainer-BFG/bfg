@@ -42,7 +42,7 @@ That's the loop. Everything else is out of MVP.
 ### 2.2 Systems
 - XP grants from workouts and daily quests. (Daily login XP removed from MVP. Streak milestones trigger emotional presence feedback only — no XP. `MILESTONE` is reserved for future progression work. See [`BFG_GAME_SYSTEMS.md`](./BFG_GAME_SYSTEMS.md) §2.2.)
 - Level derivation from total XP (`calculateLevel`).
-- Avatar evolution by level threshold (5-stage ladder).
+- Avatar evolution by level threshold (10-stage ladder, square thresholds — registry D010/D011).
 - Streak: idempotent per day, soft restart on break, no shaming.
 - 30-day trial subscription state, no payment yet.
 - Companion: deterministic Russian phrases by state. *(Avatar evolution = body-role; companion phrases = voice-role of the same presence.)*
@@ -150,8 +150,8 @@ When this whole list passes, M1 is done (see [`BFG_ROADMAP.md`](./BFG_ROADMAP.md
 
 - [ ] All 9 documents in `docs/` are up to date with reality.
 - [ ] At least 3 workouts with real Kinescope videos.
-- [ ] At least 5 daily quests in the catalog.
-- [ ] 5-stage avatar evolution visually distinct.
+- [x] At least 5 daily quests in the catalog (daily surface = 3 by design, registry D017).
+- [ ] 10-stage avatar evolution visually distinct.
 - [ ] Trial state visible in profile.
 - [ ] All §5.2 invariants verified manually.
 - [ ] `BFG_SECURITY.md` release checklist passed.

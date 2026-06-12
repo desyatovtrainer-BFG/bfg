@@ -40,20 +40,20 @@ Every system below feeds this loop. If a proposed feature does not feed the loop
 
 ### 2.2 Reward sources
 
-Defined in `lib/progression/xp-rewards.ts`. Numbers are small and round on purpose — see [`BFG_MVP_SCOPE.md`](./BFG_MVP_SCOPE.md) §"no XP inflation".
+Defined in `lib/progression/xp-rewards.ts` (workout, milestone) and `lib/quests/daily-quests.ts` (quest XP — catalog-driven). Numbers are small by design — see `BFG_PRODUCT_DECISIONS.md` D015/D016/D020: training is the primary progression source, quests are supportive.
 
 Active sources in MVP:
 
 | Source              | XP   | Triggered by                                  |
 | ------------------- | ---- | --------------------------------------------- |
-| `WORKOUT_COMPLETE`  | 100  | Finishing a workout session                   |
-| `DAILY_QUEST`       |  50  | Claiming a daily quest completion             |
-| `MILESTONE`         |  75  | Reserved for emotional milestones (first workout, return) — defined in code but not yet wired to any action; amount to be validated in the Phase 3 economy rework |
+| `WORKOUT_COMPLETE`  | 10   | Finishing a workout session (D015)            |
+| Daily quest (catalog) | 3–5 per quest, by difficulty (currently a temporary uniform 4 — per-difficulty values pending approval) | Claiming a daily quest; the amount comes from the quest's catalog entry, server-side (D016) |
+| `MILESTONE`         | reserved | Defined in code but not wired to any action; its value will be decided with the D014 onboarding milestone (P1). Do not use before then. |
 
 Not XP sources:
 
-- `STREAK_BONUS` — **product decision (2026-06-09): streaks never grant XP.** Streak milestones trigger emotional presence feedback only (companion/avatar reaction — see §4.2 and §10). The constant in `lib/progression/xp-rewards.ts` is dead code pending cleanup; do not wire it up.
-- `DAILY_LOGIN` — the daily login reward path was removed from MVP (the nonfunctional daily reward panel is gone). The constant in `lib/progression/xp-rewards.ts` is dead code pending cleanup.
+- **Streaks** — product decision (2026-06-09), registry D021: streaks never grant XP. Streak milestones trigger emotional presence feedback only (companion/avatar reaction — see §4.2 and §10). The former `STREAK_BONUS` constant has been removed from the code.
+- **Daily login** — removed from MVP (registry D023). The former `DAILY_LOGIN` constant has been removed from the code.
 
 ### 2.3 Rules
 
@@ -69,10 +69,11 @@ Not XP sources:
 
 ### 3.1 Curve
 
-Pure helpers in `lib/progression/levels.ts`. Curve is intentionally gentle then linearly steeper. No exponentials.
+Pure helpers in `lib/progression/levels.ts`. Flat cost, hard cap (registry D012/D013).
 
-- `xpRequiredForLevel(level)`: `100 * (n - 1) + 25 * (n - 1) * (n - 2)` where `n = level - 1`.
-- Level 1 → 2: 100 XP. Level 2 → 3: 150 XP. Level 3 → 4: 200 XP. Etc.
+- Every level costs exactly **50 XP**. The cost never increases.
+- **100 vertical levels.** Level 100 coincides with evolution Stage 10 and ends vertical progression; the user's journey continues through horizontal systems post-Stage-10 (registry D025, future work).
+- `xpRequiredForLevel(level)` = `50 × (level − 1)`, clamped at level 100. `calculateLevel(totalXp)` = `min(100, ⌊totalXp / 50⌋ + 1)`.
 
 ### 3.2 Rules
 
@@ -94,7 +95,7 @@ Pure helpers in `lib/progression/levels.ts`. Curve is intentionally gentle then 
 - `touchStreak` is **idempotent per day**: a second qualifying action the same day does not increase the streak.
 - Gaps cause a soft restart (streak = 1). **No shame, no negative bonus, no break protection** in MVP. Returning is always safe.
 - Streak is computed in UTC (`todayUtcISO`). If users complain about timezone drift, add a `profiles.timezone` column and switch — but only then.
-- **Streaks never grant XP** (product decision, 2026-06-09). Streak milestones trigger emotional presence feedback only: companion phrases keyed on milestone values already exist (`STREAK_MILESTONES` in `lib/workouts/companion-feedback.ts` and `lib/companion/build-companion-message.ts`); a matching avatar presence moment is future work. The unused `STREAK_BONUS` constant in `lib/progression/xp-rewards.ts` is dead code pending cleanup.
+- **Streaks never grant XP** (product decision, 2026-06-09; registry D021). Streak milestones trigger emotional presence feedback only: companion phrases keyed on milestone values already exist (`STREAK_MILESTONES` in `lib/workouts/companion-feedback.ts` and `lib/companion/build-companion-message.ts`); a matching avatar presence moment is future work. The former `STREAK_BONUS` constant has been removed from the code.
 
 ---
 
@@ -106,15 +107,22 @@ Pure helpers in `lib/progression/levels.ts`. Curve is intentionally gentle then 
 
 ### 5.2 Ladder
 
-Defined in `lib/progression/avatar-evolution.ts`. Five stages, intentionally short so each transition is felt:
+Defined in `lib/progression/avatar-evolution.ts`. **Ten stages** at **square level thresholds** (stage N begins at level N² — registry D010/D011). Stage 10 is the final vertical evolution.
 
-| Stage | Min level | Form           | Aura               | Glow |
-| ----- | --------- | -------------- | ------------------ | ---- |
-| 1     | 1         | `starter`      | `soft_glow`        | 1    |
-| 2     | 5         | `awakened`     | `focused_glow`     | 2    |
-| 3     | 10        | `attuned`      | `radiant_glow`     | 3    |
-| 4     | 20        | `ascendant`    | `prismatic_glow`   | 4    |
-| 5     | 35        | `transcendent` | `stellar_glow`     | 5    |
+| Stage | Min level | Form         | Aura      | Glow |
+| ----- | --------- | ------------ | --------- | ---- |
+| 1     | 1         | `starter`    | `soft_glow` | 1  |
+| 2     | 4         | `stage2`*    | `aura2`*  | 2    |
+| 3     | 9         | `stage3`*    | `aura3`*  | 3    |
+| 4     | 16        | `stage4`*    | `aura4`*  | 4    |
+| 5     | 25        | `stage5`*    | `aura5`*  | 5    |
+| 6     | 36        | `stage6`*    | `aura6`*  | 6    |
+| 7     | 49        | `stage7`*    | `aura7`*  | 7    |
+| 8     | 64        | `stage8`*    | `aura8`*  | 8    |
+| 9     | 81        | `stage9`*    | `aura9`*  | 9    |
+| 10    | 100       | `stage10`*   | `aura10`* | 10   |
+
+\* Temporary placeholder identifiers/labels — final stage names, auras, and flavor text are pending approval. Renaming is a code-only change; `awardXp` reconciliation realigns stored rows automatically.
 
 ### 5.3 Rules
 
@@ -134,10 +142,14 @@ Catalog defined in code (`lib/quests/daily-quests.ts`). Completions persisted to
 
 ### 6.2 Rules
 
+- The catalog is the **content pool** (5 supportive quests: mobility, hydration, walking, breathing, recovery — workout and streak quests were removed, registry D018/D019). Each quest carries a behavior `category` (D033).
+- The user receives a **daily selection of 3 quests** (D017): `selectDailyQuestIds(userId, dateISO)` — a deterministic pure function (seeded shuffle of the catalog), stable within a UTC day, rotating across days. No selection table, no cron.
+- The daily selection **never contains two quests of the same category** with the current catalog; a category-agnostic fill pass exists only for future catalogs with fewer than 3 distinct categories (D033 "where possible").
+- **Server-side validation:** `completeDailyQuestAction` recomputes the selection from the session user id and rejects non-selected quest ids before any DB read/write. The client submits only a quest id.
 - One quest may be claimed at most once per `(user, quest_id, day)`. Enforced by a unique index.
-- Quest XP is granted server-side via `awardXp` with `source: 'DAILY_QUEST'`. Client never specifies the amount.
-- Quest catalog is **content** but lives in code on MVP. When it becomes user-editable, it moves to its own table (see [`BFG_DATABASE.md`](./BFG_DATABASE.md) §10).
-- Reset is **per local UTC day** — there is no manual reset endpoint. The next day, the row simply does not exist yet.
+- Quest XP is granted server-side via `awardXp` with the amount resolved from the quest's **catalog entry** (3–5 XP by difficulty; currently a temporary uniform 4). Client never specifies the amount.
+- Quest catalog is **content** but lives in code on MVP. When it becomes user-editable, it moves to its own table (see [`BFG_DATABASE.md`](./BFG_DATABASE.md) §10). Note for editors: the daily selection is a function of the catalog — changing the catalog mid-day changes users' selections that same day.
+- Reset is **per UTC day** — there is no manual reset endpoint. The next day, the row simply does not exist yet.
 - A failed claim must show a calm Russian message and never reveal Supabase error text.
 
 ---

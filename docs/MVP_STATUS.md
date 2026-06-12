@@ -1,6 +1,6 @@
 # MVP_STATUS
 
-Completion estimate by system as of 2026-06-05.
+Completion estimate by system as of 2026-06-12.
 Used to assess release readiness and prioritize remaining M1 work.
 
 Acceptance criteria for M1 are in `BFG_ROADMAP.md §2.2`.
@@ -78,18 +78,18 @@ Acceptance criteria for M1 are in `BFG_ROADMAP.md §2.2`.
 
 ---
 
-### Progression (XP / Level / Streak) — ~70%
+### Progression (XP / Level / Streak) — ~85%
 
 | Item | Status |
 |------|--------|
 | `awardXp` single write path | Done |
 | `calculateLevel` / `getLevelProgress` | Done |
 | `touchStreak` idempotent | Done |
-| XP reward sources defined | Done — active: `WORKOUT_COMPLETE`, `DAILY_QUEST`; `STREAK_BONUS` and `DAILY_LOGIN` are dead constants pending cleanup |
+| XP reward sources defined | Done — `WORKOUT_COMPLETE` = 10; quest XP catalog-driven (3–5, temporary uniform 4); dead constants removed |
 | Streak XP bonus | Removed by product decision (2026-06-09) — streak milestones trigger presence feedback only, never XP |
-| Level curve implemented | Done |
+| Level curve implemented | Done — flat 50 XP per level, capped at level 100 (D012/D013) |
 | Progression screen (XP bar, streak panel) | Done |
-| XP economy validated (velocity target per stage) | NOT done — Phase 3 of Master Roadmap |
+| XP economy validated (velocity target per stage) | Done — Phase 3 design + P0A/P0B implementation; per-difficulty quest values pending approval |
 | Progression audit (end-to-end correctness) | NOT done — Phase 2 of Master Roadmap |
 
 ---
@@ -98,27 +98,31 @@ Acceptance criteria for M1 are in `BFG_ROADMAP.md §2.2`.
 
 | Item | Status |
 |------|--------|
-| 5-stage evolution ladder | Done |
+| 10-stage evolution ladder (square thresholds 1/4/9/…/100) | Done — D010/D011; stage names/labels temporary pending approval |
 | `hasEvolved` + avatar write in `awardXp` | Done |
-| Stage-colored avatar on dashboard | Done |
+| Stage-colored avatar on dashboard | Done — stages 6–10 currently reuse stage-5 colors (clamped), distinct visuals pending |
 | Avatar page (`/avatar`) | Done |
 | Evolution moment animation on stage change | NOT done — M1 must-ship |
-| 5 stages visually distinct (beyond color) | Partial — SVG silhouette only, no distinct forms yet |
+| 10 stages visually distinct (beyond color) | Partial — SVG silhouette only, no distinct forms yet |
 
 ---
 
-### Daily Quests — ~80%
+### Daily Quests — ~90%
 
 | Item | Status |
 |------|--------|
-| Quest catalog in code | Done |
+| Quest catalog in code | Done — 5 supportive quests with behavior categories; workout/streak quests removed (D018/D019) |
+| Daily selection: 3 quests/day, deterministic, category-deduplicated | Done — D017/D033, pure function, no DB state |
+| Server-side selection validation in claim action | Done — non-selected ids rejected before any DB access |
 | Idempotent `claimDailyQuestAction` | Done |
-| Quests screen | Done |
+| Quests screen | Done — renders the selected 3 |
 | Quest cards with claim state | Done |
 | Companion feedback after claim | Done |
 | Streak integration on quest claim | Done |
-| ≥5 active quests in catalog | Needs verification — check `lib/quests/daily-quests.ts` |
+| ≥5 active quests in catalog | Done — 5 (catalog = pool; daily surface = 3) |
 | Double-claim blocked in UI | Done (idempotency + server guard) |
+| Per-difficulty quest XP values (3–5) | Partial — temporary uniform 4 XP pending approval |
+| Final Russian copy for new quests | Partial — DRAFT copy pending content review |
 
 ---
 
@@ -186,8 +190,8 @@ Acceptance criteria for M1 are in `BFG_ROADMAP.md §2.2`.
 | Item | Status |
 |------|--------|
 | ≥3 workouts with real Kinescope video IDs | NOT done |
-| ≥5 active daily quests | Needs verification |
-| All quest XP amounts reviewed | NOT done — blocked on Phase 3 economy rework |
+| ≥5 active daily quests | Done — 5 in catalog (daily surface = 3 by design, D017) |
+| All quest XP amounts reviewed | Partial — economy rework done (3–5 band); temporary uniform 4 XP, per-difficulty values pending approval |
 
 ---
 
@@ -212,8 +216,8 @@ All of these must pass before M1 closes. From `BFG_ROADMAP.md §2.2` and `BFG_MV
 
 - [ ] All docs in `docs/` up to date with reality (partially done — `BFG_DATABASE.md §10` needs update).
 - [ ] ≥3 workouts with real Kinescope videos in DB.
-- [ ] ≥5 daily quests in catalog.
-- [ ] 5-stage avatar evolution visually distinct.
+- [x] ≥5 daily quests in catalog (daily surface = 3 by design, D017).
+- [ ] 10-stage avatar evolution visually distinct.
 - [ ] Avatar evolution animation on stage change (< 600ms).
 - [ ] Trial state visible in profile.
 - [ ] All `BFG_MVP_SCOPE.md §5.2` invariants verified manually.

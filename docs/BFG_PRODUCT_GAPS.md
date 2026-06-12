@@ -1,6 +1,6 @@
 # BFG Product Gaps
 
-Gap analysis between accepted product decisions and current implementation, as of 2026-06-10.
+Gap analysis between accepted product decisions and current implementation, as of 2026-06-12 (post P0A/P0B economy rebalance and data reset).
 
 This document is NOT a roadmap and NOT a decision registry. It answers: what has been decided, what is implemented, what is missing, what contradicts accepted decisions, and what should be prioritized next.
 
@@ -13,77 +13,23 @@ Authoritative source of truth: `BFG_PRODUCT_DECISIONS.md`. Where any other docum
 | Metric | Count |
 |---|---|
 | Total accepted decisions | 35 |
-| Implemented | 7 (D001, 021, 023, 029, 030, 031, 032) |
-| Partially Implemented | 5 (D002, 007, 009, 022, 035) |
-| Not Implemented | 23 (D003–006, 008, 010–020, 024–028, 033, 034) |
+| Implemented | 17 (D001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033) |
+| Partially Implemented | 6 (D002, 007, 009, 016, 022, 035) |
+| Not Implemented | 12 (D003–006, 008, 014, 024–028, 034) |
 
-Gap items below: P0 = 10, P1 = 10, P2 = 7. (D002 is folded into the D007 entry; the 7 implemented decisions produce no gap items.)
+Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 10, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.)
 
 ---
 
 ## P0 Gaps
 
-Critical: live code actively contradicts accepted decisions, or the accepted economy cannot function without the item. These form one coherent implementation unit (the progression economy rebalance).
+**None open.** The progression economy unit (D010–D013, D015, D017–D020, D033) was implemented in two PRs and verified:
 
-### D015 — Workout = 10 XP
-- Current status: Not Implemented
-- Current implementation: `WORKOUT_COMPLETE: 100` in `lib/progression/xp-rewards.ts`
-- Missing work: change constant to 10
-- Recommended priority: P0 — anchor value of the entire accepted economy
+- **P0A** (pure rebalance): workout = 10 XP, flat 50 XP levels capped at 100, 10-stage square evolution ladder, supportive 5-quest catalog with categories, dead XP constants removed. Loop review: PASS.
+- **P0B** (selection layer): deterministic 3-per-day quest selection, category de-duplication, server-side claim validation. Loop review: PASS.
+- **Data reset**: profiles XP/level, avatar state, and completion tables reset to the new economy scale.
 
-### D016 — Quest = 3–5 XP by difficulty
-- Current status: Not Implemented
-- Current implementation: `DAILY_QUEST: 50` flat in `lib/progression/xp-rewards.ts`; catalog cards display 40–140 XP
-- Missing work: per-difficulty quest XP (3–5) on the server path; catalog display values aligned to server truth
-- Recommended priority: P0 — current values invert training primacy (D020)
-
-### D013 — Flat level cost: 50 XP
-- Current status: Not Implemented
-- Current implementation: rising curve `100 + 50·(n−1)` in `lib/progression/levels.ts`
-- Missing work: replace `xpRequiredForLevel` with flat 50 XP per level; `calculateLevel` / `getLevelProgress` API unchanged
-- Recommended priority: P0 — every other pacing decision is computed on top of it
-
-### D012 — 100 vertical levels
-- Current status: Not Implemented
-- Current implementation: no level cap (guard at 999) in `lib/progression/levels.ts`
-- Missing work: cap vertical levels at 100; define post-100 XP behavior (XP may continue accruing for horizontal systems later, but level display stops at 100)
-- Recommended priority: P0 — part of the same curve change as D013
-
-### D010 — Ten evolution stages, Stage 10 final
-- Current status: Not Implemented
-- Current implementation: 5-stage ladder in `lib/progression/avatar-evolution.ts` (thresholds 1/5/10/20/35)
-- Missing work: 10-entry ladder data; forms/auras/labels for stages 6–10; `glowIntensity` scale decision (1..10 or reuse)
-- Recommended priority: P0 for the ladder data (pure function, pacing depends on it); distinct stage *art* may land progressively (tracked under D009/P1)
-
-### D011 — Square stage thresholds (1, 4, 9, … 100)
-- Current status: Not Implemented
-- Current implementation: thresholds 1/5/10/20/35
-- Missing work: same change as D010 — thresholds become n²
-- Recommended priority: P0 — same edit as D010
-
-### D018 — Workout Quest removed
-- Current status: Not Implemented
-- Current implementation: quest `workout` (140 XP) still in `lib/quests/daily-quests.ts`
-- Missing work: delete from catalog
-- Recommended priority: P0 — active double-dipping with `WORKOUT_COMPLETE`, the most distorting single item in the live economy
-
-### D019 — Streak Quest removed
-- Current status: Not Implemented
-- Current implementation: quest `streak` (50 XP) still in `lib/quests/daily-quests.ts`
-- Missing work: delete from catalog
-- Recommended priority: P0 — pays XP for streak-holding, contradicting the *implemented* D021 ("streak never grants XP") through the quest side door
-
-### D017 — Three daily quests from the catalog
-- Current status: Not Implemented
-- Current implementation: 4 quests, all claimable daily; no selection layer
-- Missing work: daily selection of 3 from the catalog (deterministic per user/day is sufficient); claim path rejects non-selected quests
-- Recommended priority: P0 — the bound that keeps quest aggregation from breaking training primacy (verified in Phase 3 simulations)
-
-### D020 — Training is the primary progression source
-- Current status: Not Implemented (violated by current numbers)
-- Current implementation: max daily quest XP (290) ≈ 3× workout XP (100)
-- Missing work: none of its own — fully satisfied by D015 + D016 + D017 + D018 + D019 landing together
-- Recommended priority: P0 — acceptance criterion for the economy unit, not a separate task
+D016 carries a residual content item (per-difficulty quest XP values) — tracked in P1 below.
 
 ---
 
@@ -145,11 +91,11 @@ Important, not blocking: the app functions today, but these are accepted product
 - Missing work: special first-level-up moment so the first progression event lands in the first session(s) under the flat 50 XP curve
 - Recommended priority: P1 — directly targets the beginner week-1 dead zone identified in Phase 3 simulations
 
-### D033 — Quest categories, no same-category duplication per day
-- Current status: Not Implemented
-- Current implementation: flat 4-quest list, no category field, no selection logic
-- Missing work: category field on quest templates; selection rule avoiding same-category duplicates; catalog content (≥5 quests across categories — M1 checklist)
-- Recommended priority: P1 — implement together with D017's selection layer to avoid building selection twice
+### D016 — Per-difficulty quest XP values (residual content item)
+- Current status: Partially Implemented
+- Current implementation: catalog-driven quest XP inside the approved 3–5 band, temporary uniform 4 XP; three quests carry DRAFT Russian copy
+- Missing work: approve per-difficulty values (3–5) and final quest copy; one-line-per-quest catalog change. Related pending approval: final stage names/auras/flavor for stages 2–10 (D010 placeholder labels)
+- Recommended priority: P1 — content approvals, no code architecture work
 
 ---
 
@@ -203,41 +149,41 @@ Future systems and long-term work. None are MVP-blocking; all are post-Stage-10-
 
 ## Documentation Drift
 
-Documents that no longer match accepted decisions. Per the registry's rule, the registry wins; these need a sync pass when the corresponding implementation lands (or sooner, to stop misleading readers).
+Documents that no longer match accepted decisions. Per the registry's rule, the registry wins.
 
-1. **`BFG_GAME_SYSTEMS.md` §2.2** — XP table says workout 100 / quest 50 / milestone 75. Accepted: D015 (10), D016 (3–5), milestone value TBD with D014. Sync with the economy implementation.
-2. **`BFG_GAME_SYSTEMS.md` §3.1** — level curve documented as `100·n + 25·n·(n−1)` with rising costs. Accepted: D012/D013 (100 levels, flat 50). Sync with the curve change.
-3. **`BFG_GAME_SYSTEMS.md` §5.2** — 5-stage ladder, thresholds 1/5/10/20/35, "intentionally short". Accepted: D010/D011 (10 stages, squares). Sync with the ladder change.
-4. **`BFG_MVP_SCOPE.md` §6 and `MVP_STATUS.md` (M1 checklists)** — "5-stage avatar evolution visually distinct" and "≥5 daily quests in catalog". Accepted: D010 (10 stages) and D017 (catalog ≥5, daily surface = 3 — the registry's Quest Architecture note reconciles the counts, but the checklist wording should say "catalog"). Update acceptance criteria text.
-5. **`CURRENT_STATE.md` and `MVP_STATUS.md` (progression sections)** — accurately describe the pre-rebalance code, which is their job, but they will be stale the moment the economy lands. Scheduled sync, post-implementation.
-6. **`CURRENT_PRIORITIES.md` Phase 3** — names `BFG_PROGRESSION_ECONOMY.md` as the deliverable. The accepted economy now lives in `BFG_PRODUCT_DECISIONS.md` (D012–D020); the roadmap also has no milestone hosting the navigation redesign (D003–D006) or endgame systems (D025–D028). Update the deliverable pointer and place the new work in milestones.
+**Resolved by the 2026-06-12 sync pass:** `BFG_GAME_SYSTEMS.md` §2.2/§3.1/§4.2/§5.2/§6.2, `BFG_MVP_SCOPE.md` §2.2/§6, `BFG_SECURITY.md` §8, `CURRENT_STATE.md`, `MVP_STATUS.md` — all now describe the implemented 10/4-XP economy, flat-50 curve with level-100 cap, 10-stage square ladder, and the 3-per-day quest selection.
 
-Documentation drift count: 6.
+**Remaining:**
+
+1. **`CURRENT_PRIORITIES.md` Phase 3** — names `BFG_PROGRESSION_ECONOMY.md` as the deliverable; the accepted economy lives in `BFG_PRODUCT_DECISIONS.md` (D012–D020) and is now implemented. The roadmap also has no milestone hosting the navigation redesign (D003–D006) or endgame systems (D025–D028). Update the deliverable pointer and place the new work in milestones.
+
+Documentation drift count: 1 open (5 resolved).
 
 ---
 
 ## Code Drift
 
-Code that contradicts accepted decisions. Confirmed by direct inspection this session; no speculation.
+Code that contradicts accepted decisions. Confirmed by direct inspection; no speculation.
 
-1. **`lib/quests/daily-quests.ts`** — contains the `workout` quest (140 XP — violates D018, and at 140 XP a quest out-pays a workout, violating D016/D020) and the `streak` quest (50 XP — violates D019 and the spirit of implemented D021). Catalog `rewards.xp` values (140/60/50/40) also diverge from the server's flat `DAILY_QUEST: 50` — display lies about server truth.
-2. **`lib/progression/xp-rewards.ts`** — `WORKOUT_COMPLETE: 100` (D015 says 10), `DAILY_QUEST: 50` (D016 says 3–5), plus dead constants `DAILY_LOGIN` and `STREAK_BONUS` whose removal is the accepted cleanup for D021/D023.
-3. **`lib/progression/levels.ts`** — rising per-level cost (D013 says flat 50), no 100-level cap (D012).
-4. **`lib/progression/avatar-evolution.ts`** — 5-stage ladder with thresholds 1/5/10/20/35 (D010/D011 say 10 stages at square levels).
-5. **`app/components/dashboard/bottom-nav.tsx`** — tab set Главная / Тренировки / Аватар / Прогресс / Профиль (D003 says Workouts / Nutrition / Home / Progress / Multimedia; D005 merges Avatar into Progress; D006 moves Profile to a header button).
+**Resolved by P0A/P0B (2026-06-12):** `lib/quests/daily-quests.ts`, `lib/progression/xp-rewards.ts`, `lib/progression/levels.ts`, `lib/progression/avatar-evolution.ts` — all now match D010–D020/D033.
 
-Code drift count: 5 files.
+**Remaining:**
+
+1. **`app/components/dashboard/bottom-nav.tsx`** — tab set Главная / Тренировки / Аватар / Прогресс / Профиль (D003 says Workouts / Nutrition / Home / Progress / Multimedia; D005 merges Avatar into Progress; D006 moves Profile to a header button). Tracked as the P1 navigation unit.
+2. **`lib/cosmetics/get-unlocked.ts` / `lib/cosmetics/catalog.ts`** (informational, found in P0A review) — stage input clamped to `min(5, …)` and unlock thresholds (`minLevel` 3/7/12/20/30, `minStage` 1–5) tuned to the old curve/ladder. No crash and no wrong unlock today; needs retuning with the D009 visuals pass.
+
+Code drift count: 1 contradiction + 1 informational (4 resolved).
 
 ---
 
 ## Recommended Next Steps
 
-Ordered by alignment value, MVP impact, and implementation risk (lowest-risk first within each step).
+Ordered by alignment value, MVP impact, and implementation risk (lowest-risk first within each step). Steps 1–2 of the original sequence (economy code unit, doc sync) completed 2026-06-12.
 
-1. **Economy rebalance code unit (P0, one PR-sized change).** `xp-rewards.ts` (10 / 3–5, delete dead constants), `levels.ts` (flat 50, cap 100), `avatar-evolution.ts` (10-stage square ladder data), `daily-quests.ts` (remove workout + streak quests, align XP values, add category field + 3-per-day selection for D017/D033). All pure functions and constants — lowest-risk, highest-alignment change available. Includes one data decision that needs explicit confirmation: existing `profiles.xp` rows are on the old scale and must be reset or recomputed (pre-launch, reset is simplest), with the corresponding `avatars` rows reconciled.
-2. **Doc sync pass.** Apply Documentation Drift items 1–4 and 6 in the same change window as step 1 so no document misleads (item 5 follows automatically).
-3. **M1 emotional must-ships under the new model.** Stage celebration moment + Presence reaction (D035, already an M1 item), first-level-up onboarding milestone (D014), stage visual distinctness and per-level variation as art allows (D009).
-4. **Navigation unit (D003–D006), then Progress screen (D008).** One coordinated UX change: new tab structure with Nutrition/Multimedia placeholders, quests folded into Workouts, Avatar+Profile merged into Progress, profile header button — then the three-block Progress hierarchy with the pre-Legend placeholder. Doing D008 after D005 avoids restructuring the screen twice.
-5. **Quest catalog content growth.** ≥5 categorized quests (M1 checklist) on top of the step-1 selection layer.
-6. **P2 systems in dependency order, post-MVP per roadmap.** Currency (D034) first since D022 and D035 reference it, then Energy (D024), then endgame layer (D025–D028) — with D025 scheduled to exist before the first cohort approaches level 81.
+1. **Content approvals closing the economy unit.** Per-difficulty quest XP values (D016 residual), final Russian quest copy, and stage 2–10 names/auras/flavor (D010 placeholders). All one-line-per-entry catalog/ladder changes once approved.
+2. **M1 emotional must-ships under the new model.** Stage celebration moment + Presence reaction (D035, already an M1 item), first-level-up onboarding milestone (D014), stage visual distinctness and per-level variation as art allows (D009) — including the cosmetics clamp/threshold retune noted under Code Drift.
+3. **Navigation unit (D003–D006), then Progress screen (D008).** One coordinated UX change: new tab structure with Nutrition/Multimedia placeholders, quests folded into Workouts, Avatar+Profile merged into Progress, profile header button — then the three-block Progress hierarchy with the pre-Legend placeholder. Doing D008 after D005 avoids restructuring the screen twice.
+4. **Quest catalog content growth.** Additional categorized quests on top of the selection layer (catalog = pool; surface stays 3/day).
+5. **P2 systems in dependency order, post-MVP per roadmap.** Currency (D034) first since D022 and D035 reference it, then Energy (D024), then endgame layer (D025–D028) — with D025 scheduled to exist before the first cohort approaches level 81.
+6. **`CURRENT_PRIORITIES.md` pointer fix** (remaining doc-drift item) — next time that file is touched.
 
