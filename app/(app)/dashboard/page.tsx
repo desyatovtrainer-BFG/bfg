@@ -6,7 +6,14 @@ import {
   getAvatarFormLabel,
   getLevelProgress,
 } from "@/lib/progression";
-import { buildDailyQuestList, DAILY_QUEST_ORDER, getTodayCompletedQuestIds } from "@/lib/quests";
+import {
+  buildDailyQuestList,
+  DAILY_QUEST_GUEST_SEED,
+  DAILY_QUEST_SELECTION_SIZE,
+  getTodayCompletedQuestIds,
+  selectDailyQuestIds,
+  todayISO,
+} from "@/lib/quests";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { DashboardScreen } from "../../components/dashboard/dashboard-screen";
 
@@ -36,11 +43,14 @@ export default async function DashboardPage() {
   // на случай гонки сессии. UI рисуем «нулевыми» дефолтами, без падения.
   if (!user) {
     const evolution = getAvatarEvolutionForLevel(1);
+    // Display-only подборка по guest-seed (D017): детерминированна по дню,
+    // клейм всё равно требует сессию. 50 XP — стоимость уровня по D013.
+    const guestSelectedIds = selectDailyQuestIds(DAILY_QUEST_GUEST_SEED, todayISO());
     const fallbackMsg = buildCompanionMessage({
       userId: "anon",
       level: 1,
       xpInLevel: 0,
-      xpForNextLevel: 100,
+      xpForNextLevel: 50,
       streak: 0,
       lastActiveOn: null,
     });
@@ -49,14 +59,14 @@ export default async function DashboardPage() {
         userName="Воин"
         level={1}
         xpInLevel={0}
-        xpForNextLevel={100}
+        xpForNextLevel={50}
         progressPercent={0}
         streak={0}
         evolutionStage={evolution.stage}
         evolutionFormLabel={getAvatarFormLabel(evolution.form)}
         questsCompletedToday={0}
-        questsTotal={DAILY_QUEST_ORDER.length}
-        quests={buildDailyQuestList([])}
+        questsTotal={DAILY_QUEST_SELECTION_SIZE}
+        quests={buildDailyQuestList(guestSelectedIds, [])}
         companionPrimary={fallbackMsg.primary}
       />
     );
@@ -94,6 +104,13 @@ export default async function DashboardPage() {
     lastActiveOn,
   });
 
+  // Дневная подборка (D017) + закрытые сегодня. Счётчик «N из 3» считаем
+  // по отрисованному списку, а не по сырым completedIds: legacy-завершения
+  // вне подборки не должны давать «4 из 3».
+  const selectedIds = selectDailyQuestIds(user.id, todayISO());
+  const quests = buildDailyQuestList(selectedIds, completedIds);
+  const questsCompletedToday = quests.filter((q) => q.state === "reward_claimed").length;
+
   return (
     <DashboardScreen
       userName={pickUserName(user.email)}
@@ -104,9 +121,9 @@ export default async function DashboardPage() {
       streak={streak}
       evolutionStage={evolution.stage}
       evolutionFormLabel={getAvatarFormLabel(evolution.form)}
-      questsCompletedToday={completedIds.length}
-      questsTotal={DAILY_QUEST_ORDER.length}
-      quests={buildDailyQuestList(completedIds)}
+      questsCompletedToday={questsCompletedToday}
+      questsTotal={DAILY_QUEST_SELECTION_SIZE}
+      quests={quests}
       companionPrimary={companionMsg.primary}
     />
   );

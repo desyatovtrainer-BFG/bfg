@@ -30,7 +30,7 @@ import {
   buildCompanionFeedback,
   type CompanionFeedback,
 } from "@/lib/workouts/companion-feedback";
-import { findDailyQuest } from "./daily-quests";
+import { findDailyQuest, selectDailyQuestIds } from "./daily-quests";
 import { todayISO } from "./get-today-completions";
 
 export type CompleteDailyQuestResponse = {
@@ -67,6 +67,15 @@ export async function completeDailyQuestAction(
 
   const supabase = await createSupabaseServerClient();
   const today = todayISO();
+
+  // D017: квест можно заявить, только если он в сегодняшней подборке.
+  // Подборка — детерминированная чистая функция от (userId, дата),
+  // поэтому сервер пересчитывает её сам и не доверяет клиенту.
+  // Проверка стоит ДО любого чтения/записи в БД.
+  const selectedIds = selectDailyQuestIds(user.id, today);
+  if (!selectedIds.includes(quest.id)) {
+    return { data: null, error: "Этот контракт сегодня не активен." };
+  }
 
   // Снимок XP до INSERT: сохраняется в записи о завершении. В ветке 23505
   // позволяет определить, был ли XP начислен при первой попытке, и

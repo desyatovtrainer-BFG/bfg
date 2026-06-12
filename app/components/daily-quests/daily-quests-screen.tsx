@@ -4,9 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  buildDailyQuestList,
   completeDailyQuestAction,
-  DAILY_QUEST_ORDER,
   type CompleteDailyQuestResponse,
   type DailyQuest,
 } from "@/lib/quests";
@@ -14,22 +12,24 @@ import { DailyCompletionBanner } from "./daily-completion-banner";
 import { QuestCard } from "./quest-card";
 
 type DailyQuestsScreenProps = {
-  /** Закрытые сегодня контракты — приходят с сервера, чтобы UI был сразу правильным. */
-  initialCompletedIds?: ReadonlyArray<string>;
+  /**
+   * Дневная подборка (D017) + закрытые сегодня контракты — собирается
+   * на сервере (selectDailyQuestIds + buildDailyQuestList), уже в
+   * стабильном порядке. Клиент только рисует и заявляет id.
+   */
+  initialQuests: DailyQuest[];
 };
 
 type QuestFeedback = NonNullable<CompleteDailyQuestResponse["data"]>;
 
 
-export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScreenProps) {
+export function DailyQuestsScreen({ initialQuests }: DailyQuestsScreenProps) {
   const prefersReduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const reducedMotion = mounted && prefersReduced === true;
 
-  const [quests, setQuests] = useState<DailyQuest[]>(() =>
-    buildDailyQuestList(initialCompletedIds),
-  );
+  const [quests, setQuests] = useState<DailyQuest[]>(() => [...initialQuests]);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const inFlightRef = useRef<Set<string>>(new Set());
   const [feedback, setFeedback] = useState<QuestFeedback | null>(null);
@@ -167,9 +167,7 @@ export function DailyQuestsScreen({ initialCompletedIds = [] }: DailyQuestsScree
           }}
           className="space-y-4"
         >
-          {DAILY_QUEST_ORDER.map((id) => quests.find((q) => q.id === id))
-            .filter((q): q is DailyQuest => Boolean(q))
-            .map((quest) => {
+          {quests.map((quest) => {
               const isPending = pendingId === quest.id;
               return (
                 <motion.div
