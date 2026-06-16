@@ -1,5 +1,10 @@
 # BFG Quest System
 
+> **⚠️ DEPRECATED — historical reference only.**
+> This document is superseded by the current `docs/` set and is **not authoritative**. It is retained (not deleted) pending the documentation consolidation pass. Where it disagrees with the documents below, they win.
+> Current replacements: `docs/BFG_GAME_SYSTEMS.md §6`, `docs/BFG_PRODUCT_DECISIONS.md` (D016–D019, D033).
+> Source of truth for accepted product decisions: `docs/BFG_PRODUCT_DECISIONS.md`.
+
 ## Philosophy
 
 Daily quests are not chores.

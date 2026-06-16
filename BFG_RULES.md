@@ -1,5 +1,10 @@
 # BFG Development Rules
 
+> **⚠️ DEPRECATED — historical reference only.**
+> This document is superseded by the current `docs/` set and is **not authoritative**. It is retained (not deleted) pending the documentation consolidation pass. Where it disagrees with the documents below, they win.
+> Current replacements: `docs/BFG_ENGINEERING_RULES.md`, `docs/BFG_UI_RULES.md`.
+> Source of truth for accepted product decisions: `docs/BFG_PRODUCT_DECISIONS.md`.
+
 ## Core Rule
 
 Build only MVP systems that improve the emotional core loop.

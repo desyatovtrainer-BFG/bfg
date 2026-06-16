@@ -1,6 +1,6 @@
 # BFG Game Systems
 
-The mechanical contract of the BFG progression loop: XP, levels, streaks, avatar evolution, daily quests, workouts, cosmetics, and subscription gating. This document is for engineering — emotional design lives in `BFG_CONTEXT.md` and the legacy `PROGRESSION_SYSTEM.md` / `AVATAR_SYSTEM.md` / `COMPANION_SYSTEM.md`.
+The mechanical contract of the BFG progression loop: XP, levels, streaks, avatar evolution, daily quests, workouts, cosmetics, and subscription gating. This document is for engineering — emotional design lives in `BFG_CONTEXT.md`, `companion/BFG_Companion_Doctrine.md`, and `BFG_BEGINNER_JOURNEY.md`. (The legacy `PROGRESSION_SYSTEM.md` / `AVATAR_SYSTEM.md` / `COMPANION_SYSTEM.md` are deprecated — kept for historical reference only.)
 
 > Companion documents:
 > [`BFG_AI_COMPANION.md`](./BFG_AI_COMPANION.md) ·
@@ -129,7 +129,7 @@ Defined in `lib/progression/avatar-evolution.ts`. **Ten stages** at **square lev
 - Evolution is a **pure function of level**. No separate currency, no manual unlock.
 - `hasEvolved(previousLevel, newLevel)` decides whether the `avatars` row needs an update — only on stage crossing.
 - The XP award path (`awardXp`) is the only writer of `avatars` evolution fields. If the cosmetic write fails, XP still commits and the next `awardXp` reconciles.
-- Visual is a **layered 2D system** (see legacy `AVATAR_SYSTEM.md`). No 3D in MVP, no Unity, no realtime rendering pipeline.
+- Visual is a **layered 2D system** (the original layer sketch is in the deprecated `AVATAR_SYSTEM.md`, historical reference only). No 3D in MVP, no Unity, no realtime rendering pipeline.
 - Forms / auras are **string identifiers** in DB. Labels live in code (`getAvatarFormLabel`, `getAvatarAuraLabel`). Do not duplicate Russian labels in the DB.
 
 ---
@@ -244,7 +244,7 @@ Full rules in [`BFG_SECURITY.md`](./BFG_SECURITY.md) §"progression/XP protectio
 Tracked here so we don't accidentally reinvent them.
 
 - `xp_events` log + recomputation job.
-- Skill tree or stat system (intentionally rejected — see legacy `PROGRESSION_SYSTEM.md`).
+- Skill tree or stat system (intentionally rejected — original rationale in the deprecated `PROGRESSION_SYSTEM.md`, historical reference only).
 - PvP / leaderboards (rejected for emotional safety).
 - Streak freeze / break protection.
 - Multiple presences (each = one avatar body + one companion voice, inseparable by design).

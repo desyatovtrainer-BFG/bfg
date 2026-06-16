@@ -6,7 +6,7 @@ Engineering contract for the companion system. The companion is a **product feat
 > [`BFG_GAME_SYSTEMS.md`](./BFG_GAME_SYSTEMS.md) ·
 > [`BFG_SECURITY.md`](./BFG_SECURITY.md) ·
 > [`BFG_ENGINEERING_RULES.md`](./BFG_ENGINEERING_RULES.md) ·
-> Emotional spec: legacy `COMPANION_SYSTEM.md`
+> Emotional spec: `companion/BFG_Companion_Doctrine.md` (the legacy `COMPANION_SYSTEM.md` is deprecated, historical reference only)
 
 ---
 

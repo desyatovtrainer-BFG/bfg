@@ -8,7 +8,7 @@ This folder is the **engineering source of truth** for BFG (Big Fitness Game). I
 
 If reality and the documents disagree, **the documents win** — open a PR to update them, then change the code.
 
-> Emotional / product specs live at the repo root: `BFG_CONTEXT.md`, `BFG_RULES.md`, `AVATAR_SYSTEM.md`, `COMPANION_SYSTEM.md`, `PROGRESSION_SYSTEM.md`, `QUEST_SYSTEM.md`, `WORKOUT_CONTENT_GUIDE.md`. They are the *why*. This folder is the *how*.
+> Some legacy specs live at the repo root. Still in use: `BFG_CONTEXT.md` (product context, modernization pending) and `WORKOUT_CONTENT_GUIDE.md` (workout content, merge pending). **Deprecated** — kept for reference, not authoritative; see each file's header for current replacements: `BFG_RULES.md`, `AVATAR_SYSTEM.md`, `COMPANION_SYSTEM.md`, `PROGRESSION_SYSTEM.md`, `QUEST_SYSTEM.md`. Source of truth for accepted product decisions: `BFG_PRODUCT_DECISIONS.md`.
 
 ---
 

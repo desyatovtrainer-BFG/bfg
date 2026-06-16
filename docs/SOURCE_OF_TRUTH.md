@@ -9,12 +9,13 @@ An agent that is uncertain about authority should read this file first.
 
 1. **`BFG_ENGINEERING_RULES.md §2` (hard prohibitions)** — overrides all other documents and all user preferences. Non-negotiable. A PR that violates §2 must be rejected.
 2. **`BFG_SECURITY.md`** — security constraints are binding. Architecture and convenience yield to security.
-3. **`BFG_MVP_SCOPE.md §3` (out-of-scope list)** — if a feature is listed as out of scope, it is out of scope regardless of what another document implies. Must update the roadmap before building it.
-4. **`supabase/migrations/*.sql` (actual schema)** — the live migration files are authoritative for what the database contains *right now*. `BFG_DATABASE.md` describes intent and conventions; the SQL files describe reality.
-5. **Domain documents** (`BFG_DATABASE.md`, `BFG_ARCHITECTURE.md`, `BFG_GAME_SYSTEMS.md`, `BFG_AI_COMPANION.md`) — authoritative within their domain. See §Domain authorities below.
-6. **`CURRENT_STATE.md`** — reflects what is implemented. When a domain doc and `CURRENT_STATE.md` differ, trust the domain doc for the *design intent* and `CURRENT_STATE.md` for *what currently exists*.
-7. **`BFG_ROADMAP.md`** — milestone definitions and acceptance criteria.
-8. **`BFG_Master_Roadmap_MVP_v3.md`** — tactical phase plan. More granular than the roadmap; describes the current sprint. Can diverge from `BFG_ROADMAP.md` in ordering but not in scope.
+3. **`BFG_PRODUCT_DECISIONS.md` (accepted product decisions)** — the authority for *what was decided*. When another product or design document disagrees with an accepted decision, the registry wins and the other doc must be updated. This authority is limited to accepted product decisions: it does **not** override item 1 (§2 hard prohibitions) or item 2 (security), and it does not replace the scope, schema, or domain documents below — those remain authoritative within their own roles (the registry records the decision; they implement it).
+4. **`BFG_MVP_SCOPE.md §3` (out-of-scope list)** — if a feature is listed as out of scope, it is out of scope regardless of what another document implies. Must update the roadmap before building it.
+5. **`supabase/migrations/*.sql` (actual schema)** — the live migration files are authoritative for what the database contains *right now*. `BFG_DATABASE.md` describes intent and conventions; the SQL files describe reality.
+6. **Domain documents** (`BFG_DATABASE.md`, `BFG_ARCHITECTURE.md`, `BFG_GAME_SYSTEMS.md`, `BFG_AI_COMPANION.md`) — authoritative within their domain. See §Domain authorities below.
+7. **`CURRENT_STATE.md`** — reflects what is implemented. When a domain doc and `CURRENT_STATE.md` differ, trust the domain doc for the *design intent* and `CURRENT_STATE.md` for *what currently exists*.
+8. **`BFG_ROADMAP.md`** — milestone definitions and acceptance criteria.
+9. **`BFG_Master_Roadmap_MVP_v3.md`** — tactical phase plan. More granular than the roadmap; describes the current sprint. Can diverge from `BFG_ROADMAP.md` in ordering but not in scope.
 
 ---
 
@@ -22,6 +23,7 @@ An agent that is uncertain about authority should read this file first.
 
 | Topic | Authoritative document | Secondary reference |
 |-------|----------------------|-------------------|
+| Accepted product decisions (what was decided) | `BFG_PRODUCT_DECISIONS.md` | `BFG_PRODUCT_GAPS.md` |
 | Architecture, folder layout, rendering model | `BFG_ARCHITECTURE.md` | `BFG_ENGINEERING_RULES.md §6` |
 | Database schema, RLS policies, migration rules | `BFG_DATABASE.md` + `supabase/migrations/` | `BFG_SECURITY.md` |
 | MVP scope boundary | `BFG_MVP_SCOPE.md` | `BFG_ROADMAP.md §2` |

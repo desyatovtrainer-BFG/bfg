@@ -1,5 +1,10 @@
 # BFG Companion System
 
+> **⚠️ DEPRECATED — historical reference only.**
+> This document is superseded by the current `docs/` set and is **not authoritative**. It is retained (not deleted) pending the documentation consolidation pass. Where it disagrees with the documents below, they win.
+> Current replacements: `docs/BFG_AI_COMPANION.md`, `docs/companion/BFG_Companion_Doctrine.md`.
+> Source of truth for accepted product decisions: `docs/BFG_PRODUCT_DECISIONS.md`.
+
 ## Philosophy
 
 The companion is not a chatbot.

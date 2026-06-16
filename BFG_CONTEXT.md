@@ -1,5 +1,7 @@
 # BFG — Big Fitness Game
 
+> Product-vision and emotional-context doc — the *why* behind BFG. Authoritative product decisions live in `docs/BFG_PRODUCT_DECISIONS.md`; the companion voice is specified in `docs/companion/BFG_Companion_Doctrine.md`. Avatar (body) and companion (voice) are **one presence, two roles** — never two separate characters.
+
 ## Product Philosophy
 
 BFG is not a fitness tracker.
@@ -44,7 +46,7 @@ BFG always welcomes the user back.
 
 ## AI Companion
 
-The companion is:
+The companion is the **voice** of the presence — the avatar is its **body**, one presence in two roles, never a separate character. The companion is:
 
 - an inner voice
 
@@ -77,6 +79,8 @@ Tone examples:
 ---
 
 ## Avatar Philosophy
+
+The avatar is the **body** of the presence — the companion (above) is its **voice**, one presence in two roles.
 
 The avatar is a reflection of the user's path.
 
