@@ -10,6 +10,7 @@ Optimized for agents starting cold: read this file first, then go to the one doc
 | Task | Read first | Read second |
 |------|-----------|-------------|
 | Understand BFG as a product | `BFG_MVP_SCOPE.md` | `BFG_GAME_SYSTEMS.md` |
+| Resolve a product-decision conflict (what was decided) | `BFG_PRODUCT_DECISIONS.md` | `BFG_PRODUCT_GAPS.md` |
 | Plan or audit architecture | `BFG_ARCHITECTURE.md` | `BFG_ENGINEERING_RULES.md` |
 | Touch any DB table or migration | `BFG_DATABASE.md` | `BFG_SECURITY.md` |
 | Work on companion phrases or tone | `BFG_AI_COMPANION.md` | `BFG_GAME_SYSTEMS.md §10` |
@@ -32,6 +33,8 @@ Optimized for agents starting cold: read this file first, then go to the one doc
 
 | File | Purpose |
 |------|---------|
+| `BFG_PRODUCT_DECISIONS.md` | **Source of truth** — registry of accepted product decisions (what was decided). |
+| `BFG_PRODUCT_GAPS.md` | Decided vs. implemented vs. missing vs. conflicting; gap priorities. |
 | `PROJECT_INDEX.md` ← **this file** | Map of all docs. Read first when starting cold. |
 | `SOURCE_OF_TRUTH.md` | Which document wins when two docs conflict. Authoritative chain. |
 | `CURRENT_STATE.md` | What is actually implemented today. Implemented vs. partial vs. planned. |
@@ -63,6 +66,7 @@ Optimized for agents starting cold: read this file first, then go to the one doc
 |------|---------|
 | `BFG_GAME_SYSTEMS.md` | Engineering spec for XP, levels, streaks, avatar evolution, daily quests, workouts, cosmetics, subscription. The "how it works" reference. |
 | `BFG_AI_COMPANION.md` | Companion engineering contract: deterministic MVP path, future LLM path, tone rules, Russia constraint, security. |
+| `companion/BFG_Companion_Doctrine.md` | North-star philosophy for the companion voice. Not a code spec. |
 
 ### Operational
 
@@ -88,6 +92,6 @@ Optimized for agents starting cold: read this file first, then go to the one doc
 
 These are called for in `BFG_Master_Roadmap_MVP_v3.md` and will be created in later phases:
 
-- `BFG_PROGRESSION_ECONOMY.md` — XP curve, level curve, quest reward curve (Phase 3).
+- `BFG_PROGRESSION_ECONOMY.md` — superseded; the progression economy is decided in `BFG_PRODUCT_DECISIONS.md` (D012–D020) and already implemented. Not a planned doc.
 - `BFG_COMPANION_COMMUNICATION.md` — Companion phrase library and state mapping (Phase 4).
 - `BFG_COMPANION_WRITING_GUIDE.md` — Voice and tone guide for writing companion text (Phase 4).

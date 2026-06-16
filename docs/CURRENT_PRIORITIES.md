@@ -1,6 +1,6 @@
 # CURRENT_PRIORITIES
 
-Active work breakdown as of 2026-06-05. Derived from `BFG_Master_Roadmap_MVP_v3.md` phases.
+Active work breakdown as of 2026-06-16. Derived from `BFG_Master_Roadmap_MVP_v3.md` phases.
 Read this before starting any new task to verify it is the right thing to work on now.
 
 ---
@@ -37,11 +37,8 @@ Work defined in `BFG_Master_Roadmap_MVP_v3.md §PHASE 2`.
 
 ## P1 — Do after P0 is stable
 
-### Phase 3: XP Economy Rework
-Current numbers exist but have not been validated as a designed economy. Deliverable: `BFG_PROGRESSION_ECONOMY.md`.
-- Define the target level velocity (how many workouts/quests to reach each evolution stage).
-- Verify XP reward amounts support the velocity.
-- Check that the level curve (`lib/progression/levels.ts`) matches the economy.
+### Phase 3: XP Economy Rework — resolved
+The progression economy is decided in `BFG_PRODUCT_DECISIONS.md` (D012–D020) and implemented (P0A/P0B, 2026-06-12). The earlier `BFG_PROGRESSION_ECONOMY.md` deliverable is superseded by the registry; remaining residual items (per-difficulty quest values, final copy) are tracked in `BFG_PRODUCT_GAPS.md`.
 
 ### Phase 4: Companion Systems
 Companion text library and tone guide are missing.  Deliverables:
