@@ -906,6 +906,81 @@ BFG_GAME_SYSTEMS.md §5, MVP_STATUS.md, Decisions 009, 034
 
 ---
 
+# Decision 036
+
+Title:
+Presence Response System — Body, Voice, or both
+
+Category:
+Companion
+
+Status:
+Accepted
+
+Decision:
+A Presence response is any reaction to an event and is not limited to speech. The Presence responds through its Body (avatar), its Voice (companion), or both. Eligibility is separate from frequency: eligibility grants an event the right to a response; the frequency governor (Decision 037) may still resolve it to silence. One moment produces at most one Voice response. The Voice is always embodied — a Voice response is always accompanied by a Body reaction — while the Body lives and reacts continuously without the Voice. The full architecture (response categories, the event eligibility table, priority resolution, and the decision flow) is specified in `BFG_PRESENCE_RESPONSE_SYSTEM.md`.
+
+Reason:
+The Body is acknowledgment without address — continuous, safe, and uninterpretable as a verdict — so it carries the primary communication load; the Voice is the rare figure against that silence, and rarity is what makes a line read as chosen. Two channels expressing one emotional state is what keeps the Presence a single being rather than a talking avatar.
+
+Implementation Status:
+Partially Implemented — the Voice exists (deterministic phrases + post-action reactions); the living Body, the response-type selection, and the governor are not yet built.
+
+Related Documents:
+BFG_PRESENCE_RESPONSE_SYSTEM.md, BFG_AI_COMPANION.md, companion/BFG_Companion_Doctrine.md §V/§VI/§X, Decisions 001, 007, 035
+
+---
+
+# Decision 037
+
+Title:
+Response frequency is an output, never tied to Level or Evolution Stage
+
+Category:
+Companion
+
+Status:
+Accepted
+
+Decision:
+Communication frequency is an output of the relationship, not a control surface, and is never a function of Level or Evolution Stage. The frequency governor draws only on relationship tenure, session count, recent response history, event depletion, and return history. Body frequency may be generous (the Body is continuously available); Voice frequency is scarce and irregular, and its absence must never become readable as feedback. The accepted long-term frequency taper is a by-product of tenure and event depletion, not of progression rank.
+
+Reason:
+Binding social cadence to a performance ladder would make the Presence appear to speak less as the user succeeds — withdrawal-for-achievement — recreating the ledger the secure base forbids. Tenure-and-depletion produces the same taper while keeping care non-contingent.
+
+Implementation Status:
+Partially Implemented — no frequency path is tied to stage today; the tenure/depletion/return governor itself is not yet built.
+
+Related Documents:
+BFG_PRESENCE_RESPONSE_SYSTEM.md §6, companion/BFG_Companion_Doctrine.md §VI/§XII, Decisions 009, 011, 036
+
+---
+
+# Decision 038
+
+Title:
+The no-ledger principle binds the Body as well as the Voice
+
+Category:
+Companion
+
+Status:
+Accepted
+
+Decision:
+The no-ledger principle applies to every Presence channel, not only the Voice. Neither Body nor Voice ever expresses disappointment, decline, or withdrawal in response to user inactivity, and no channel marks a streak break (Decision 031). When the user is absent, the Body's resting state is calm or at-rest, never reproachful; any Energy-driven change (Decision 024) reflects the user's own rhythm neutrally and is never the Presence reacting to being left.
+
+Reason:
+A presence that keeps no score cannot be failed, which is what makes it safe to be loved. If the Body could look hurt by absence, it would reintroduce through motion the exact ledger the Voice is forbidden from keeping.
+
+Implementation Status:
+Partially Implemented — the Voice already never shames and streak breaks are already silent; the living Body that must honor this is not yet built.
+
+Related Documents:
+BFG_PRESENCE_RESPONSE_SYSTEM.md §10, companion/BFG_Companion_Doctrine.md §X, Decisions 024, 031, 036
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -958,9 +1033,11 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 | Status | Count | Decisions |
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
-| Partially Implemented | 6 | 002, 007, 009, 016, 022, 035 |
+| Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
 | Not Implemented | 12 | 003–006, 008, 014, 024–028, 034 |
 
-Total decisions: 35.
+Total decisions: 38.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
+
+Decisions 036–038 (Presence Response System) were accepted 2026-06-16 and registered together with the new `BFG_PRESENCE_RESPONSE_SYSTEM.md` specification; their Implementation Status reflects the codebase as of that date.

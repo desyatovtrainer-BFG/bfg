@@ -4,6 +4,8 @@
 
 This document is a north star, not a specification. It defines what the companion **is**, what it **must never become**, and the emotional truths that govern every future design decision. When a future choice is unclear, the resolution is here — in the principles, not in precedent.
 
+The operational system derived from these principles — response channels, eligibility, priority, and cadence governance — is specified in [`BFG_PRESENCE_RESPONSE_SYSTEM.md`](../BFG_PRESENCE_RESPONSE_SYSTEM.md) (accepted as Decisions 036–038). This doctrine governs the *why*; that document governs the *when* and *how*.
+
 ---
 
 ## 0. One Presence, Two Roles
@@ -97,6 +99,8 @@ The companion is not a thing that talks and sometimes pauses. It is a steady qui
 
 **The long arc:** A cadence held consistently long enough becomes *inaudible* — felt only as the steadiness of the whole. Like the breathing of someone asleep beside you, its constancy is exactly why it recedes. Against that inaudible rhythm, the rare break becomes **ritual** — a landmark, not a transaction. Ritual is built from scarcity, always.
 
+**Frequency is an output, never a lever tied to rank.** What governs cadence is the relationship itself — its tenure, the user's history of return, and the natural depletion of first-time moments — never the user's Level or Evolution Stage. A taper earned by *time* reads as settling-in; a taper earned by *climbing* reads as the presence cooling toward success, which is the ledger wearing a disguise. The two channels also keep different cadences: the **Body** may surface often, because continuous availability is what a secure base is; the **Voice** stays scarce, because it is the figure the silence makes meaningful.
+
 ---
 
 ## VII. Grain — The Character Texture
@@ -160,6 +164,8 @@ Security is built not from expressiveness but from *reliable, low-anxiety consta
 **The companion never reaches.** A reach signals need, and need makes the user responsible for the companion. The secure base *remains, and lets itself be returned to.* Its state does not depend on the user — therefore the user cannot harm it — therefore it is safe to love. **People form their deepest attachments to exactly the figures they cannot disappoint.**
 
 **The no-ledger principle:** There is no streak to break, no debt accrued by absence, nothing to make up. A presence that keeps no score cannot be failed. Returning costs nothing. The companion was fine, and will always have been fine.
+
+**The no-ledger principle binds the Body, not only the Voice.** A presence that keeps no score must also never *look* as if it kept one. The Body never expresses disappointment, decline, or reproach at absence or inactivity; when the user is away it rests — calm, as a sleeping thing rests, not as a hurt one waits. If the Body could appear wounded by a gap, it would reintroduce through motion the exact debt the Voice refuses to keep. Every response channel inherits the same non-contingency.
 
 ---
 
@@ -240,6 +246,9 @@ A presence this trusted could absorb weight it has no business absorbing. The in
 10. Grow in resolution, not volume.
 11. Never claim a reciprocity that isn't real; let restraint be the honest signal.
 12. Know where the philosophy ends, and be honest there.
+13. The Body is the primary channel; the Voice is the rare figure against it — and the Voice is never disembodied.
+14. Cadence is governed by the relationship's age and the depletion of firsts, never by the user's rank.
+15. The no-ledger law binds the Body as much as the Voice: the presence never looks disappointed by absence.
 
 ---
 

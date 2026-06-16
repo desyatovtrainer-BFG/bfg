@@ -12,7 +12,7 @@ Engineering contract for the companion system. The companion is a **product feat
 
 ## 1. Role of the companion
 
-**The companion is the voice of the Presence.** Avatar = body. Companion = voice. One presence, two roles. The companion does not observe the avatar from outside — it *is* the avatar, speaking.
+**The companion is the voice of the Presence.** Avatar = body. Companion = voice. One presence, two roles. The companion does not observe the avatar from outside — it *is* the avatar, speaking. The companion is one channel of the **Presence Response System** (the Presence responds through Body, Voice, or both); see §12 and [`BFG_PRESENCE_RESPONSE_SYSTEM.md`](./BFG_PRESENCE_RESPONSE_SYSTEM.md) (accepted as Decisions 036–038).
 
 - The companion is the **continuity layer** of the experience. It acknowledges return, streak, and evolution.
 - It is **read-only** with respect to progression. It cannot award XP, change levels, or unlock cosmetics. It only reads state and produces text.
@@ -113,7 +113,7 @@ Detailed in [`BFG_SECURITY.md`](./BFG_SECURITY.md) §"AI security". Summary:
 
 ## 8. Performance rules
 
-- The companion message is part of the dashboard's initial HTML. It must not introduce a network round-trip on first paint.
+- When the Voice appears, its message is part of the dashboard's initial HTML (server-rendered). It must not introduce a network round-trip on first paint.
 - Animations around the companion (Framer Motion) must respect the 60fps mobile budget. No heavy backdrop filters.
 - No third-party fonts loaded just for companion text. Use the global font stack from `app/layout.tsx`.
 
@@ -148,8 +148,21 @@ Future memory:
 
 For a release to be acceptable on the companion axis:
 
-- Every authenticated user lands on the dashboard with a companion message **rendered on the server**.
+- Every authenticated user lands on the dashboard with the **Presence present** (the Body is always rendered). When the Voice is eligible to speak, its phrase is **rendered on the server** (no client round-trip); the Voice is event-driven and may not appear on a given load.
 - The phrase is stable for the same day at the same state.
 - All five states are reachable through real usage (we manually test by simulating `last_active_on`).
 - No companion phrase calls a third-party API on the client.
 - The companion has zero ability to mutate progression data.
+
+---
+
+## 12. Presence Response System (the Voice is one channel)
+
+The companion is the **Voice** channel of the Presence Response System (`BFG_PRESENCE_RESPONSE_SYSTEM.md`, accepted as Decisions 036–038). The engineering contract above is unchanged; this section binds it to the response architecture.
+
+- **Eligibility ≠ frequency.** The states in §3 describe *eligibility*. Whether the Voice actually speaks is decided by the frequency governor — relationship tenure, session count, recent response history, event depletion, return history — **never Level or Evolution Stage** (Decision 037).
+- **The Voice is always embodied.** A Voice response never renders without an accompanying Body reaction; the Body lives (breathes / glows / reacts) without the Voice (Decision 036). **One moment = at most one Voice response;** coincident events resolve by the priority ranking in `BFG_PRESENCE_RESPONSE_SYSTEM.md` §5.
+- **MVP voice trigger set (5):** first-ever Presence moment, first level-up (Decision 014), every Evolution transition (Decision 035), return after meaningful absence (7+ days), and workout completion (contextual, governed — never guaranteed).
+- **State reconciliation.** Under the response architecture: `soft_return` (2–6 days) resolves to **Body-only** in MVP — a warm body acknowledgment without words, to avoid wording a short gap as a ledger. `warm_return` (7+ days) remains a Voice moment (Body + Voice). `in_streak` continuity is **Body-only** (never counted in words). Streak breaks remain silent in every channel (Decision 038).
+- **Home is not a chat surface.** Home's resting state is Body-led; the Voice surfaces only via eligible triggers. The current per-load server-rendered phrase (§11) is to be repositioned toward this Body-primary model; the exact reconciliation is tracked as an open question in `BFG_PRESENCE_RESPONSE_SYSTEM.md` §11. The no-client-API and deterministic-fallback contracts (§2, §5, §7) are unchanged — the Russia-safe deterministic path remains the default.
+- **No-ledger binds the Body too** (Decision 038): no channel expresses disappointment at inactivity.

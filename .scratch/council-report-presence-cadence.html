@@ -1,0 +1,121 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>LLM Council — Presence Relationship Progression (Cadence)</title>
+<style>
+  :root{
+    --bg:#0e1014; --panel:#161a21; --panel2:#1c222b; --line:#2a3340;
+    --ink:#e7ecf3; --muted:#9aa7b8; --accent:#7cc4ff; --warn:#ff8f6b;
+    --good:#6fd39b; --bad:#ff6b7a; --gold:#e9c46a;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;padding:40px 20px;}
+  .wrap{max-width:860px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  .sub{color:var(--muted);margin-bottom:28px;font-size:14px}
+  .q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:24px}
+  .q b{color:var(--accent)}
+  .verdict{background:linear-gradient(180deg,#1b2330,#161a21);border:1px solid #34465c;border-left:4px solid var(--gold);
+    border-radius:12px;padding:22px 24px;margin-bottom:28px}
+  .verdict h2{margin:0 0 6px;font-size:20px;color:var(--gold)}
+  .tag{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;margin-right:6px}
+  .tag.b{background:#3a2e16;color:var(--gold)}
+  h2.sec{font-size:18px;margin:30px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .spectrum{display:flex;gap:8px;margin:18px 0}
+  .adv{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;font-size:13px}
+  .adv .nm{font-weight:600;display:block;margin-bottom:4px}
+  .adv.kill{border-top:3px solid var(--bad)}
+  .adv.keep{border-top:3px solid var(--good)}
+  .pos{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:var(--accent)}
+  td.win{background:#16271d;color:var(--good);font-weight:600}
+  td.lose{background:#2a1820;color:var(--bad)}
+  td.mid{color:var(--muted)}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 16px;margin:10px 0}
+  details summary{cursor:pointer;padding:14px 0;font-weight:600;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary:before{content:"▸ ";color:var(--accent)}
+  details[open] summary:before{content:"▾ "}
+  details .body{padding:0 0 16px;color:#d4dbe6;font-size:14px}
+  .q5{margin:8px 0;padding:12px 14px;background:var(--panel2);border-radius:8px;border:1px solid var(--line)}
+  .q5 b{color:var(--accent)}
+  footer{color:var(--muted);font-size:12px;margin-top:36px;border-top:1px solid var(--line);padding-top:14px}
+  .pill{font-size:11px;padding:2px 8px;border-radius:6px;background:#22303f;color:var(--accent);margin-left:6px}
+</style>
+<div class="wrap">
+  <h1>LLM Council Verdict</h1>
+  <div class="sub">BFG — Presence Relationship Progression System (communication cadence) · Product / Companion / Relationship design only</div>
+
+  <div class="q">
+    <b>The question.</b> Should the Presence's communication <i>frequency</i> evolve with the relationship —
+    high early (Stages 1–3) → reduced (4–6) → rare (7–10) → very rare (Legend Era)? The Companion Doctrine
+    <b>already</b> accepts the taper ("frequency tapers; temperature never does"). The genuinely new claim under test is
+    binding the taper to <b>Evolution Stage / Level</b> as the control variable, in discrete bands.
+  </div>
+
+  <div class="verdict">
+    <h2>Verdict: B — Promising, but requires changes</h2>
+    <span class="tag b">Taper principle: KEEP (already doctrine)</span>
+    <span class="tag b">Stage/Level as the knob: REJECT</span>
+    <p style="margin:12px 0 0">The instinct is right and already canon. The <b>mechanism is wrong</b>: tying social cadence to a
+    performance ladder turns progression into a thermostat — "the Presence loves me less for climbing" — recreating the
+    forbidden ledger and silencing the very milestone (evolution) that <i>must</i> speak. Replace the control variable with
+    <b>relationship tenure + return/activity history + event-depletion</b>, applied as a <b>smooth</b> curve, temperature never dropping.
+    <b>Not for MVP.</b></p>
+  </div>
+
+  <h2 class="sec">Where the advisors landed</h2>
+  <div class="spectrum">
+    <div class="adv kill"><span class="nm">Contrarian</span><span class="pos">Kill — wrong knob</span></div>
+    <div class="adv kill"><span class="nm">First Principles</span><span class="pos">Kill — wrong variable</span></div>
+    <div class="adv kill"><span class="nm">Executor</span><span class="pos">Kill for MVP</span></div>
+    <div class="adv kill"><span class="nm">Outsider</span><span class="pos">Kill — reads as neglect</span></div>
+    <div class="adv keep"><span class="nm">Expansionist</span><span class="pos">Keep — taper = signature</span></div>
+  </div>
+  <p style="color:var(--muted);font-size:13px">4 of 5 reject the <i>stage-bound</i> design. The lone defender argues for the taper
+  <i>principle</i> — which the doctrine already grants. So the real council position: <b>taper yes, by stage no.</b></p>
+
+  <h2 class="sec">Three models compared</h2>
+  <table>
+    <tr><th>Dimension</th><th>A — Fixed forever</th><th>B — Rare forever</th><th>C — Progression (high→low)</th></tr>
+    <tr><td>Emotional attachment</td><td class="lose">Erodes — predictable = automatic = ignored</td><td class="mid">Strong but slow to ignite</td><td class="win">Strongest <i>if</i> taper tracks trust, not rank</td></tr>
+    <tr><td>Retention</td><td class="mid">Steady but flat; novelty fades</td><td class="lose">Weak early — nothing to hook a beginner</td><td class="win">Best early hook; risk shifts to late "is it dead?"</td></tr>
+    <tr><td>Beginner experience</td><td class="mid">OK</td><td class="lose">Cold start — silence can't carry trust yet</td><td class="win">Correct — attention bootstraps the bond</td></tr>
+    <tr><td>Long-term experience</td><td class="lose">Wallpaper; companion becomes noise</td><td class="win">Each word an event</td><td class="win">Ritual + landmark gravity</td></tr>
+    <tr><td>Philosophical fit (Doctrine)</td><td class="lose">Violates §VI (pressure/predictable)</td><td class="mid">Fits §V silence-first, fails §XI onboarding</td><td class="win">Matches §VI + §XI + §XII <i>by tenure</i></td></tr>
+    <tr><td>Companion-fatigue risk</td><td class="lose">High</td><td class="win">Very low</td><td class="win">Low</td></tr>
+    <tr><td>Emotional-emptiness risk</td><td class="win">Low</td><td class="lose">High (always sparse)</td><td class="mid">Moderate — late silence can read as abandonment</td></tr>
+  </table>
+  <p style="color:var(--muted);font-size:13px">Winner: <b>C, but controlled by relationship tenure + event-depletion — not Evolution Stage.</b>
+  This is essentially what the Doctrine already prescribes (§XI taper + §V silence-first + §X no-ledger).</p>
+
+  <h2 class="sec">Chairman's five answers</h2>
+  <div class="q5"><b>1. Should frequency evolve?</b> Yes — and it already does, by doctrine. The taper is correct.</div>
+  <div class="q5"><b>2. What controls it?</b> <b>Relationship age</b> (wall-clock tenure) + <b>activity/return history</b> (absence, re-engagement) + <b>event-depletion</b> (firsts run out). <u>Not</u> Level/Stage. Evolution Stage stays a <i>visual/narrative</i> reward.</div>
+  <div class="q5"><b>3. Is decreasing comms desirable?</b> Yes in principle — only if temperature never drops, it never reads as withdrawal-for-achievement, milestone moments always speak, the curve is smooth not cliffed, and returns re-open warmth.</div>
+  <div class="q5"><b>4. Biggest mistake?</b> Making cadence a function of the performance ladder — a social thermostat that recreates the forbidden ledger and pairs evolution (a guaranteed-celebration moment, Decision 035) with sudden silence.</div>
+  <div class="q5"><b>5. Approve for MVP?</b> No. Keep the current state-based cadence. Defer cadence-shaping; it's untestable pre-launch (months-long, churn-confounded loop). If tapering at all, base it on tenure/session count, smooth, instrumented.</div>
+
+  <h2 class="sec">Full advisor responses</h2>
+  <details><summary>The Contrarian — stage is a social thermostat</summary><div class="body">Stage/level converts a performance ladder into a social thermostat — the exact ledger the doctrine forbids. The user feels its shadow: "the more I progress, the less it talks to me" = withdrawal-for-achievement, a warmth taper smuggled in through frequency. Stage isn't time: a high-activity user blasts Stages 1–3 in a week, hitting "rare" cadence while still a stranger; the slow beginner is trapped in high-frequency mode where the PRESSURE risk bites hardest. Discrete bands create a perceptible cliff at 3→4, pairing the evolution celebration with sudden quiet — silence becomes interpretable as feedback, which §VI bans. True variable: tenure + demonstrated security, not the XP rung.</div></details>
+  <details><summary>The First Principles Thinker — wrong control variable, two clocks</summary><div class="body">The hypothesis proposes the wrong control variable; the doctrine already tapers safely and binding to stage removes that safety. It conflates two clocks — relationship maturity vs progression rank — which correlate early and diverge constantly (a returning lapsed user is high-stage but low-trust, so the system goes quiet on whoever needs re-bootstrapping). Frequency is an output, not a control. The real variable is EVENT STRUCTURE: which moments are rare and earned enough to justify breaking silence. Design moment-eligibility and the taper falls out for free — early "firsts" make speech dense; later, firsts are exhausted, so silence dominates. Reframe: not "how often per stage?" but "what makes a moment deserve a voice?"</div></details>
+  <details><summary>The Expansionist — earning silence is the signature (defense)</summary><div class="body">Earning silence is BFG's underpriced asset. Constant contact is what competitors do and is worse — it makes a secure base needy. The taper is the felt signature of secure love (the parent who stops hovering; the old friend's comfortable silence). Scarcity converts each late word into an event; a Stage 9 sentence carries two years of witnessing. Bind the taper to stage and silence becomes narrative — "it speaks less because we've arrived," graduation not abandonment. No competitor can copy a two-year arc. It unlocks ritual, landmark gravity, anticipation as retention. The 10x version: silence becomes the product's deepest reward.</div></details>
+  <details><summary>The Outsider — "it sounds like the app gave up on me"</summary><div class="body">I'd never read it as "we're close now" — I'd read it as the app giving up on me. Early on I'm not attached; the little creature talking is the hook. Right when I'm finally sticking with it and working hard for months, it goes quiet? Backwards — I worked harder and got less. Fewer messages reads as losing interest, not intimacy (a friend who texts less makes you think "did I do something?"). I probably wouldn't even notice the clever taper — I'd just feel it get quieter and emptier and assume I hit the end of the content, that the app's dead. Evolution with silence = cheated, not honored. "Old friends need fewer words" is a designer's poem; as the user, silence just feels like silence.</div></details>
+  <details><summary>The Executor — don't ship stage-banded for MVP</summary><div class="body">Buildability is trivial (a lookup table); the design is the risk. Fatal flaw: stage proxies activity, not relationship time — a 5x/week user hits Stage 3 in ~3 weeks, a 1x/week beginner in 4+ months, so cadence goes quiet fastest for the most-engaged, backwards from retention. The taper inverts content cost vs need. A step function reads as rejection — ramp continuously. It's untestable: a months-long feedback loop confounded by churn. Stage is unstable (returns after absence break it). Verdict: do not ship stage-banded for MVP. Keep state-based phrases; add a calendar-tenure or session-count taper if any; make evolution stage a visual reward, not the cadence knob. Ship the bond, instrument it, learn.</div></details>
+
+  <h2 class="sec">Blind spots the peer review caught</h2>
+  <details open><summary>What everyone missed</summary><div class="body">
+    <p>• <b>No one challenged whether a paying subscriber should be tapered toward silence at all.</b> Designed quiet in a subscription product raises "why am I paying for less?" — the Outsider intuited it; nobody priced it.</p>
+    <p>• <b>No one proposed how to settle the disagreement empirically.</b> "Felt graduation" (Expansionist) vs "felt abandonment" (Outsider) is testable via cohort retention + sentiment and a reversible rollout — yet the debate stayed at the level of the poem.</p>
+    <p>• <b>No one raised user-controllable cadence</b> as an alternative to any fixed curve (adaptive to lapse, individual sensitivity).</p>
+    <p>• <b>Chairman addition:</b> the stage-banded taper directly contradicts <b>Decision 035</b> — every Evolution Stage must feel rewarding and memorable. Dropping a cadence band at the stage boundary would have the Presence go <i>quieter</i> exactly as the body transforms. That's a registry-level conflict, not just a vibe risk.</p>
+  </div></details>
+
+  <footer>Council of five (Contrarian · First Principles · Expansionist · Outsider · Executor), anonymized peer review, chairman synthesis.
+  Sources: BFG_PRODUCT_DECISIONS.md, BFG_PRODUCT_GAPS.md, BFG_Companion_Doctrine.md, BFG_CONTEXT.md, BFG_AI_COMPANION.md.
+  Generated 2026-06-16 · throwaway artifact in .scratch/</footer>
+</div>
