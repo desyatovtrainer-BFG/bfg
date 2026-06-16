@@ -3,6 +3,10 @@
 A foundational design document. Not an implementation spec.  
 Use this to ground companion writing, UX sequencing, and progression pacing decisions.
 
+> **Entity model:** This document describes emotional behavior and beginner psychology. Entity
+> architecture is governed by **D001 — Unified Presence**: Avatar and Companion are two roles of
+> the same Presence — Avatar = body, Companion = voice.
+
 ---
 
 ## What This Document Is

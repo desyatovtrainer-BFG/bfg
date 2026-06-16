@@ -12,7 +12,7 @@ Engineering contract for the companion system. The companion is a **product feat
 
 ## 1. Role of the companion
 
-**The companion is the voice of the avatar.** Avatar = body. Companion = voice. One presence, two roles. The companion does not observe the avatar from outside — it *is* the avatar, speaking.
+**The companion is the voice of the Presence.** Avatar = body. Companion = voice. One presence, two roles. The companion does not observe the avatar from outside — it *is* the avatar, speaking.
 
 - The companion is the **continuity layer** of the experience. It acknowledges return, streak, and evolution.
 - It is **read-only** with respect to progression. It cannot award XP, change levels, or unlock cosmetics. It only reads state and produces text.
