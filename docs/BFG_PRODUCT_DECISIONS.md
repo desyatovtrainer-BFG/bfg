@@ -190,7 +190,7 @@ Implementation Status:
 Partially Implemented — dashboard shows a static stage-colored avatar + companion phrase; living animation not built.
 
 Related Documents:
-BFG_UI_RULES.md §5, CURRENT_STATE.md, MVP_STATUS.md (avatar animation is an M1 must-ship)
+BFG_UI_RULES.md §5, CURRENT_STATE.md, MVP_STATUS.md (avatar animation is an M1 must-ship); refined by Decision 039 (approved Home composition adds a simplified progress layer — Presence remains primary)
 
 ---
 
@@ -981,6 +981,45 @@ BFG_PRESENCE_RESPONSE_SYSTEM.md §10, companion/BFG_Companion_Doctrine.md §X, D
 
 ---
 
+# Decision 039
+
+Title:
+Home Concept Candidate A — approved Home composition
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The MVP Home screen adopts Home Concept Candidate A. The approved content composition is:
+
+1. The living Presence occupies the visual center and remains the primary visual focus.
+2. An inner ring around the Presence shows Level Progress.
+3. An outer ring around the Presence shows Weekly Progress.
+4. A Stage Block sits directly under the Presence and contains both a Stage Title and a Stage Number (reference: "SEEKER / STAGE 3"; final naming may evolve later — the architectural structure is what is approved, not the specific words).
+5. The primary call to action is "Continue Journey".
+6. The Presence remains dominant; the two rings are a supporting layer, never the focus.
+7. The two progress rings (Level, Weekly) are approved as part of the Home composition.
+8. Home shows simplified progress only. Detailed statistics remain on the Progress screen (Decision 008).
+9. Presence dialogue (the Voice) placement on Home remains open and will be decided later — consistent with the event-driven Voice of the Presence Response System (Decisions 036–037).
+
+Scope note: this decision covers the Home screen content composition only. Bottom navigation remains governed by Decisions 003–006, and notification surfaces are not in scope here.
+
+This decision refines Decision 007: Home remains Presence-first, but a simplified progress layer (the two rings + Stage Block) is now an approved part of the Home composition. Any reading of Decision 007 as "no progress indicators of any kind on Home" is superseded here; the "not a dashboard of numbers" intent is preserved by keeping the Presence primary and limiting Home to simplified progress, with detailed metrics on Progress (Decision 008). The Weekly Progress indicator's presentation must honor the no-shame rule (Decision 031).
+
+Reason:
+The accepted concept keeps the Presence as the emotional center while giving the user a light, legible sense of progression on the Home screen itself. Detailed metrics stay on Progress; Home carries only a simplified progress layer, so the Presence remains the primary focus.
+
+Implementation Status:
+Not Implemented — the current dashboard shows a static stage-colored avatar + companion phrase; the living Presence, the two rings, the Stage Block, and the "Continue Journey" CTA are not built.
+
+Related Documents:
+BFG_UI_RULES.md §15, BFG_PRESENCE_RESPONSE_SYSTEM.md, Decisions 002, 007, 008, 035, 036, 037
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -992,9 +1031,11 @@ Each duplicate in the input list was normalized — either registered as a singl
 3. Loyalty Rewards appeared in both the Endgame content set and the standalone Loyalty set → Decision 026 lists scope; Decision 028 holds the mechanics.
 4. "Streak may grant Energy" appeared in both the Streaks set and the Energy set → registered once as Decision 022, with the Energy definition in Decision 024.
 
-## Contradictions detected (0)
+## Contradictions detected (0 unresolved)
 
-No contradictions remain between accepted decisions and existing scope documents.
+No unresolved contradictions remain between accepted decisions and existing scope documents.
+
+Decision 039 (approved Home composition) intentionally **refines** Decision 007: it adds an approved simplified progress layer (two rings + Stage Block) to the Presence-first Home. This is an explicit supersession of any "no progress indicators on Home" reading of D007, not an unresolved contradiction — D007 stays Presence-first and detailed metrics remain on Progress (Decision 008). The Weekly Progress indicator's presentation must honor the no-shame rule (Decision 031).
 
 Two items provisionally listed as contradictions in the first registry draft were reclassified at the 2026-06-10 refinement:
 
@@ -1034,9 +1075,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 12 | 003–006, 008, 014, 024–028, 034 |
+| Not Implemented | 13 | 003–006, 008, 014, 024–028, 034, 039 |
 
-Total decisions: 38.
+Total decisions: 39.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 

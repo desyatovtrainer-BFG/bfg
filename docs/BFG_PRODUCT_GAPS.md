@@ -12,12 +12,12 @@ Authoritative source of truth: `BFG_PRODUCT_DECISIONS.md`. Where any other docum
 
 | Metric | Count |
 |---|---|
-| Total accepted decisions | 35 |
+| Total accepted decisions | 39 |
 | Implemented | 17 (D001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033) |
-| Partially Implemented | 6 (D002, 007, 009, 016, 022, 035) |
-| Not Implemented | 12 (D003–006, 008, 014, 024–028, 034) |
+| Partially Implemented | 9 (D002, 007, 009, 016, 022, 035, 036, 037, 038) |
+| Not Implemented | 13 (D003–006, 008, 014, 024–028, 034, 039) |
 
-Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 10, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.)
+Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 11, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync.
 
 ---
 
@@ -96,6 +96,12 @@ Important, not blocking: the app functions today, but these are accepted product
 - Current implementation: catalog-driven quest XP inside the approved 3–5 band, temporary uniform 4 XP; three quests carry DRAFT Russian copy
 - Missing work: approve per-difficulty values (3–5) and final quest copy; one-line-per-quest catalog change. Related pending approval: final stage names/auras/flavor for stages 2–10 (D010 placeholder labels)
 - Recommended priority: P1 — content approvals, no code architecture work
+
+### D039 — Home Concept Candidate A (approved Home composition)
+- Current status: Not Implemented
+- Current implementation: dashboard shows a static stage-colored avatar + companion phrase; no living Presence, no rings, no Stage Block, no "Continue Journey" CTA
+- Missing work: living Presence in the visual center (overlaps the D007/D035 M1 living-Presence work), inner Level Progress ring, outer Weekly Progress ring, Stage Block (Stage Title + Stage Number) under the Presence, "Continue Journey" primary CTA. Home shows simplified progress only — detailed stats stay on Progress (D008). Presence Voice placement on Home is intentionally deferred (D036–037). The Weekly Progress presentation must honor the no-shame rule (D031)
+- Recommended priority: P1 — defines the MVP Home surface; overlaps M1 living-Presence and evolution work, and the D003–D008 navigation/Progress unit
 
 ---
 

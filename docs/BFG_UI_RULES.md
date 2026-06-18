@@ -191,3 +191,17 @@ A screen ships when:
 - Motion respects `prefers-reduced-motion`.
 - No `console.log` left behind.
 - Lighthouse mobile score for the route ≥ 90 (Performance) and ≥ 95 (Accessibility) on a clean build, or a documented reason why not.
+
+---
+
+## 15. Home composition (Candidate A)
+
+The approved MVP Home composition (Decision 039 — "Home Concept Candidate A", refines Decision 007). This section governs Home content only; bottom navigation follows Decisions 003–006.
+
+- **Living Presence — visual center, primary focus.** The Presence (avatar body) sits in the optical center and must remain the dominant element. Everything else is a supporting layer.
+- **Two progress rings around the Presence.** An **inner ring = Level Progress** and an **outer ring = Weekly Progress**. The rings are a supporting layer and must never out-weigh the Presence. Render them with the calm motion budget (subtle, `< 600ms` fills, `prefers-reduced-motion` respected, no casino-style sweeps — §5, §13).
+- **Stage Block under the Presence.** Contains a **Stage Title** and a **Stage Number** (reference: "SEEKER / STAGE 3"; final naming may change — the structure is fixed, the words are not).
+- **Primary CTA — "Continue Journey".** A single primary action. No competing buttons on Home.
+- **Simplified progress only.** Home shows a simplified progress layer; detailed statistics live on the Progress screen (Decision 008). Do not surface raw stat tables on Home.
+- **Presence Voice placement is open.** Whether/where the event-driven Voice surfaces on Home is deferred (Decisions 036–037); do not add a persistent companion text block as a standing fixture pending that decision.
+- **Tone guard.** The Weekly Progress indicator must honor the no-shame rule (Decision 031) — no failure/deficit framing for an incomplete week.
