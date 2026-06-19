@@ -1016,7 +1016,218 @@ Implementation Status:
 Not Implemented — the current dashboard shows a static stage-colored avatar + companion phrase; the living Presence, the two rings, the Stage Block, and the "Continue Journey" CTA are not built.
 
 Related Documents:
-BFG_UI_RULES.md §15, BFG_PRESENCE_RESPONSE_SYSTEM.md, Decisions 002, 007, 008, 035, 036, 037
+BFG_UI_RULES.md §15, BFG_PRESENCE_RESPONSE_SYSTEM.md, Decisions 002, 007, 008, 035, 036, 037, 043 (Continue Journey routing)
+
+---
+
+# Decision 040
+
+Title:
+Workout Tracking Philosophy
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+
+- Workout completion is the primary tracked event.
+- Start Workout + Finish Workout are the only required user actions.
+- No mandatory exercise logging.
+- No mandatory set logging.
+- No mandatory rep logging.
+- No mandatory rest tracking.
+- Working weight is optional.
+- Weight logging never affects XP.
+- Weight logging never affects Levels.
+- Weight logging never affects Streak.
+- Weight logging never affects Achievements.
+- Weight logging exists only for personal strength analytics.
+- Users are never penalized for not logging weight.
+
+Workout duration is measured automatically from the start and finish timestamps and is intentionally accepted as imperfect: it never affects XP, levels, streak, achievements, or rewards (BFG trusts the user). Strength Progress appears only after a user has logged working weight for an exercise at least once; there is no empty-state pressure to log (consistent with the no-shame rule, Decision 031).
+
+Reason:
+
+BFG prioritizes beginner friendliness and low-friction training flow over detailed workout journaling.
+
+Implementation Status:
+Not Implemented
+
+Related Documents:
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, docs/fitness/BFG_EXERCISE_METADATA.md, WORKOUT_CONTENT_GUIDE.md §12, BFG_GAME_SYSTEMS.md §2.2, BFG_MVP_SCOPE.md §3.1, Decisions 015, 020, 031
+
+---
+
+# Decision 041
+
+Title:
+Centralized Exercise Library
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+
+- BFG uses a centralized Exercise Library.
+- Exercises exist once and are reused across workout templates.
+- Workout templates reference exercises rather than duplicating them.
+- Exercise identity is defined by an immutable Exercise ID.
+- Exercise IDs are never changed.
+- Exercise IDs are never reused.
+- Exercises are retired (deactivated) rather than deleted.
+- Weight History is attached to Exercise ID.
+- The Exercise Library is infrastructure for content consistency, tracking, and analytics.
+- The Exercise Library does not exist for user customization.
+
+The Exercise Library separates identity (what an exercise is) from prescription (how it is used in a given workout). Intrinsic metadata — title, description, video, exercise type, load type — lives on the canonical exercise; prescription — order, duration, sets/reps display, superset grouping — lives on the workout template's reference to it. Load Type and Exercise Type are identity-sensitive once weight history exists: changing them would silently alter the meaning of past weight entries, so such a change requires retiring the exercise and creating a new one, never an in-place edit. This decision resolves the "stable exercise identity" open item in `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` and the "inconsistent weight semantics" risk in `docs/fitness/BFG_EXERCISE_METADATA.md`.
+
+Reason:
+
+Duplicated exercise definitions inside workout content fragment weight history and make renames and video swaps break analytics. A single canonical library with immutable identity keeps history interpretable across years of content churn, while staying within the coach-authored, no-user-customization philosophy (Decision 040).
+
+Implementation Status:
+Not Implemented
+
+Related Documents:
+docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md, docs/fitness/BFG_EXERCISE_METADATA.md, docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, WORKOUT_CONTENT_GUIDE.md, BFG_MVP_SCOPE.md §2, Decisions 015, 020, 040
+
+---
+
+# Decision 042
+
+Title:
+Activity Information Hierarchy
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The Activity screen presents Assigned Workouts above Daily Quests. Assigned Workouts are always the primary content; Daily Quests are always secondary and must never be given the visual weight of a workout. This applies the training-primacy principle (Decision 020) to the Activity surface layout: training remains the primary progression source, and the screen hierarchy must reflect that ordering. Daily Quests live inside the Workouts/Activity area (Decision 004) as a supportive layer beneath the assigned workouts, never as a peer of training.
+
+Reason:
+The Activity surface must reflect the product's core economy ordering. If quests could rival workouts visually, the screen would contradict Decision 020 (training is the dominant progression source) and the supportive, capped role of quests (Decisions 016, 017).
+
+Implementation Status:
+Not Implemented — quests are a standalone `/quests` route today; no unified Activity surface with this hierarchy exists.
+
+Related Documents:
+BFG_UI_RULES.md §16, Decisions 004, 016, 017, 020, 043, 045, 046
+
+---
+
+# Decision 043
+
+Title:
+Continue Journey Routing
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+"Continue Journey" (the primary Home CTA, Decision 039) opens the next assigned workout directly. It does NOT open the Activity screen. After a workout is completed, Continue Journey routes to the next assigned workout (Workout 1 complete → Continue Journey → Workout 2). This makes Home the primary resume surface and Activity a browsing surface: Home answers "continue now," Activity answers "what is my training." Activity therefore carries no competing global resume CTA.
+
+Reason:
+A single, frictionless resume path keeps the daily loop centered on Home and the Presence (Decisions 002, 039). Routing the user through an intermediate browsing screen to resume training would add friction to the primary action.
+
+Implementation Status:
+Not Implemented — the "Continue Journey" CTA itself is not yet built (Decision 039 Not Implemented), and no journey/sequence routing exists.
+
+Related Documents:
+BFG_UI_RULES.md §15 / §16, Decisions 002, 003, 004, 039, 042, 046 (journey model)
+
+---
+
+# Decision 044
+
+Title:
+Weight Logging Placement
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+Optional weight logging appears directly on the exercise screen. It does not appear before the workout, after the workout, or on any separate tracking screen, and it never appears on the Activity surface or on workout cards. Users may enter or ignore weight at any time while the exercise is on screen. Weight tracking remains optional and analytics-only — it never affects XP, levels, streak, or achievements (Decision 040) — and weight history is keyed to the immutable Exercise ID (Decision 041).
+
+Reason:
+Weight is captured at the only moment it is meaningful — while performing the exercise — keeping it frictionless and contextual, and keeping the Activity surface and workout cards free of analytics (Decisions 042, 045). This refines the placement left open by Decision 040.
+
+Implementation Status:
+Not Implemented — workout tracking and the exercise-screen weight field are not built (Decision 040 Not Implemented).
+
+Related Documents:
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md §4–§6, docs/fitness/BFG_EXERCISE_METADATA.md, Decisions 040, 041, 045
+
+---
+
+# Decision 045
+
+Title:
+Workout Card Composition
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+Workout cards display only the Workout Title and the Exercise Count. Workout cards must NOT display previous results, analytics, categories, weight history, or progress metrics. Workout cards remain intentionally minimal. Detailed metrics belong on the Progress screen (Decision 008); per-exercise weight lives on the exercise screen (Decision 044).
+
+Reason:
+A calm, minimal card keeps the Activity surface a browsing list rather than a stat wall, consistent with the hero → actions → content hierarchy and the no-"wall of cards" rule (BFG_UI_RULES.md §2) and the product's emotion-over-statistics principle.
+
+Implementation Status:
+Not Implemented — no workout cards of this composition exist; the current model embeds exercises per workout.
+
+Related Documents:
+BFG_UI_RULES.md §16, Decisions 008, 040, 042, 044
+
+---
+
+# Decision 046
+
+Title:
+Workout Journey Architecture (MVP)
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+A user is assigned a workout **program** containing a finite but **non-fixed** number of workouts (2, 3, 4, 5, or any future amount). The architecture must not depend on a specific workout count. Workouts have a defined **sequence** (Workout 1 → 2 → 3 → …); after the final workout the cycle **repeats** from the first (e.g. 1 → 2 → 3 → 1 → 2 → 3; for a four-workout program: 1 → 2 → 3 → 4 → 1 → 2 → 3 → 4). The sequence/cycle model is generic and count-agnostic.
+
+"Continue Journey" (Decision 043) resolves the next step in this journey in order:
+
+1. If an unfinished workout exists → open the unfinished workout.
+2. Otherwise → open the next workout in the current cycle.
+
+Continue Journey must not depend on the number of workouts in the program; its purpose is "continue the next logical step in the current training journey." This decision supplies the journey/sequence model that Decision 043 routing depends on and that Decision 042 (Activity Information Hierarchy) presents as the ordered list of assigned workouts.
+
+Reason:
+Decision 043 specified that Continue Journey opens "the next assigned workout," but no document defined what "next" means. A generic, count-agnostic cycle keeps the resume logic and the Activity surface independent of program length, so coach-authored programs of any size work without architectural change.
+
+Implementation Status:
+Not Implemented — no program / sequence / cycle model or Continue Journey routing exists today (Decisions 042–043 are also Not Implemented).
+
+Related Documents:
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, Decisions 040, 042, 043, 045
 
 ---
 
@@ -1036,6 +1247,10 @@ Each duplicate in the input list was normalized — either registered as a singl
 No unresolved contradictions remain between accepted decisions and existing scope documents.
 
 Decision 039 (approved Home composition) intentionally **refines** Decision 007: it adds an approved simplified progress layer (two rings + Stage Block) to the Presence-first Home. This is an explicit supersession of any "no progress indicators on Home" reading of D007, not an unresolved contradiction — D007 stays Presence-first and detailed metrics remain on Progress (Decision 008). The Weekly Progress indicator's presentation must honor the no-shame rule (Decision 031).
+
+Decisions 042–045 (Activity Screen Architecture, accepted 2026-06-19) introduce no contradictions — they are explicit refinements of Decisions 004, 020, 039, and 040 (see the acceptance note under Implementation summary).
+
+Decision 046 (Workout Journey Architecture, accepted 2026-06-19) introduces no contradictions — it supplies the count-agnostic journey/cycle model that Decisions 043 and 042 depend on (see the acceptance note under Implementation summary).
 
 Two items provisionally listed as contradictions in the first registry draft were reclassified at the 2026-06-10 refinement:
 
@@ -1075,10 +1290,18 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 13 | 003–006, 008, 014, 024–028, 034, 039 |
+| Not Implemented | 20 | 003–006, 008, 014, 024–028, 034, 039–046 |
 
-Total decisions: 39.
+Total decisions: 46.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
 Decisions 036–038 (Presence Response System) were accepted 2026-06-16 and registered together with the new `BFG_PRESENCE_RESPONSE_SYSTEM.md` specification; their Implementation Status reflects the codebase as of that date.
+
+Decision 040 (Workout Tracking Philosophy) was accepted 2026-06-19 and registered together with the new `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` and `docs/fitness/BFG_EXERCISE_METADATA.md` specifications. It is the first decision in the new **Fitness System** category. It does not contradict `BFG_MVP_SCOPE.md §3.2` (the `workout_completions` log remains a post-MVP / soft-launch item): the decision records the tracking *philosophy* and its forward architecture, not an MVP build instruction.
+
+Decision 041 (Centralized Exercise Library) was accepted 2026-06-19 and registered together with the new `docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md` specification. It supersedes the current embedded-exercise content model documented in `WORKOUT_CONTENT_GUIDE.md` (exercises defined per workout in `workout_exercises`): once implemented, exercises are authored once in the library and referenced by templates. The guide rewrite is deferred to implementation time and tracked in `BFG_PRODUCT_GAPS.md`. No MVP-scope contradiction: the library is maintainability/analytics infrastructure, not a user-facing customization feature (Decision 040 philosophy preserved).
+
+Decisions 042–045 (Activity Screen Architecture) were accepted 2026-06-19 and registered together. They specify the Activity surface and refine prior decisions without contradiction: **D042** applies training primacy (Decision 020) and the quests-in-Workouts placement (Decision 004) to the Activity layout (Workouts primary, Quests secondary); **D043** specifies the routing of the "Continue Journey" CTA approved in Decision 039 (Home is the resume surface, Activity is a browsing surface that does not own resume); **D044** fixes the placement of the optional weight field left open by Decision 040 (exercise screen only, never on Activity or workout cards, analytics-only); **D045** fixes the minimal workout-card composition (Title + Exercise Count only). Activity-specific UI architecture is recorded in `BFG_UI_RULES.md §16`. All four are Not Implemented (current app has a standalone `/quests` route, no Activity surface, no "Continue Journey" CTA, and no workout-session/exercise screen). The journey/sequence model that D043 routing depends on is specified by Decision 046 (Workout Journey Architecture).
+
+Decision 046 (Workout Journey Architecture) was accepted 2026-06-19 and resolves the journey/sequence follow-up left open by the D042–D045 sync. It defines a coach-assigned **program** of a finite but **non-fixed** number of workouts, a **generic, count-agnostic sequence** that **repeats as a cycle** after the final workout, and the **Continue Journey resume order** (unfinished workout first; otherwise the next workout in the cycle). It refines Decisions 042 and 043 without contradiction and is Not Implemented (no program/cycle model or routing exists today). It adds no new UI-composition rule, so `BFG_UI_RULES.md` was reviewed but not changed — the Continue Journey CTA stays on Home (§15) and the Activity surface rules (§16) are unaffected.

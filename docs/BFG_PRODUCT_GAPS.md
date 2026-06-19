@@ -12,12 +12,12 @@ Authoritative source of truth: `BFG_PRODUCT_DECISIONS.md`. Where any other docum
 
 | Metric | Count |
 |---|---|
-| Total accepted decisions | 39 |
+| Total accepted decisions | 46 |
 | Implemented | 17 (D001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033) |
 | Partially Implemented | 9 (D002, 007, 009, 016, 022, 035, 036, 037, 038) |
-| Not Implemented | 13 (D003–006, 008, 014, 024–028, 034, 039) |
+| Not Implemented | 20 (D003–006, 008, 014, 024–028, 034, 039–046) |
 
-Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 11, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync.
+Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 16, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture) and Decision 046 (Workout Journey Architecture) are captured under P1 below.
 
 ---
 
@@ -102,6 +102,36 @@ Important, not blocking: the app functions today, but these are accepted product
 - Current implementation: dashboard shows a static stage-colored avatar + companion phrase; no living Presence, no rings, no Stage Block, no "Continue Journey" CTA
 - Missing work: living Presence in the visual center (overlaps the D007/D035 M1 living-Presence work), inner Level Progress ring, outer Weekly Progress ring, Stage Block (Stage Title + Stage Number) under the Presence, "Continue Journey" primary CTA. Home shows simplified progress only — detailed stats stay on Progress (D008). Presence Voice placement on Home is intentionally deferred (D036–037). The Weekly Progress presentation must honor the no-shame rule (D031)
 - Recommended priority: P1 — defines the MVP Home surface; overlaps M1 living-Presence and evolution work, and the D003–D008 navigation/Progress unit
+
+### D042 — Activity Information Hierarchy
+- Current status: Not Implemented
+- Current implementation: standalone `/quests` route; no unified Activity surface
+- Missing work: Activity surface presenting Assigned Workouts (primary) above Daily Quests (secondary), with quests never given workout-card weight; folds in the D004 quests-in-Workouts relocation
+- Recommended priority: P1 — defines the MVP Activity surface; pairs with the D003–D006 navigation unit and D004
+
+### D043 — Continue Journey Routing
+- Current status: Not Implemented
+- Current implementation: no "Continue Journey" CTA exists (D039 Not Implemented); no journey/sequence routing
+- Missing work: route "Continue Journey" to the next assigned workout (Home = resume surface, Activity = browsing surface); journey/sequence model now specified by D046
+- Recommended priority: P1 — overlaps the D039 Home build
+
+### D046 — Workout Journey Architecture (MVP)
+- Current status: Not Implemented
+- Current implementation: no program/sequence/cycle model; no Continue Journey routing
+- Missing work: count-agnostic program model, generic repeating workout cycle, and the Continue Journey resume order (unfinished workout first, else next in cycle); supplies the journey model D042/D043 depend on
+- Recommended priority: P1 — prerequisite for the D043 routing and the D042 Activity surface
+
+### D044 — Weight Logging Placement
+- Current status: Not Implemented
+- Current implementation: workout tracking and the exercise screen are not built (D040 Not Implemented)
+- Missing work: optional weight field on the exercise screen only — not before/after the workout, not on Activity, not on workout cards; analytics-only, keyed to Exercise ID (D041)
+- Recommended priority: P1 — part of the workout-session / exercise-screen build (D040)
+
+### D045 — Workout Card Composition
+- Current status: Not Implemented
+- Current implementation: no workout cards of this composition; exercises embedded per workout today
+- Missing work: minimal workout card showing Title + Exercise Count only; no previous results / analytics / categories / weight history / progress metrics
+- Recommended priority: P1 — part of the Activity surface (D042)
 
 ---
 

@@ -205,3 +205,15 @@ The approved MVP Home composition (Decision 039 — "Home Concept Candidate A", 
 - **Simplified progress only.** Home shows a simplified progress layer; detailed statistics live on the Progress screen (Decision 008). Do not surface raw stat tables on Home.
 - **Presence Voice placement is open.** Whether/where the event-driven Voice surfaces on Home is deferred (Decisions 036–037); do not add a persistent companion text block as a standing fixture pending that decision.
 - **Tone guard.** The Weekly Progress indicator must honor the no-shame rule (Decision 031) — no failure/deficit framing for an incomplete week.
+
+---
+
+## 16. Activity composition
+
+The accepted MVP Activity composition (Decisions 042–045). This section governs the Activity surface only; it does not modify Home (§15) or Presence rules.
+
+- **Information hierarchy — Workouts primary, Quests secondary.** Assigned Workouts render above Daily Quests. Daily Quests are a supportive layer beneath training and must never adopt the visual weight of a workout card (Decisions 042, 020; quests live in the Workouts area per Decision 004).
+- **Workout card composition — minimal.** A workout card shows only the **Workout Title** and the **Exercise Count**. Never show previous results, analytics, categories, weight history, or progress metrics on a card (Decision 045). Reuse `GameCard` (§6, §12); do not build a stat-dense card variant. Detailed metrics live on Progress (Decision 008).
+- **Activity is a browsing surface, not the resume surface.** The primary resume action — "Continue Journey" — lives on Home and opens the next assigned workout directly (Decision 043, §15). Activity carries no competing global primary CTA.
+- **No weight entry on Activity.** Optional weight logging appears on the exercise screen only — never on the Activity surface and never on a workout card (Decision 044).
+- **Tone guard.** Completion and empty states on Activity honor the no-shame rule (Decision 031) and the no-empty-state-pressure rule for optional data (Decision 040) — absent content is never framed as failure (§8).
