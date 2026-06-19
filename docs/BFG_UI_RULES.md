@@ -213,7 +213,27 @@ The approved MVP Home composition (Decision 039 — "Home Concept Candidate A", 
 The accepted MVP Activity composition (Decisions 042–045). This section governs the Activity surface only; it does not modify Home (§15) or Presence rules.
 
 - **Information hierarchy — Workouts primary, Quests secondary.** Assigned Workouts render above Daily Quests. Daily Quests are a supportive layer beneath training and must never adopt the visual weight of a workout card (Decisions 042, 020; quests live in the Workouts area per Decision 004).
-- **Workout card composition — minimal.** A workout card shows only the **Workout Title** and the **Exercise Count**. Never show previous results, analytics, categories, weight history, or progress metrics on a card (Decision 045). Reuse `GameCard` (§6, §12); do not build a stat-dense card variant. Detailed metrics live on Progress (Decision 008).
+- **Workout card composition — minimal.** A workout card shows the **Workout Number** (program-order index), the **Workout Title**, and the **Exercise Count** — and nothing else. Never show previous results, analytics, categories, duration, weight history, or progress metrics on a card (Decisions 045, 055). Reuse `GameCard` (§6, §12); do not build a stat-dense card variant. Detailed metrics live on Progress (Decision 008).
+- **Header — "Activity" only.** The Activity header reads "Activity" — no date, no Today section, no motivational subtitle, no journey subtitle (Decision 055). Activity is a functional navigation surface; Home remains the emotional center (§15).
+- **Visible section headers, fixed order.** Two sections, each with a visible header: **Workouts** then **Daily Quests**, workouts always above quests (Decisions 055, 042).
+- **Vertical list, program order, no reorder, no horizontal scroll.** Workout cards render as a vertical list in fixed program order (Workout 1, 2, 3, …); cards never reorder, and cycle position is shown via state markers only (Decisions 055, 054, 048). No horizontal scrolling or carousels (also §13).
+- **Binary quest state.** A daily quest is **Completed or Not Completed only** — no partial progress, percentages, progress bars, or counters (e.g. "3/5 л", "8000/10000 шагов"), and no intermediate states (Decision 055; no-shame, Decision 031).
 - **Activity is a browsing surface, not the resume surface.** The primary resume action — "Continue Journey" — lives on Home and opens the next assigned workout directly (Decision 043, §15). Activity carries no competing global primary CTA.
 - **No weight entry on Activity.** Optional weight logging appears on the exercise screen only — never on the Activity surface and never on a workout card (Decision 044).
 - **Tone guard.** Completion and empty states on Activity honor the no-shame rule (Decision 031) and the no-empty-state-pressure rule for optional data (Decision 040) — absent content is never framed as failure (§8).
+- **All workouts visible and accessible — no locks.** Every workout in the program is shown and manually openable; no locked, hidden, or paywalled workouts (Decision 047; consistent with Decision 030). Workouts later in the cycle are browsable, never gated.
+- **One state marker per workout card.** A card shows at most one state marker — **Upcoming Workout** or **Workout In Progress** — never both at once; a card with no applicable state shows no marker (Decision 048).
+- **Equal card size — emphasis by state, color, and position, never size (Decision 054).** All workout cards use the same visual size; the current workout is never enlarged. Do not import Home's hero/focal enlargement (§15) — Activity is a browsing surface, not a dashboard or Home.
+- **Card outline color by state (Decision 054):** **Default** workout — neutral / blue outline; **Upcoming** workout — orange outline + Upcoming marker; **Workout In Progress** — green outline + In Progress marker. One state only (Decision 048). Note: the orange (Upcoming) and green (In Progress) accents are Activity-card state semantics that extend the base palette in §4 (sky / violet / rose / cyan); reconcile in the next §4 palette pass.
+
+---
+
+## 17. Workout interface (pre-start & boundaries)
+
+The accepted MVP rules for the workout viewing/session interface (Decisions 049–053). This section governs the workout interface only; it does not modify Home (§15) and touches Activity (§16) only via the card-state marker.
+
+- **Start boundary.** A workout is "started" only after the user presses **Start Workout**; viewing a workout (exercises, videos, content) is not starting it (Decision 049).
+- **Completion boundary.** A workout is "completed" only after **Start Workout → Finish Workout**; only completed workouts advance the journey cycle (Decisions 050, 046, 051).
+- **Pre-start content is open.** Before Start Workout, users may view exercises, videos, and inspect content — content access is never blocked (Decisions 052, 030).
+- **Persistent not-started reminder.** Before Start Workout, a persistent visual reminder that the workout has not started must remain visible throughout the workout interface, including while viewing exercise videos (Decision 052). Keep it calm (§5, §11) and non-blocking — never a modal that blocks the interface (§13).
+- **Weight fields gated to the started state.** Weight input fields are hidden before Start Workout and become available only after (Decision 053, refining Decision 044). No workout data is recorded before start (Decision 050). Weight stays optional and analytics-only on the exercise screen (Decision 044, §16).

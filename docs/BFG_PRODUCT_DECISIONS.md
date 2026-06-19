@@ -1057,7 +1057,7 @@ Implementation Status:
 Not Implemented
 
 Related Documents:
-docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, docs/fitness/BFG_EXERCISE_METADATA.md, WORKOUT_CONTENT_GUIDE.md §12, BFG_GAME_SYSTEMS.md §2.2, BFG_MVP_SCOPE.md §3.1, Decisions 015, 020, 031
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, docs/fitness/BFG_EXERCISE_METADATA.md, WORKOUT_CONTENT_GUIDE.md §12, BFG_GAME_SYSTEMS.md §2.2, BFG_MVP_SCOPE.md §3.1, Decisions 015, 020, 031, 049, 050, 053
 
 ---
 
@@ -1120,7 +1120,7 @@ Implementation Status:
 Not Implemented — quests are a standalone `/quests` route today; no unified Activity surface with this hierarchy exists.
 
 Related Documents:
-BFG_UI_RULES.md §16, Decisions 004, 016, 017, 020, 043, 045, 046
+BFG_UI_RULES.md §16, Decisions 004, 016, 017, 020, 043, 045, 046, 055
 
 ---
 
@@ -1170,7 +1170,7 @@ Implementation Status:
 Not Implemented — workout tracking and the exercise-screen weight field are not built (Decision 040 Not Implemented).
 
 Related Documents:
-docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md §4–§6, docs/fitness/BFG_EXERCISE_METADATA.md, Decisions 040, 041, 045
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md §4–§6, docs/fitness/BFG_EXERCISE_METADATA.md, Decisions 040, 041, 045, 053
 
 ---
 
@@ -1195,7 +1195,7 @@ Implementation Status:
 Not Implemented — no workout cards of this composition exist; the current model embeds exercises per workout.
 
 Related Documents:
-BFG_UI_RULES.md §16, Decisions 008, 040, 042, 044
+BFG_UI_RULES.md §16, Decisions 008, 040, 042, 044, 054, 055 (adds Workout Number)
 
 ---
 
@@ -1227,7 +1227,239 @@ Implementation Status:
 Not Implemented — no program / sequence / cycle model or Continue Journey routing exists today (Decisions 042–043 are also Not Implemented).
 
 Related Documents:
-docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, Decisions 040, 042, 043, 045
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, Decisions 040, 042, 043, 045, 047, 050, 051
+
+---
+
+# Decision 047
+
+Title:
+Workout Accessibility Model
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+All workouts remain visible and manually accessible at all times. There are no locked workouts and no hidden workouts. Within the repeating journey cycle (Decision 046), workouts later in the sequence are browsable, never gated: the cycle defines a recommended order and the "next" workout for Continue Journey (Decision 043), but it never restricts access. Consistent with the never-gated core loop (Decision 030).
+
+Reason:
+Locking workouts would contradict the calm, pressure-free philosophy and the never-gated core loop; the journey cycle is guidance, not a gate.
+
+Implementation Status:
+Not Implemented — no program/cycle surface exists yet (Decisions 042, 046 Not Implemented).
+
+Related Documents:
+BFG_UI_RULES.md §16, Decisions 030, 042, 043, 046, 048
+
+---
+
+# Decision 048
+
+Title:
+Workout State Model
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+A workout card may display at most one state marker: **Upcoming Workout** or **Workout In Progress**. The two markers can never appear simultaneously. A card with no applicable state shows no marker.
+
+Reason:
+A single, mutually exclusive marker keeps the Activity list legible and avoids contradictory signals on one card.
+
+Implementation Status:
+Not Implemented — no Activity workout cards exist yet (Decision 045 Not Implemented).
+
+Related Documents:
+BFG_UI_RULES.md §16, Decisions 045, 046, 049, 050, 054, 055
+
+---
+
+# Decision 049
+
+Title:
+Workout Start Boundary
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+A workout starts only after the user presses **Start Workout**. Viewing a workout — its exercises, videos, or content — is never considered starting the workout. Start Workout is the single boundary that begins a workout (Decision 040).
+
+Reason:
+A precise, user-initiated start boundary keeps the start timestamp meaningful and separates browsing from training (Decisions 040, 052).
+
+Implementation Status:
+Not Implemented — the workout session start/finish flow is not built (Decision 040 Not Implemented).
+
+Related Documents:
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md §2–§3, BFG_UI_RULES.md §17, Decisions 040, 050, 052, 053
+
+---
+
+# Decision 050
+
+Title:
+Workout Completion Boundary
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+A workout is completed only after Start Workout → Finish Workout. Only completed workouts advance the journey cycle (Decision 046). No workout data is recorded before Start Workout (Decision 053).
+
+Reason:
+Completion is the primary tracked event and the XP trigger (Decisions 015, 040); only a completed workout should move the cycle pointer.
+
+Implementation Status:
+Not Implemented — the start/finish flow and the journey cycle are not built (Decisions 040, 046 Not Implemented).
+
+Related Documents:
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md §2–§3, Decisions 015, 040, 046, 049, 051
+
+---
+
+# Decision 051
+
+Title:
+Journey Pointer Logic
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+Journey progression follows the workout the user actually completes. If the user breaks the recommended cycle order, the cycle pointer advances from the workout that was completed, not from the previously expected "next" workout. The cycle order (Decision 046) is a recommendation; the pointer tracks actual completion (Decision 050).
+
+Reason:
+The journey should reflect what the user did, not what was expected; this keeps Continue Journey honest after out-of-order training and resolves the out-of-order pointer behavior left open by the Activity design.
+
+Implementation Status:
+Not Implemented — the journey cycle and pointer are not built (Decision 046 Not Implemented).
+
+Related Documents:
+Decisions 043, 046, 050
+
+---
+
+# Decision 052
+
+Title:
+Workout Start Awareness Model
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+Before Start Workout, users may view exercises, view videos, and inspect workout content; content access is never blocked. While in this pre-start state, the system displays a persistent visual reminder that the workout has not been started. The reminder remains visible throughout the workout interface, including while viewing exercise videos. The reminder is presentation only — it never blocks content (Decisions 049, 030).
+
+Reason:
+Users should be able to preview a workout freely while always knowing it has not yet started, so the Start Workout boundary (Decision 049) stays clear without gating content.
+
+Implementation Status:
+Not Implemented — the workout interface is not built.
+
+Related Documents:
+BFG_UI_RULES.md §17, Decisions 030, 049, 053
+
+---
+
+# Decision 053
+
+Title:
+Weight Logging Availability
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+Weight input fields are hidden before Start Workout and become available only after Start Workout. No workout data may be recorded before the workout starts (Decision 050). Weight remains optional and analytics-only wherever it appears, on the exercise screen only (Decision 044).
+
+Reason:
+Weight is a record of work performed; it has no meaning before the workout begins, so the field appears only once the start boundary (Decision 049) is crossed.
+
+Implementation Status:
+Not Implemented — the workout session and the exercise-screen weight field are not built (Decisions 040, 044 Not Implemented).
+
+Related Documents:
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md §4–§5, BFG_UI_RULES.md §17, Decisions 040, 044, 049, 050
+
+---
+
+# Decision 054
+
+Title:
+Activity Visual Hierarchy
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+All workout cards use the same visual size; the current workout is **never enlarged**. Visual emphasis is achieved through **state indicators and color only**, never through card-size differences. Card outline colors: **Default** workout — neutral / blue outline; **Upcoming** workout — orange outline + Upcoming marker; **Workout In Progress** — green outline + In Progress marker. The Decision 048 state model is unchanged — a card may display only one state (Upcoming Workout *or* Workout In Progress), never both. Activity visual hierarchy is achieved through **state, color, and position** (Decision 042), not card size. Activity is not a dashboard and not Home.
+
+Reason:
+Equal-size cards keep Activity a calm browsing surface rather than a dashboard or a Home-style focal composition; emphasizing the current workout by enlargement would import Home's hero treatment (Decision 039) into a surface whose job is orientation, not focus.
+
+Implementation Status:
+Not Implemented — no Activity workout cards exist yet (Decisions 045, 048 Not Implemented).
+
+Related Documents:
+BFG_UI_RULES.md §16 / §4, Decisions 039, 042, 045, 046, 048, 055
+
+---
+
+# Decision 055
+
+Title:
+Activity Screen Composition
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+Activity is a functional navigation surface; Home remains the emotional center (Decisions 002, 039). Activity focuses on workouts and daily quests only.
+
+- **Header:** displays "Activity" only — no date, no Today section, no motivational subtitle, no journey subtitle.
+- **Section hierarchy:** (1) Workouts, (2) Daily Quests, each with a visible section header; Workouts always appear above Daily Quests (Decision 042).
+- **Workout section:** workout cards render as a **vertical list** — no horizontal scrolling — always in **program order** (Workout 1, 2, 3, …); cards never reorder themselves. Current cycle position is communicated through **state markers only** (Decisions 048, 054), not by reordering.
+- **Workout card content:** Workout Number, Workout Title, and Exercise Count — and nothing else (no categories, analytics, duration, previous results, or weight). This **extends Decision 045** by adding the Workout Number (program-order index) to the title and exercise count. Card states follow Decisions 048 and 054.
+- **Daily Quests section:** a visible "Daily Quests" header, always below the workouts.
+- **Quest state model:** a daily quest is **Completed or Not Completed only** — no partial progress, percentages, progress bars, or counters (e.g. "3/5 л", "8000/10000 шагов"), and no intermediate completion states. Done or Not Done.
+
+Reason:
+A plain, functional Activity surface keeps the emotional weight on Home (Decision 039) and the calm, no-metric philosophy intact: a fixed vertical list in program order is legible and count-agnostic (Decision 046), and a binary quest state avoids the progress-bar / loss-aversion framing the no-shame rule forbids (Decision 031).
+
+Implementation Status:
+Not Implemented — no Activity surface exists; quests are a standalone `/quests` route and workouts a flat `/workouts` catalog.
+
+Related Documents:
+BFG_UI_RULES.md §16, Decisions 017, 031, 042, 045, 046, 048, 054
 
 ---
 
@@ -1251,6 +1483,12 @@ Decision 039 (approved Home composition) intentionally **refines** Decision 007:
 Decisions 042–045 (Activity Screen Architecture, accepted 2026-06-19) introduce no contradictions — they are explicit refinements of Decisions 004, 020, 039, and 040 (see the acceptance note under Implementation summary).
 
 Decision 046 (Workout Journey Architecture, accepted 2026-06-19) introduces no contradictions — it supplies the count-agnostic journey/cycle model that Decisions 043 and 042 depend on (see the acceptance note under Implementation summary).
+
+Decisions 047–053 (Activity / Workout-session UX, accepted 2026-06-19) introduce no contradictions — they are explicit refinements: D047/D048 of the Activity surface (D042, D045, D046), D049/D050 of the tracking boundaries (D040), D051 of the journey pointer (D046), and D052/D053 of the pre-start workout interface (D044, D049). See the acceptance note under Implementation summary.
+
+Decision 054 (Activity Visual Hierarchy, accepted 2026-06-19) extends D045 and D048 without contradiction (equal-size cards; emphasis via state/color/position, never size). One **palette item to reconcile, not a contradiction:** D054 introduces **orange** (Upcoming) and **green** (In Progress) card-outline accents, which extend the base palette documented in `BFG_UI_RULES.md §4` (sky/violet/rose/cyan). Recorded as a follow-up for the §4 palette pass; §16 now states the Activity card colors.
+
+Decision 055 (Activity Screen Composition, accepted 2026-06-19) extends D042, D045, D048, and D054 and does not modify D039/D046. One **extension to note, not a contradiction:** D055 **adds the Workout Number** to the workout card, so the D045 "Title + Exercise Count only" composition becomes **Workout Number + Title + Exercise Count** (the D045 forbidden list — categories/analytics/duration/previous results/weight — is unchanged). The binary quest state (Completed / Not Completed, no counters or progress bars) is consistent with the no-shame rule (D031) and does not change the quest catalog/selection model (D016, D017, D033).
 
 Two items provisionally listed as contradictions in the first registry draft were reclassified at the 2026-06-10 refinement:
 
@@ -1290,9 +1528,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 20 | 003–006, 008, 014, 024–028, 034, 039–046 |
+| Not Implemented | 29 | 003–006, 008, 014, 024–028, 034, 039–055 |
 
-Total decisions: 46.
+Total decisions: 55.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -1305,3 +1543,9 @@ Decision 041 (Centralized Exercise Library) was accepted 2026-06-19 and register
 Decisions 042–045 (Activity Screen Architecture) were accepted 2026-06-19 and registered together. They specify the Activity surface and refine prior decisions without contradiction: **D042** applies training primacy (Decision 020) and the quests-in-Workouts placement (Decision 004) to the Activity layout (Workouts primary, Quests secondary); **D043** specifies the routing of the "Continue Journey" CTA approved in Decision 039 (Home is the resume surface, Activity is a browsing surface that does not own resume); **D044** fixes the placement of the optional weight field left open by Decision 040 (exercise screen only, never on Activity or workout cards, analytics-only); **D045** fixes the minimal workout-card composition (Title + Exercise Count only). Activity-specific UI architecture is recorded in `BFG_UI_RULES.md §16`. All four are Not Implemented (current app has a standalone `/quests` route, no Activity surface, no "Continue Journey" CTA, and no workout-session/exercise screen). The journey/sequence model that D043 routing depends on is specified by Decision 046 (Workout Journey Architecture).
 
 Decision 046 (Workout Journey Architecture) was accepted 2026-06-19 and resolves the journey/sequence follow-up left open by the D042–D045 sync. It defines a coach-assigned **program** of a finite but **non-fixed** number of workouts, a **generic, count-agnostic sequence** that **repeats as a cycle** after the final workout, and the **Continue Journey resume order** (unfinished workout first; otherwise the next workout in the cycle). It refines Decisions 042 and 043 without contradiction and is Not Implemented (no program/cycle model or routing exists today). It adds no new UI-composition rule, so `BFG_UI_RULES.md` was reviewed but not changed — the Continue Journey CTA stays on Home (§15) and the Activity surface rules (§16) are unaffected.
+
+Decisions 047–053 (Activity / Workout-session UX) were accepted 2026-06-19 and registered together. **D047** keeps all workouts visible and manually accessible (no locked/hidden workouts) within the D046 cycle; **D048** allows one mutually exclusive card state marker (Upcoming Workout *or* Workout In Progress); **D049** fixes the Start Workout boundary (viewing ≠ starting); **D050** fixes the completion boundary (Start → Finish; only completed workouts advance the cycle); **D051** advances the journey pointer from the workout actually completed, even out of order; **D052** requires a persistent "not started" reminder throughout the pre-start workout interface (including during videos) while never blocking content; **D053** hides weight fields before Start Workout and reveals them after (no data recorded before start). All seven are Not Implemented (no Activity surface and no workout session/exercise screen exist today). Activity card rules are recorded in `BFG_UI_RULES.md §16`; the pre-start workout-interface rules are recorded in the new `BFG_UI_RULES.md §17`. Together they resolve the out-of-order start/pointer and in-progress-marker items left open by the Activity Screen Architecture work.
+
+Decision 054 (Activity Visual Hierarchy) was accepted 2026-06-19. It extends D045 (card composition) and D048 (state model): **all workout cards are the same size — the current workout is never enlarged** — and visual emphasis comes from **state, color, and position** (D042), not size. Card outline colors are Default neutral/blue, **Upcoming orange** (+ Upcoming marker), **In Progress green** (+ In Progress marker), with the D048 one-state rule unchanged. It explicitly does not modify D039 (Home) or D046 (Journey). It settles how the current workout is distinguished without size — superseding the non-persisted "largest current card" suggestion from the earlier Activity design analysis (that analysis was never written to a doc, so no document required correction). The orange/green accents extend the §4 palette and are flagged for the next palette pass (see Contradictions note). Not Implemented (no Activity cards exist). Activity card colors are recorded in `BFG_UI_RULES.md §16`.
+
+Decision 055 (Activity Screen Composition) was accepted 2026-06-19. It defines the concrete Activity layout: a **header reading "Activity" only** (no date / Today / motivational or journey subtitle); **two sections with visible headers — Workouts then Daily Quests** (D042); workout cards as a **vertical list in fixed program order, no horizontal scroll, never reordering**, with cycle position shown via **state markers only** (D048, D054); workout card content of **Workout Number + Title + Exercise Count** (extending D045 by adding the Workout Number); and a **binary quest state — Completed or Not Completed only**, with no partial progress, percentages, progress bars, or counters. It extends D042/D045/D048/D054 and does not modify D039 (Home) or D046 (Journey). Not Implemented (no Activity surface exists). Composition rules are recorded in `BFG_UI_RULES.md §16`.

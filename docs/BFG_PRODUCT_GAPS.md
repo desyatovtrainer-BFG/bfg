@@ -12,12 +12,12 @@ Authoritative source of truth: `BFG_PRODUCT_DECISIONS.md`. Where any other docum
 
 | Metric | Count |
 |---|---|
-| Total accepted decisions | 46 |
+| Total accepted decisions | 55 |
 | Implemented | 17 (D001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033) |
 | Partially Implemented | 9 (D002, 007, 009, 016, 022, 035, 036, 037, 038) |
-| Not Implemented | 20 (D003–006, 008, 014, 024–028, 034, 039–046) |
+| Not Implemented | 29 (D003–006, 008, 014, 024–028, 034, 039–055) |
 
-Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 16, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture) and Decision 046 (Workout Journey Architecture) are captured under P1 below.
+Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 25, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture), Decision 046 (Workout Journey Architecture), and Decisions 047–053 (Activity / Workout-session UX), Decision 054 (Activity Visual Hierarchy), and Decision 055 (Activity Screen Composition) are captured under P1 below.
 
 ---
 
@@ -120,6 +120,60 @@ Important, not blocking: the app functions today, but these are accepted product
 - Current implementation: no program/sequence/cycle model; no Continue Journey routing
 - Missing work: count-agnostic program model, generic repeating workout cycle, and the Continue Journey resume order (unfinished workout first, else next in cycle); supplies the journey model D042/D043 depend on
 - Recommended priority: P1 — prerequisite for the D043 routing and the D042 Activity surface
+
+### D047 — Workout Accessibility Model
+- Current status: Not Implemented
+- Current implementation: flat `/workouts` catalog; no program/cycle surface
+- Missing work: all workouts visible and manually accessible within the cycle — no locked/hidden workouts (consistent with D030)
+- Recommended priority: P1 — Activity surface rule (pairs with D042, D046)
+
+### D048 — Workout State Model
+- Current status: Not Implemented
+- Current implementation: no Activity workout cards exist (D045 Not Implemented)
+- Missing work: at most one mutually exclusive card state marker — Upcoming Workout or Workout In Progress, never both
+- Recommended priority: P1 — part of the Activity card composition (D045)
+
+### D049 — Workout Start Boundary
+- Current status: Not Implemented
+- Current implementation: no workout session start/finish flow (D040 Not Implemented)
+- Missing work: Start Workout as the sole start boundary; viewing is not starting
+- Recommended priority: P1 — part of the workout-session build (D040)
+
+### D050 — Workout Completion Boundary
+- Current status: Not Implemented
+- Current implementation: no start/finish flow; no journey cycle (D040, D046 Not Implemented)
+- Missing work: completion only via Start → Finish; only completed workouts advance the cycle; no data recorded before start
+- Recommended priority: P1 — part of the workout-session build and the journey pointer (D046, D051)
+
+### D051 — Journey Pointer Logic
+- Current status: Not Implemented
+- Current implementation: no journey cycle/pointer (D046 Not Implemented)
+- Missing work: advance the cycle pointer from the workout actually completed, even when the recommended order is broken
+- Recommended priority: P1 — part of the journey cycle (D046)
+
+### D052 — Workout Start Awareness Model
+- Current status: Not Implemented
+- Current implementation: no workout interface exists
+- Missing work: persistent "not started" reminder throughout the pre-start workout interface (incl. during videos), content never blocked
+- Recommended priority: P1 — part of the workout-interface build (D049); UI rule in BFG_UI_RULES.md §17
+
+### D053 — Weight Logging Availability
+- Current status: Not Implemented
+- Current implementation: no workout session or exercise-screen weight field (D040, D044 Not Implemented)
+- Missing work: hide weight fields before Start Workout, reveal after; no data recorded before start
+- Recommended priority: P1 — part of the exercise-screen/weight build (D044)
+
+### D054 — Activity Visual Hierarchy
+- Current status: Not Implemented
+- Current implementation: no Activity workout cards exist (D045, D048 Not Implemented)
+- Missing work: equal-size workout cards (current never enlarged); emphasis via state/color/position only; outline colors — Default neutral/blue, Upcoming orange, In Progress green; one state per D048. Note: orange/green extend the §4 palette (sky/violet/rose/cyan) — pending §4 reconciliation
+- Recommended priority: P1 — part of the Activity card composition (D045, D048)
+
+### D055 — Activity Screen Composition
+- Current status: Not Implemented
+- Current implementation: no Activity surface; quests on a standalone `/quests` route, workouts on a flat `/workouts` catalog
+- Missing work: "Activity"-only header (no date/Today/subtitle); two sections with visible headers (Workouts above Daily Quests); workout cards as a vertical list in fixed program order (no horizontal scroll, no reordering, position via state markers); card content Workout Number + Title + Exercise Count (extends D045); binary quest state (Completed / Not Completed only — no counters/percentages/progress bars)
+- Recommended priority: P1 — defines the concrete Activity layout (extends D042/D045/D048/D054)
 
 ### D044 — Weight Logging Placement
 - Current status: Not Implemented
