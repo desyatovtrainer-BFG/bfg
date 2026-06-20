@@ -12,12 +12,12 @@ Authoritative source of truth: `BFG_PRODUCT_DECISIONS.md`. Where any other docum
 
 | Metric | Count |
 |---|---|
-| Total accepted decisions | 55 |
+| Total accepted decisions | 58 |
 | Implemented | 17 (D001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033) |
 | Partially Implemented | 9 (D002, 007, 009, 016, 022, 035, 036, 037, 038) |
-| Not Implemented | 29 (D003–006, 008, 014, 024–028, 034, 039–055) |
+| Not Implemented | 32 (D003–006, 008, 014, 024–028, 034, 039–058) |
 
-Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 25, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture), Decision 046 (Workout Journey Architecture), and Decisions 047–053 (Activity / Workout-session UX), Decision 054 (Activity Visual Hierarchy), and Decision 055 (Activity Screen Composition) are captured under P1 below.
+Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 28, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture), Decision 046 (Workout Journey Architecture), and Decisions 047–053 (Activity / Workout-session UX), Decision 054 (Activity Visual Hierarchy), Decision 055 (Activity Screen Composition), and Decisions 056–058 (Workout state architecture) are captured under P1 below.
 
 ---
 
@@ -174,6 +174,24 @@ Important, not blocking: the app functions today, but these are accepted product
 - Current implementation: no Activity surface; quests on a standalone `/quests` route, workouts on a flat `/workouts` catalog
 - Missing work: "Activity"-only header (no date/Today/subtitle); two sections with visible headers (Workouts above Daily Quests); workout cards as a vertical list in fixed program order (no horizontal scroll, no reordering, position via state markers); card content Workout Number + Title + Exercise Count (extends D045); binary quest state (Completed / Not Completed only — no counters/percentages/progress bars)
 - Recommended priority: P1 — defines the concrete Activity layout (extends D042/D045/D048/D054)
+
+### D056 — Completed Workout Card State
+- Current status: Not Implemented
+- Current implementation: no Activity workout cards exist (D045, D048, D054 Not Implemented)
+- Missing work: on completion, the card returns to Default (blue outline, no marker); no Completed/Finished state or dedicated color; completion history lives on Progress (D008)
+- Recommended priority: P1 — part of the Activity card state model (D048, D054)
+
+### D057 — Marker Priority Model
+- Current status: Not Implemented
+- Current implementation: no Activity workout list exists (D045, D048, D054 Not Implemented)
+- Missing work: In Progress has absolute priority over Upcoming — while any workout is In Progress, no Upcoming marker/orange card appears anywhere; on completion the next becomes Upcoming
+- Recommended priority: P1 — part of the Activity card state model (D048, D054)
+
+### D058 — Active Workout Exclusivity Model
+- Current status: Not Implemented
+- Current implementation: no workout session start/finish flow (D040, D049, D050 Not Implemented)
+- Missing work: only one workout In Progress at a time; users may leave/navigate/view freely but cannot start a second; other workouts show "Return To Workout" (not Start Workout), returning to the active session; no cancellation system
+- Recommended priority: P1 — part of the workout-session flow (D049, D050); UI rule in BFG_UI_RULES.md §17
 
 ### D044 — Weight Logging Placement
 - Current status: Not Implemented
