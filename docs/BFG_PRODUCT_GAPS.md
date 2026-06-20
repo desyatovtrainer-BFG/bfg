@@ -12,12 +12,12 @@ Authoritative source of truth: `BFG_PRODUCT_DECISIONS.md`. Where any other docum
 
 | Metric | Count |
 |---|---|
-| Total accepted decisions | 58 |
+| Total accepted decisions | 59 |
 | Implemented | 17 (D001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033) |
 | Partially Implemented | 9 (D002, 007, 009, 016, 022, 035, 036, 037, 038) |
-| Not Implemented | 32 (D003–006, 008, 014, 024–028, 034, 039–058) |
+| Not Implemented | 33 (D003–006, 008, 014, 024–028, 034, 039–059) |
 
-Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 28, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture), Decision 046 (Workout Journey Architecture), and Decisions 047–053 (Activity / Workout-session UX), Decision 054 (Activity Visual Hierarchy), Decision 055 (Activity Screen Composition), and Decisions 056–058 (Workout state architecture) are captured under P1 below.
+Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 29, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture), Decision 046 (Workout Journey Architecture), and Decisions 047–053 (Activity / Workout-session UX), Decision 054 (Activity Visual Hierarchy), Decision 055 (Activity Screen Composition), Decisions 056–058 (Workout state architecture), and Decision 059 (Initial Journey State) are captured under P1 below.
 
 ---
 
@@ -204,6 +204,12 @@ Important, not blocking: the app functions today, but these are accepted product
 - Current implementation: no workout cards of this composition; exercises embedded per workout today
 - Missing work: minimal workout card showing Title + Exercise Count only; no previous results / analytics / categories / weight history / progress metrics
 - Recommended priority: P1 — part of the Activity surface (D042)
+
+### D059 — Initial Journey State
+- Current status: Not Implemented
+- Current implementation: no journey pointer, program/cycle model, or Continue Journey routing exists (D043, D046 Not Implemented)
+- Missing work: initialize the journey pointer to Workout 1 when no workout has ever been completed and none is In Progress — Activity shows Workout 1 as Upcoming (orange outline + marker, D054/D057) and Continue Journey resolves to Workout 1 (D043); after the first completion the D046 cycle becomes authoritative (pointer advances per D051). Adds no expiration / cancellation / reset / session recovery — started workouts follow D058
+- Recommended priority: P1 — first-render correctness for the Activity surface and Home resume (pairs with D046, D043)
 
 ---
 

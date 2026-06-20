@@ -7,9 +7,10 @@ This document specifies the accepted Exercise Library architecture. It records *
 
 Companion documents:
 - `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` — what is tracked (Decision 040).
+- `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md` — workout session structure and supersets (Decision 060).
 - `docs/fitness/BFG_EXERCISE_METADATA.md` — exercise types, load types, weight semantics.
 - `WORKOUT_CONTENT_GUIDE.md` — content authoring (will be rewritten at implementation time).
-- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 040, 041.
+- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 040, 041, 060.
 
 ---
 
@@ -111,3 +112,14 @@ Hub-and-spoke with a hard identity/prescription split:
 4. **Two-tier mutability is the load-bearing rule.** Content (video, description, title wording) is freely editable; semantic identity (id, load type, exercise type once history exists) is immutable — change means retire + recreate.
 
 The one risk this cannot solve structurally — authors creating near-duplicate exercises — is a curation discipline assigned to the coach.
+
+## 11. Library Stores Exercises Only — Workout Structure Lives in Workout Steps
+
+Clarification accepted with Decision 060 (`BFG_WORKOUT_STEP_ARCHITECTURE.md`):
+
+- **The Exercise Library stores exercises only.** It holds canonical movements and their intrinsic metadata (Exercise ID, title, description, video, Exercise Type, Load Type, derived weight semantics) — nothing else.
+- **Workout structure belongs to Workout Steps.** The grouping of exercises into session screens, their order, and their prescription are not Library concerns; they live on the Workout Template's Steps (Decision 060 §3).
+- **Superset composition belongs to Workout Steps.** A superset is represented by a Workout Step that contains two exercises (Decision 060 §5). There is **no Superset entity** in the Library — or anywhere.
+- **The Exercise Library never stores workout structure.** No Steps, no screen grouping, no supersets, no ordering, no prescription. The Library is a flat catalog of movements referenced by id; structure is composed above it by the Workout Template and its Steps.
+
+This keeps the identity/prescription split (§2) intact at the structural level too: identity lives in the Library, structure lives in Workout Steps, and the two never merge.

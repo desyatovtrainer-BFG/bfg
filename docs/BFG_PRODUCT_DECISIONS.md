@@ -1145,7 +1145,7 @@ Implementation Status:
 Not Implemented — the "Continue Journey" CTA itself is not yet built (Decision 039 Not Implemented), and no journey/sequence routing exists.
 
 Related Documents:
-BFG_UI_RULES.md §15 / §16, Decisions 002, 003, 004, 039, 042, 046 (journey model)
+BFG_UI_RULES.md §15 / §16, Decisions 002, 003, 004, 039, 042, 046 (journey model), 059 (initial state)
 
 ---
 
@@ -1227,7 +1227,7 @@ Implementation Status:
 Not Implemented — no program / sequence / cycle model or Continue Journey routing exists today (Decisions 042–043 are also Not Implemented).
 
 Related Documents:
-docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, Decisions 040, 042, 043, 045, 047, 050, 051, 058
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, Decisions 040, 042, 043, 045, 047, 050, 051, 058, 059
 
 ---
 
@@ -1509,7 +1509,7 @@ Implementation Status:
 Not Implemented — no Activity workout list exists yet (Decisions 045, 048, 054 Not Implemented).
 
 Related Documents:
-BFG_UI_RULES.md §16, Decisions 046, 048, 051, 054, 058
+BFG_UI_RULES.md §16, Decisions 046, 048, 051, 054, 058, 059
 
 ---
 
@@ -1535,6 +1535,80 @@ Not Implemented — the workout session start/finish flow is not built (Decision
 
 Related Documents:
 docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md §2–§3, BFG_UI_RULES.md §17, Decisions 046, 047, 049, 050, 052, 057
+
+---
+
+# Decision 059
+
+Title:
+Initial Journey State
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+This decision defines the initial state of the workout journey for a brand-new user, resolving the journey-pointer initialization left open by Decision 046. When **no workout has ever been completed** and **no workout is currently In Progress**, the system initializes the journey pointer to **Workout 1**.
+
+Activity behavior: Workout 1 receives the **Upcoming** state — the Upcoming marker and the orange outline (Decisions 054, 057). No other workout carries a marker (Decision 057 — one special state at a time).
+
+Home behavior: "Continue Journey" (Decision 043) resolves to **Workout 1** for a brand-new user.
+
+After the first completed workout (Start Workout → Finish Workout, Decisions 049, 050), the Workout Journey Architecture (Decision 046) becomes authoritative and all future navigation follows the normal repeating cycle (e.g. 1 → 2 → 3 → 1, or 1 → 2 → 3 → 4 → 5 → 1, depending on program size), with the pointer advancing from the workout actually completed (Decision 051).
+
+This decision defines the initial journey state only. It does not introduce workout expiration, workout cancellation, workout reset, or automatic session recovery; started workouts continue to follow Decision 058 (Active Workout Exclusivity Model).
+
+Reason:
+Decision 046 defined the repeating cycle and the Continue Journey resume order but specified the "next workout" transition only after a completion (Decision 057), leaving the zero-completion initial state undefined. A new user with no history and nothing In Progress had no defined pointer value, Upcoming marker, or Continue Journey target. Initializing the pointer to Workout 1 makes the first render deterministic and keeps Activity and Home consistent from the first session, without adding any new state or session mechanic.
+
+Implementation Status:
+Not Implemented — no program/cycle model, journey pointer, or Continue Journey routing exists today (Decisions 043, 046 Not Implemented).
+
+Related Documents:
+BFG_UI_RULES.md §16, Decisions 043, 046, 051, 054, 057, 058
+
+---
+
+# Decision 060
+
+Title:
+Workout Step Architecture
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+
+- A workout consists of **Workout Steps**.
+- The Workout Step is the **structural unit** of a workout.
+- A Workout Step corresponds to a **single Workout Session screen**.
+- A Workout Step may contain **one or two exercises**.
+- A Workout Step does **not** represent an exercise.
+- A Workout Step does **not** represent a superset.
+- Supersets are represented by a Workout Step that contains **two exercises** — no Superset entity is introduced anywhere.
+- The Workout Step is **fully controlled by the coach**.
+- Step **count** may change between workout versions.
+- Step **composition** may change between workout versions.
+- Workout Tracking is **not** attached to the Workout Step.
+- Weight History is **not** attached to the Workout Step.
+- Progress analytics are **not** attached to the Workout Step.
+
+The Workout Step is a **session-structure** concept only. It groups the canonical exercises of the Exercise Library (Decision 041) into the screens the user steps through during a session, and it carries no identity that user history depends on. Tracking and analytics continue to resolve to Workout Completion (Decision 050) and the immutable Exercise ID (Decision 041), never to a Step. This is what lets a coach freely re-author Step count and composition between workout versions without ever corrupting strength history. A two-exercise Step is the sole representation of a superset; the Exercise Library never stores supersets or any other workout structure.
+
+Reason:
+
+Workout Step provides a stable architecture for the workout session flow while keeping the Exercise Library independent from workout structure. It resolves superset representation, workout session structure, and workout preview structure in one entity, without introducing Superset entities into the Exercise Library and without coupling user history to mutable workout structure.
+
+Implementation Status:
+Not Implemented
+
+Related Documents:
+docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md, docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md, docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, WORKOUT_CONTENT_GUIDE.md §13, Decisions 040, 041, 046, 049, 050, 055
 
 ---
 
@@ -1566,6 +1640,10 @@ Decision 054 (Activity Visual Hierarchy, accepted 2026-06-19) extends D045 and D
 Decisions 056–058 (Workout state architecture, accepted 2026-06-19) introduce no contradictions — they are explicit refinements: D056/D057 of the Activity card states (D048, D054), D058 of the workout-session boundaries and journey (D046, D049, D050, D057). D056 confirms there is no fourth ("completed") card state — a finished workout returns to Default, history lives on Progress (D008); D057 preserves the one-state rule (D048) at list level (In Progress has absolute priority over Upcoming); D058 forbids a second concurrent session and routes other workouts' primary action to "Return To Workout" without blocking content (D047). See the acceptance note under Implementation summary.
 
 Decision 055 (Activity Screen Composition, accepted 2026-06-19) extends D042, D045, D048, and D054 and does not modify D039/D046. One **extension to note, not a contradiction:** D055 **adds the Workout Number** to the workout card, so the D045 "Title + Exercise Count only" composition becomes **Workout Number + Title + Exercise Count** (the D045 forbidden list — categories/analytics/duration/previous results/weight — is unchanged). The binary quest state (Completed / Not Completed, no counters or progress bars) is consistent with the no-shame rule (D031) and does not change the quest catalog/selection model (D016, D017, D033).
+
+Decision 059 (Initial Journey State, accepted 2026-06-20) introduces no contradictions — it extends D043, D046, and D057 by defining the zero-completion initial pointer (Workout 1 as Upcoming; Continue Journey resolves to Workout 1) and **does not modify D058**. It adds no expiration, cancellation, reset, or session-recovery mechanic. See the acceptance note under Implementation summary.
+
+Decision 060 (Workout Step Architecture, accepted 2026-06-20) introduces no contradictions — it adds a new session-structure entity (the Workout Step) above the Exercise Library and below the Workout Template, and refines the existing fitness architecture without altering it: tracking still resolves to Workout Completion (D050) and the immutable Exercise ID (D041), never to a Step; the Exercise Library (D041) still stores exercises only and never workout structure or supersets; the no-mandatory-logging philosophy (D040) is untouched. The "superset representation" item left open by the Exercise Library work is resolved here (a superset is a two-exercise Step), and no Superset entity is introduced. See the acceptance note under Implementation summary.
 
 Two items provisionally listed as contradictions in the first registry draft were reclassified at the 2026-06-10 refinement:
 
@@ -1605,9 +1683,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 32 | 003–006, 008, 014, 024–028, 034, 039–058 |
+| Not Implemented | 34 | 003–006, 008, 014, 024–028, 034, 039–060 |
 
-Total decisions: 58.
+Total decisions: 60.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -1628,3 +1706,7 @@ Decision 054 (Activity Visual Hierarchy) was accepted 2026-06-19. It extends D04
 Decision 055 (Activity Screen Composition) was accepted 2026-06-19. It defines the concrete Activity layout: a **header reading "Activity" only** (no date / Today / motivational or journey subtitle); **two sections with visible headers — Workouts then Daily Quests** (D042); workout cards as a **vertical list in fixed program order, no horizontal scroll, never reordering**, with cycle position shown via **state markers only** (D048, D054); workout card content of **Workout Number + Title + Exercise Count** (extending D045 by adding the Workout Number); and a **binary quest state — Completed or Not Completed only**, with no partial progress, percentages, progress bars, or counters. It extends D042/D045/D048/D054 and does not modify D039 (Home) or D046 (Journey). Not Implemented (no Activity surface exists). Composition rules are recorded in `BFG_UI_RULES.md §16`.
 
 Decisions 056–058 (Workout state architecture) were accepted 2026-06-19 and resolve the open items flagged in the Activity wireframe work. **D056** — a completed workout card returns to the **Default** state (blue outline, no marker); there is no Completed/Finished card state and no dedicated color; completion history lives on Progress (D008). **D057** — **Workout In Progress has absolute priority over Upcoming**: while any workout is In Progress, no Upcoming marker and no orange card appear anywhere; on completion the next workout becomes Upcoming. **D058** — only **one** workout may be In Progress at a time; users may leave it, navigate freely, and view any other workout, but may not start a second one — other workouts show **Return To Workout** instead of Start Workout, returning the user to the active session; no cancellation system is introduced. All three are Not Implemented (no Activity surface or workout session exists). Card-state and marker-priority rules are recorded in `BFG_UI_RULES.md §16`; the single-active-workout flow is recorded in `BFG_UI_RULES.md §17`.
+
+Decision 059 (Initial Journey State) was accepted 2026-06-20 and resolves the zero-completion initial-state item flagged in the Activity architecture review. It initializes the journey pointer to **Workout 1** when no workout has ever been completed and none is In Progress: Activity shows **Workout 1 as Upcoming** (orange outline + Upcoming marker, D054/D057) and **Continue Journey resolves to Workout 1** (D043). After the first completion (D049/D050), the D046 cycle becomes authoritative and the pointer advances from the workout actually completed (D051). D059 extends D043, D046, and D057 and **does not modify D058** — it introduces no workout expiration, cancellation, reset, or automatic session recovery; started workouts continue to follow D058. Not Implemented (no journey pointer or routing exists). The Activity initial-state rule is recorded in `BFG_UI_RULES.md §16`.
+
+Decision 060 (Workout Step Architecture) was accepted 2026-06-20 and registered together with the new `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md` specification. It introduces the **Workout Step** — the structural unit of a workout, where one Step = one Workout Session screen and may contain **one or two exercises**. A two-exercise Step is the sole representation of a **superset**, so no Superset entity is added to the Exercise Library (D041), which continues to store exercises only and never workout structure. The Step is coach-controlled and its **count and composition may change between workout versions**; because tracking and analytics resolve only to Workout Completion (D050) and the immutable Exercise ID (D041) — **never to a Step** — user history never depends on Step identity and survives re-authoring. D060 refines D040/D041/D046/D050/D055 without contradiction. It sits in the conceptual model as **Workout Template → Workout Step → Exercise**. Not Implemented (the current content model is a flat `workout_exercises` list with no Step grouping; superset/two-exercise screens do not exist). The Step concept is recorded in the new `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md`, the Library boundary clarification in `docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md` §11, the tracking clarification in `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` §9, and the authoring model in `WORKOUT_CONTENT_GUIDE.md` §13.

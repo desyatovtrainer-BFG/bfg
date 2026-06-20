@@ -7,8 +7,9 @@ This document specifies the accepted Workout Tracking model for BFG. It records 
 
 Companion documents:
 - `docs/fitness/BFG_EXERCISE_METADATA.md` — exercise types, load types, and weight semantics.
+- `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md` — workout session structure and supersets (Decision 060).
 - `WORKOUT_CONTENT_GUIDE.md` §12 — operational summary for content authors.
-- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 021, 031, 040.
+- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 021, 031, 040, 060.
 
 ---
 
@@ -131,3 +132,14 @@ BFG does **not**, as a matter of principle:
 - penalize a user for logging nothing beyond Start and Finish.
 
 > **Principle: Zero mandatory workout logging.**
+
+---
+
+## 9. Relationship with Workout Steps
+
+Clarification accepted with Decision 060 (`BFG_WORKOUT_STEP_ARCHITECTURE.md`):
+
+- **Workout Tracking uses only two anchors:** **Workout Completion** (the primary tracked event, §2) and the **Exercise ID** (the strength/weight-history key, Decision 041).
+- **Workout Tracking never depends on Workout Step identity.** No tracked event, completion record, duration, or weight entry is attached to a Step.
+- **The Workout Step exists for session structure only** — it groups exercises onto session screens (one Step = one Workout Session screen; a two-exercise Step is a superset, Decision 060). Moving between Steps is navigation, not a tracked event, exactly as swiping between exercises is navigation only (§2).
+- Because tracking keys on Workout Completion and Exercise ID rather than on Steps, a coach may change Step count and composition between workout versions (Decision 060 §8) without ever corrupting past completions or weight history.
