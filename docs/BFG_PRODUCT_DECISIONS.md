@@ -1227,7 +1227,7 @@ Implementation Status:
 Not Implemented — no program / sequence / cycle model or Continue Journey routing exists today (Decisions 042–043 are also Not Implemented).
 
 Related Documents:
-docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, Decisions 040, 042, 043, 045, 047, 050, 051, 058, 059
+docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, docs/fitness/BFG_PROGRAM_ARCHITECTURE.md, Decisions 040, 042, 043, 045, 047, 050, 051, 058, 059, 061 (Program model)
 
 ---
 
@@ -1612,6 +1612,275 @@ docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md, docs/fitness/BFG_EXERCISE_LIBRARY
 
 ---
 
+# Decision 061
+
+Title:
+Program Architecture
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+
+**Definition & assignment**
+
+- A Program is a coach-authored, named, **ordered set of Workout Templates**.
+- A Program is assigned to a user by **Sex × Fitness Level × Training Format (Home / Gym)**.
+- The assignment mapping is deterministic: one (Sex, Level, Format) triple resolves to one active Program.
+- A Program contains **2–5 Workout Templates**; the model is **count-agnostic** (Decision 046).
+- The Program's template order **is** the Journey cycle order (Decision 046).
+- A Program **references** Workout Templates by identity; it never embeds or duplicates them (reference-not-copy discipline of Decisions 041, 060).
+- Users never build, choose, or edit Programs, workouts, exercises, sets, or reps (Decision 040). The user supplies only the three logistical inputs.
+- A Program **does not end**; its workouts cycle continuously (Decision 046). All workouts stay visible and accessible (Decision 047).
+- Program assignment grants nothing — no XP, Level, Stage, or Streak.
+
+**Program Updates (same Program, new content)**
+
+- Program Updates (coach refreshes content ~monthly) affect **future workout content only**.
+- A Program Update must **not** affect XP, Level, Stage, Streak, Workout History, or Weight History.
+- The Journey pointer is **position-based** and survives updates without reset (Decisions 046, 051); a slot-count change resolves the pointer to a valid workout and emits no progression event.
+- Past completions reference a **content snapshot** taken at completion time, so updates never corrupt history (this resolves the Tracking Architecture §7 plan-snapshot open item).
+- Weight History remains keyed to the immutable **Exercise ID** (Decision 041) and is therefore program-independent.
+
+**Program Replacement (a different Program becomes active)**
+
+- Program Replacement must **not** grant XP or modify Level, Stage, or Streak.
+- **Edge case #1 — pointer on replacement:** the Journey pointer **resets to Workout 1 of the newly assigned Program** (Decision 059 logic). Cycle position is meaningful only inside the current Program; workout counts and ordering may differ between Programs.
+- **Edge case #2 — replacement during an active workout:** Program Replacement does **not** cancel an In-Progress workout (Decision 058). The active workout completes against the **snapshot that existed when it started**; the newly assigned Program becomes active only after no workout is In Progress, at which point the pointer initializes to Workout 1 of the new Program.
+- Workout History and Weight History are **retained** across replacement, never deleted or rewritten.
+- At most, the **Avatar/Companion may neutrally comment** on a Program change (Decisions 031, 038).
+
+**Program Version (internal architecture concept)**
+
+- **Program Version** is an internal architecture concept; users do not interact with versions directly. Its purpose is safe content updates, monthly refreshes, historical consistency, and active-workout protection (via completion snapshots).
+
+**Boundaries**
+
+- A Program stores **no user data** (no pointer, history, or progress) and **no workout structure** (structure lives in Workout Steps/Templates, Decision 060; exercise identity in the Library, Decision 041).
+- A Program is **not** a course, challenge, progression system, source of XP, or source of rewards. It exists only to determine which workouts are assigned to a user.
+
+Reason:
+
+The fitness stack defined the Exercise Library (D041), Workout Step and Workout Template (D060), and the Journey cycle/pointer (D046/D051/D059), but never formally defined the entity that selects which workouts a user receives — D046 used the word "program" without defining it. Program Architecture supplies that layer while structurally guaranteeing the accepted isolation rule: because progression derives only from workout completion (D040) and weight history is keyed to the immutable Exercise ID (D041), a Program that sits above templates and never touches the completion event or the Exercise ID cannot affect XP, levels, stage, streak, or history. Monthly content updates and program replacement therefore change future workout content only.
+
+Implementation Status:
+Not Implemented
+
+Related Documents:
+docs/fitness/BFG_PROGRAM_ARCHITECTURE.md, docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md, docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md, docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md, BFG_BEGINNER_JOURNEY.md, Decisions 040, 041, 046, 047, 051, 058, 059, 060
+
+---
+
+# Decision 062
+
+Title:
+Workout Start Screen
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The Workout Start Screen displays only the **Workout Title** and an **ordered Workout Step list** (e.g. "1. Squat / 2. Leg Press + Crunch / 3. Lunges"). Its primary button is **Start Workout**, or **Return To Workout** if another workout is already In Progress (Decision 058). The screen must NOT display duration, difficulty, categories, analytics, or companion content.
+
+Reason:
+A minimal pre-start screen keeps the surface calm and metric-free (consistent with Decisions 045, 055), shows the session shape through its Steps (Decision 060), and honors the Start Workout boundary (Decision 049) and the single-active-workout routing (Decision 058).
+
+Implementation Status:
+Not Implemented — no workout session interface exists today.
+
+Related Documents:
+BFG_UI_RULES.md §18, Decisions 045, 049, 052, 055, 058, 060, 063, 068
+
+---
+
+# Decision 063
+
+Title:
+Workout Navigation
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+Navigation through a workout is **swipe-only** — swipe forward and swipe backward between screens — with **no visible Next or Previous buttons**. The session flow is Workout Start Screen → Workout Step → … → Workout Finish Screen. Swiping forward past the final Workout Step opens the Workout Finish Screen (Decision 066).
+
+Reason:
+Swipe-only navigation keeps the session immersive and calm (BFG_UI_RULES.md §5, §13). Moving between Steps is navigation only and carries no completion meaning (Decision 060; Tracking Architecture §2).
+
+Implementation Status:
+Not Implemented — no workout session interface exists today.
+
+Related Documents:
+BFG_UI_RULES.md §18, Decisions 060, 062, 066
+
+---
+
+# Decision 064
+
+Title:
+Single Exercise Step Layout
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+A single-exercise Workout Step displays, in this vertical hierarchy: **Exercise Video → Exercise Title → Prescription (Sets, Reps or Duration) → optional Weight Field**. The video occupies the **primary visual position**. The weight field is **hidden before Start Workout and visible only after** (Decision 053).
+
+Reason:
+A video-first hierarchy matches the guided-session model and keeps the optional weight field last and gated to the started state (Decisions 044, 053). Detailed progress is not shown on the Step; it lives on the Progress screen (Decision 008).
+
+Implementation Status:
+Not Implemented — no workout session interface exists today.
+
+Related Documents:
+BFG_UI_RULES.md §18, Decisions 008, 044, 053, 060
+
+---
+
+# Decision 065
+
+Title:
+Superset Step Layout
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+A superset remains **one Workout Step** (Decision 060) and displays **both exercises simultaneously** in a **horizontal card structure** — Exercise 1 + Exercise 2. Each exercise card contains its own **Exercise Video**, **Exercise Title**, **Prescription**, and **independent Weight Field**. Videos use **vertical (portrait) orientation**. Rules: no separate Superset entity; **no "1/2" or "2/2" notation**; **no "2 exercises" label**; two independent weight fields; the two exercises remain visually distinct; and the user must immediately understand that the two exercises belong to one Step.
+
+Reason:
+A two-exercise Step is the sole representation of a superset (Decision 060). Showing both exercises simultaneously in distinct cards, each with an independent weight field, keeps each exercise identifiable for per-Exercise-ID weight history (Decisions 041, 044) while the screen still reads as a single Step.
+
+Implementation Status:
+Not Implemented — no workout session interface exists today.
+
+Related Documents:
+BFG_UI_RULES.md §18, Decisions 041, 044, 053, 060, 064
+
+---
+
+# Decision 066
+
+Title:
+Workout Finish Screen
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The Workout Finish Screen is a **separate screen** reached after the final Workout Step (Decision 063). It displays **"Workout Complete"** and a **Finish Workout** button (the completion boundary, Decision 050). It shows **no companion content and no additional metrics**.
+
+Reason:
+A clean, dedicated completion screen keeps the Finish Workout boundary explicit (Decision 050) and the surface free of metrics and companion content (Decisions 040, 045).
+
+Implementation Status:
+Not Implemented — no workout session interface exists today.
+
+Related Documents:
+BFG_UI_RULES.md §18, Decisions 050, 063, 067
+
+---
+
+# Decision 067
+
+Title:
+Workout Result Banner
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+After Finish Workout, the Result Banner shows **only what changed**, in priority order **Stage → Level → XP** (largest reward first; smaller rewards below). Companion reactions are **rare** and appear only for meaningful milestones (Decisions 036, 037).
+
+Reason:
+Showing only changes, largest-first, keeps reward feedback honest and calm (BFG_UI_RULES.md §5, §13). A rare companion reaction respects the event-driven Voice and its frequency governor (Decisions 035, 036, 037).
+
+Implementation Status:
+Not Implemented — no workout session interface exists today.
+
+Related Documents:
+BFG_UI_RULES.md §18, Decisions 035, 036, 037, 066, 069
+
+---
+
+# Decision 068
+
+Title:
+Workout Card Count Semantics
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The Activity **Workout Card displays Exercise Count**; the **Workout Start Screen displays Workout Steps**. **Exercise Count and Step Count are different concepts** — a two-exercise superset Step counts as two exercises but one Step. This clarifies the "Exercise Count" on the workout card (Decisions 045, 055) against the Workout Step model (Decision 060).
+
+Reason:
+Resolves the count ambiguity introduced when the Workout Step entity (Decision 060) was added after the card composition was fixed (Decisions 045, 055): the card counts exercises (movements), while the Workout Start Screen lists Steps (session screens).
+
+Implementation Status:
+Not Implemented — no Activity surface or workout session interface exists today.
+
+Related Documents:
+BFG_UI_RULES.md §16 / §18, Decisions 045, 055, 060, 062
+
+---
+
+# Decision 069
+
+Title:
+Evolution Reveal Flow
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+A **Stage Evolution overrides the post-reward destination** and routes to **Home**, where the Evolution Animation plays — regardless of whether a workout or a quest triggered it.
+
+- **Normal workout completion:** Finish Workout → Result Banner → **Return to Activity**.
+- **Normal quest completion:** Quest Complete → Reward Display → **remain on Activity**.
+- **Workout causing Stage Evolution:** Finish Workout → Result Banner → **Home → Evolution Animation**.
+- **Quest causing Stage Evolution:** Quest Complete → Reward Display → **Home → Evolution Animation**.
+
+Principle: Stage Evolution has priority over the current screen; the reason for the evolution does not matter; **Home is the emotional stage for the avatar transformation**.
+
+Reason:
+The Stage Evolution is the most significant progression moment (Decision 035) and the living Presence on Home is the emotional center of the product (Decisions 002, 007, 039). Staging every evolution on Home, regardless of trigger, keeps the transformation where the Presence lives. Non-evolution completions return to the surface the user came from (Activity), so only the milestone moment redirects.
+
+Implementation Status:
+Not Implemented — no workout session interface, reward flow, or evolution reveal routing exists today.
+
+Related Documents:
+BFG_UI_RULES.md §15 / §18, Decisions 002, 007, 035, 039, 066, 067
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -1644,6 +1913,10 @@ Decision 055 (Activity Screen Composition, accepted 2026-06-19) extends D042, D0
 Decision 059 (Initial Journey State, accepted 2026-06-20) introduces no contradictions — it extends D043, D046, and D057 by defining the zero-completion initial pointer (Workout 1 as Upcoming; Continue Journey resolves to Workout 1) and **does not modify D058**. It adds no expiration, cancellation, reset, or session-recovery mechanic. See the acceptance note under Implementation summary.
 
 Decision 060 (Workout Step Architecture, accepted 2026-06-20) introduces no contradictions — it adds a new session-structure entity (the Workout Step) above the Exercise Library and below the Workout Template, and refines the existing fitness architecture without altering it: tracking still resolves to Workout Completion (D050) and the immutable Exercise ID (D041), never to a Step; the Exercise Library (D041) still stores exercises only and never workout structure or supersets; the no-mandatory-logging philosophy (D040) is untouched. The "superset representation" item left open by the Exercise Library work is resolved here (a superset is a two-exercise Step), and no Superset entity is introduced. See the acceptance note under Implementation summary.
+
+Decision 061 (Program Architecture, accepted 2026-06-22) introduces no contradictions — it formalizes the entity above the Workout Template (the Program) that D046 referenced informally as "program" without defining. It refines D040/D041/D046/D047/D051/D058/D059/D060 without altering them: progression still derives only from workout completion (D040); weight history stays keyed to the immutable Exercise ID (D041); the count-agnostic repeating cycle and pointer are unchanged (D046/D051); all workouts stay accessible (D047); the single-active-workout rule is honored on replacement (D058); the pointer resets to Workout 1 on replacement using the initial-state logic (D059); and the content hierarchy now reads Program → Workout Template → Workout Step → Exercise (D060). Program Updates and Program Replacement affect future workout content only and never XP/Level/Stage/Streak/Workout History/Weight History. D061 also **resolves the Tracking Architecture §7 open item "Plan snapshot at completion"** by requiring completions to reference a content snapshot. See the acceptance note under Implementation summary.
+
+Decisions 062–069 (Workout Session Architecture, accepted 2026-06-22) introduce no contradictions — they are explicit UX refinements of the accepted session model: **D062** (Start Screen) extends the minimal-surface rules (D045, D055) and the start/return routing (D049, D058); **D063** (swipe-only navigation) builds on Step navigation carrying no completion meaning (D060); **D064/D065** fix the single-exercise and superset Step layouts on the Workout Step entity (D060) with weight gated post-start (D053, D044); **D066** (Finish Screen) and **D067** (Result Banner) sit on the completion boundary (D050) and the event-driven Voice (D036, D037); **D068** resolves the card "Exercise Count" vs Step-count ambiguity flagged in the Activity architecture review (D045, D055 vs D060); **D069** stages every Stage Evolution on Home, consistent with Home as the emotional center (D002, D007, D039) and the evolution-as-milestone moment (D035). One **UI item to reconcile, not a contradiction:** D065's **horizontal two-card superset layout with vertical-orientation videos** must be reconciled at mobile width with `BFG_UI_RULES.md §1` (mobile-first 360–430px) and the §13 "no carousels where a list would do" guidance — the two cards are shown simultaneously (not a scrolling carousel) and the portrait video orientation is chosen to fit the two-up layout; recorded as a §1/§13 reconciliation follow-up. See the acceptance note under Implementation summary.
 
 Two items provisionally listed as contradictions in the first registry draft were reclassified at the 2026-06-10 refinement:
 
@@ -1683,9 +1956,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 34 | 003–006, 008, 014, 024–028, 034, 039–060 |
+| Not Implemented | 43 | 003–006, 008, 014, 024–028, 034, 039–069 |
 
-Total decisions: 60.
+Total decisions: 69.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -1710,3 +1983,7 @@ Decisions 056–058 (Workout state architecture) were accepted 2026-06-19 and re
 Decision 059 (Initial Journey State) was accepted 2026-06-20 and resolves the zero-completion initial-state item flagged in the Activity architecture review. It initializes the journey pointer to **Workout 1** when no workout has ever been completed and none is In Progress: Activity shows **Workout 1 as Upcoming** (orange outline + Upcoming marker, D054/D057) and **Continue Journey resolves to Workout 1** (D043). After the first completion (D049/D050), the D046 cycle becomes authoritative and the pointer advances from the workout actually completed (D051). D059 extends D043, D046, and D057 and **does not modify D058** — it introduces no workout expiration, cancellation, reset, or automatic session recovery; started workouts continue to follow D058. Not Implemented (no journey pointer or routing exists). The Activity initial-state rule is recorded in `BFG_UI_RULES.md §16`.
 
 Decision 060 (Workout Step Architecture) was accepted 2026-06-20 and registered together with the new `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md` specification. It introduces the **Workout Step** — the structural unit of a workout, where one Step = one Workout Session screen and may contain **one or two exercises**. A two-exercise Step is the sole representation of a **superset**, so no Superset entity is added to the Exercise Library (D041), which continues to store exercises only and never workout structure. The Step is coach-controlled and its **count and composition may change between workout versions**; because tracking and analytics resolve only to Workout Completion (D050) and the immutable Exercise ID (D041) — **never to a Step** — user history never depends on Step identity and survives re-authoring. D060 refines D040/D041/D046/D050/D055 without contradiction. It sits in the conceptual model as **Workout Template → Workout Step → Exercise**. Not Implemented (the current content model is a flat `workout_exercises` list with no Step grouping; superset/two-exercise screens do not exist). The Step concept is recorded in the new `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md`, the Library boundary clarification in `docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md` §11, the tracking clarification in `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` §9, and the authoring model in `WORKOUT_CONTENT_GUIDE.md` §13.
+
+Decision 061 (Program Architecture) was accepted 2026-06-22 and registered together with the new `docs/fitness/BFG_PROGRAM_ARCHITECTURE.md` specification. It formalizes the **Program** — a coach-authored, named, ordered set of **2–5 Workout Templates**, assigned deterministically by **Sex × Fitness Level × Training Format (Home / Gym)**, cycling forever via the existing Journey logic (D046). It completes the content hierarchy as **Program → Workout Template → Workout Step → Exercise**. The Program is a content selector, **not** a progression system: assignment, monthly **Program Updates**, and **Program Replacement** affect future workout content only and never XP, Level, Stage, Streak, Workout History, or Weight History — guaranteed structurally because progression runs off completion (D040) and weight history keys on the immutable Exercise ID (D041). Two edges are accepted: on replacement the pointer **resets to Workout 1** of the new Program (D059 logic); replacement **does not cancel** an In-Progress workout (D058 — it completes against its start-time snapshot, then the new Program activates). **Program Version** is an internal-only mechanism for safe updates, historical consistency, and active-workout protection (completion snapshots), which **resolves the Tracking Architecture §7 "plan snapshot at completion" open item**. D061 refines D040/D041/D046/D047/D051/D058/D059/D060 without contradiction. Not Implemented (no Program entity, assignment mapping, versioning, or onboarding-by-attributes exists today). The Program concept is recorded in the new `docs/fitness/BFG_PROGRAM_ARCHITECTURE.md`; the hierarchy/companion references are added to `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md`, `docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md`, and `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` (which marks §7 item 1 resolved); the authoring layer is added to `WORKOUT_CONTENT_GUIDE.md` §13.
+
+Decisions 062–069 (Workout Session Architecture) were accepted 2026-06-22 and registered together — the concrete workout-session UX on top of the accepted content/journey model. **D062** Workout Start Screen (Title + ordered Step list; Start Workout / Return To Workout; no duration/difficulty/categories/analytics/companion content). **D063** Workout Navigation (swipe forward/backward only; no Next/Previous buttons; Start Screen → Steps → Finish Screen). **D064** Single Exercise Step layout (Video → Title → Prescription → optional Weight, video primary; weight visible only after Start). **D065** Superset Step layout (one Step; both exercises shown simultaneously in a horizontal card structure; vertical-orientation videos; two independent weight fields; no Superset entity, no "1/2"/"2/2" notation, no "2 exercises" label; exercises visually distinct, read as one Step). **D066** Workout Finish Screen (separate screen; "Workout Complete" + Finish Workout button; no companion content, no extra metrics). **D067** Workout Result Banner (show only changes; Stage → Level → XP, largest first; rare companion reactions for meaningful milestones only). **D068** Workout Card Count Semantics (workout card shows Exercise Count; Start Screen shows Workout Steps; the two counts are different concepts — resolves the count ambiguity flagged in the Activity architecture review). **D069** Evolution Reveal Flow (a Stage Evolution overrides the destination and routes to Home for the Evolution Animation regardless of trigger; normal workout completion returns to Activity, normal quest completion remains on Activity; Home is the emotional stage for the transformation). All eight are Not Implemented (no workout session interface, reward flow, or evolution reveal exists today). The session-screen and flow rules are recorded in the new `BFG_UI_RULES.md §18`; the card-count clarification is added to `BFG_UI_RULES.md §16`; the Home-as-evolution-stage note is added to `BFG_UI_RULES.md §15`. One UI reconciliation follow-up (D065 horizontal layout at mobile width vs §1/§13) is recorded under the Contradictions note. `WORKOUT_CONTENT_GUIDE.md` was reviewed and not changed — these are session-UX decisions, not content-authoring changes.

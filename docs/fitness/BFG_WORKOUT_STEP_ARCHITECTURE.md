@@ -8,9 +8,11 @@ This document specifies the accepted Workout Step model. It records **what the e
 Companion documents:
 - `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` — what is tracked (Decision 040).
 - `docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md` — canonical exercise identity (Decision 041).
+- `docs/fitness/BFG_PROGRAM_ARCHITECTURE.md` — the Program layer above the Workout Template (Decision 061).
 - `docs/fitness/BFG_EXERCISE_METADATA.md` — exercise types, load types, weight semantics.
+- `docs/fitness/BFG_WORKOUT_MIGRATION_STATUS.md` — current implementation vs approved target architecture (this entity is Approved / Not Implemented).
 - `WORKOUT_CONTENT_GUIDE.md` §13 — authoring model for content authors.
-- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 040, 041, 046, 049, 050, 055, 060.
+- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 040, 041, 046, 049, 050, 055, 060, 061.
 
 ---
 
@@ -45,6 +47,8 @@ A Step is a grouping of canonical exercises onto a screen, plus the prescription
 The conceptual hierarchy is:
 
 ```text
+Program             (coach-assigned ordered set of Workout Templates; Decision 061)
+  ↓
 Workout Template
   ↓
 Workout Step        (one session screen; 1–2 exercises)
@@ -52,6 +56,7 @@ Workout Step        (one session screen; 1–2 exercises)
 Exercise            (referenced from the Exercise Library by Exercise ID)
 ```
 
+- The **Program** (Decision 061, `BFG_PROGRAM_ARCHITECTURE.md`) is the top layer: a coach-authored, assigned, ordered set of Workout Templates whose order is the Journey cycle (Decision 046). It references Templates and never stores Steps or structure.
 - The **Workout Template** (coach-authored, Decision 041 §6) owns the ordered list of Workout Steps.
 - Each **Workout Step** orders one or two **exercise references** and carries the per-use prescription (order, prescribed duration, sets/reps display, superset grouping) that Decision 041 §2 assigns to "how an exercise is used this time."
 - Prescription lives on the Step's reference to the exercise, never on the Library exercise. The same exercise can appear in a one-exercise Step in one workout and a two-exercise Step in another; none of that changes what the exercise *is*.

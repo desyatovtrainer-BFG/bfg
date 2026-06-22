@@ -8,9 +8,11 @@ This document specifies the accepted Exercise Library architecture. It records *
 Companion documents:
 - `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` — what is tracked (Decision 040).
 - `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md` — workout session structure and supersets (Decision 060).
+- `docs/fitness/BFG_PROGRAM_ARCHITECTURE.md` — program assignment and the top of the content hierarchy (Decision 061).
 - `docs/fitness/BFG_EXERCISE_METADATA.md` — exercise types, load types, weight semantics.
+- `docs/fitness/BFG_WORKOUT_MIGRATION_STATUS.md` — current implementation vs approved target architecture (this entity is Approved / Not Implemented).
 - `WORKOUT_CONTENT_GUIDE.md` — content authoring (will be rewritten at implementation time).
-- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 040, 041, 060.
+- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 040, 041, 060, 061.
 
 ---
 
@@ -123,3 +125,5 @@ Clarification accepted with Decision 060 (`BFG_WORKOUT_STEP_ARCHITECTURE.md`):
 - **The Exercise Library never stores workout structure.** No Steps, no screen grouping, no supersets, no ordering, no prescription. The Library is a flat catalog of movements referenced by id; structure is composed above it by the Workout Template and its Steps.
 
 This keeps the identity/prescription split (§2) intact at the structural level too: identity lives in the Library, structure lives in Workout Steps, and the two never merge.
+
+The full content hierarchy that sits above the Library is **Program → Workout Template → Workout Step → Exercise** (Decisions 061, 060). The **Program** (Decision 061, `BFG_PROGRAM_ARCHITECTURE.md`) is the top layer — a coach-authored, assigned, ordered set of Workout Templates — and, like every layer above the Library, it references downward and never stores exercise identity. Weight history therefore remains keyed to the immutable Exercise ID across Program updates and Program replacement (`BFG_PROGRAM_ARCHITECTURE.md` §6–§7).

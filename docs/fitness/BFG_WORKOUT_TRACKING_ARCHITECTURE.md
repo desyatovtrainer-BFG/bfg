@@ -8,8 +8,9 @@ This document specifies the accepted Workout Tracking model for BFG. It records 
 Companion documents:
 - `docs/fitness/BFG_EXERCISE_METADATA.md` — exercise types, load types, and weight semantics.
 - `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md` — workout session structure and supersets (Decision 060).
+- `docs/fitness/BFG_PROGRAM_ARCHITECTURE.md` — program assignment, updates, replacement, and Program Version (Decision 061).
 - `WORKOUT_CONTENT_GUIDE.md` §12 — operational summary for content authors.
-- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 021, 031, 040, 060.
+- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 015, 020, 021, 031, 040, 060, 061.
 
 ---
 
@@ -105,7 +106,7 @@ Recorded as direction, not as committed scope. None of these reintroduce mandato
 
 Open architectural items (see also the consuming review and §8):
 
-1. **Plan snapshot at completion.** *(Still open.)* Coaches edit and reassign plans. A completion must reference a snapshot of what was assigned at that moment, or template history becomes uninterpretable when plans change. (The Exercise ID protects *strength* history; a plan snapshot is still required to protect *template* history — the two mechanisms are complementary, not interchangeable.)
+1. **Plan snapshot at completion.** *(Resolved by Decision 061.)* Coaches edit and reassign plans (Program Updates and Program Replacement, `BFG_PROGRAM_ARCHITECTURE.md` §6–§7). A completion references a **snapshot** of what was assigned at that moment — protected by the internal **Program Version** mechanism (`BFG_PROGRAM_ARCHITECTURE.md` §11) — so template history stays interpretable when plans change and an In-Progress workout completes against its start-time snapshot. (The Exercise ID protects *strength* history; the plan/Program snapshot protects *template* history — the two mechanisms are complementary, not interchangeable.)
 2. **Stable exercise identity.** *(Resolved by Decision 041.)* Strength Progress aggregates the same exercise across different plans/days via the centralized Exercise Library's immutable Exercise ID. Workout Tracking must never rely on workout-local exercise copies — all per-exercise tracking resolves to the canonical Exercise ID (`BFG_EXERCISE_LIBRARY_ARCHITECTURE.md` §7–§8).
 3. **Working-weight semantic.** *(Resolved by Decisions 040–041.)* The meaning of the single optional number is fixed per load type and owned by the Exercise Library metadata (`BFG_EXERCISE_METADATA.md` §5, §7). Because Load Type is identity-sensitive once history exists, the semantic stays fixed for the life of an Exercise ID.
 4. **Duration honesty boundary.** *(Still open.)* Decide explicitly which Progress statistics may lean on (imperfect) duration.
