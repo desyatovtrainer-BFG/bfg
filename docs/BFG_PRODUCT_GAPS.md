@@ -12,10 +12,10 @@ Authoritative source of truth: `BFG_PRODUCT_DECISIONS.md`. Where any other docum
 
 | Metric | Count |
 |---|---|
-| Total accepted decisions | 69 |
+| Total accepted decisions | 70 |
 | Implemented | 17 (D001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033) |
 | Partially Implemented | 9 (D002, 007, 009, 016, 022, 035, 036, 037, 038) |
-| Not Implemented | 43 (D003–006, 008, 014, 024–028, 034, 039–069) |
+| Not Implemented | 44 (D003–006, 008, 014, 024–028, 034, 039–070) |
 
 Gap items below: P0 = 0 (economy unit resolved 2026-06-12), P1 = 37, P2 = 7. (D002 is folded into the D007 entry; fully implemented decisions produce no gap items.) Note: Decisions 036–038 (Presence Response System) and Decision 039 (Home composition) were accepted after the prior gap pass; the D039 Home gap is captured under P1 below, and detailed gap entries for D036–D038 are pending the next gap sync. Decisions 040–041 (Workout Tracking Philosophy, Centralized Exercise Library) were also accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. Decisions 042–045 (Activity Screen Architecture), Decision 046 (Workout Journey Architecture), and Decisions 047–053 (Activity / Workout-session UX), Decision 054 (Activity Visual Hierarchy), Decision 055 (Activity Screen Composition), Decisions 056–058 (Workout state architecture), and Decision 059 (Initial Journey State) are captured under P1 below. Decisions 060 (Workout Step Architecture) and 061 (Program Architecture) were accepted after the prior gap pass and are counted as Not Implemented; their detailed gap entries are pending the next fitness gap sync. For the workout content stack specifically, the current-vs-target gap (today's flat `workouts` / `workout_exercises` model vs the approved **Program → Workout Template → Workout Step → Exercise** hierarchy of D041/D060/D061) is tracked in the bridge document `docs/fitness/BFG_WORKOUT_MIGRATION_STATUS.md`; treat the current tables as temporary scaffolding when scoping new work. Decisions 062–069 (Workout Session Architecture — Start Screen, swipe navigation, single/superset Step layouts, Finish Screen, Result Banner, card count semantics, Evolution Reveal flow) were accepted 2026-06-22 and are captured under P1 below. (The count table above also absorbs the previously-unsynced D060/D061 totals; D060/D061 remain counted as Not Implemented with detailed gap entries still pending the next fitness gap sync.)
 
@@ -241,11 +241,11 @@ Important, not blocking: the app functions today, but these are accepted product
 - Missing work: separate screen showing "Workout Complete" + Finish Workout button (D050); no companion content, no extra metrics
 - Recommended priority: P1 — part of the workout-session build (D050)
 
-### D067 — Workout Result Banner
+### D067 — Workout Reward Modal (finalized 2026-06-23)
 - Current status: Not Implemented
 - Current implementation: no post-completion result feedback
-- Missing work: show only changes, Stage → Level → XP (largest first); rare companion reaction for meaningful milestones only (D036/D037)
-- Recommended priority: P1 — part of the workout-session build (D035, D066)
+- Missing work: a **modal over a dimmed background** (not a screen/banner/toast) showing only changes, Stage → Level → XP (largest first); **no Stage growth →** a Return To Activity button; **Stage growth →** no button, 5–7s auto-advance to Home, tap to speed up (never skip the Evolution Animation, D069); rare companion reaction for meaningful milestones only (D036/D037)
+- Recommended priority: P1 — part of the workout-session build (D035, D066, D069)
 
 ### D068 — Workout Card Count Semantics
 - Current status: Not Implemented
@@ -253,11 +253,17 @@ Important, not blocking: the app functions today, but these are accepted product
 - Missing work: workout card shows Exercise Count; Workout Start Screen shows Workout Steps; the two counts are distinct concepts (clarifies D045/D055 vs D060)
 - Recommended priority: P1 — part of the Activity card + workout-session build (D045, D055, D060)
 
-### D069 — Evolution Reveal Flow
+### D069 — Evolution Reveal Flow (finalized 2026-06-23)
 - Current status: Not Implemented
 - Current implementation: no reward-flow routing; stage change updates avatar color only (D035 Partially Implemented)
-- Missing work: route any Stage Evolution to Home for the Evolution Animation regardless of trigger; normal workout completion returns to Activity, normal quest completion remains on Activity; Stage Evolution overrides the destination
+- Missing work: route any Stage Evolution to Home for the Evolution Animation regardless of trigger; normal workout completion → Reward Modal → Return To Activity, normal quest completion remains on Activity; Stage Evolution overrides the destination with **absolute priority**; the transformation is **unskippable** (a tap may speed the transition to Home but never skip the animation)
 - Recommended priority: P1 — overlaps the M1 evolution moment (D035) and the Home build (D039)
+
+### D070 — Deferred Progress Visualization
+- Current status: Not Implemented
+- Current implementation: no Home rings/bars, no Progress screen hierarchy (D008), no visualization-memory persistence
+- Missing work: persist the **last visually-shown state per progress surface separately** (not an "unviewed XP" flag); on first visit after a change, animate each surface last-seen → current then clear that surface's memory; **Home memory** (Level Progress + Activity Progress ring) and **Progress memory** (XP / Level / Stage / other elements) are **independent** — viewing one never clears the other; calm motion budget and no-shame framing (§5/§13/D031)
+- Recommended priority: P1 — depends on the Home composition (D039) and Progress hierarchy (D008); part of the reward-feedback experience (D067, D069)
 
 ---
 

@@ -1802,7 +1802,7 @@ BFG_UI_RULES.md §18, Decisions 050, 063, 067
 # Decision 067
 
 Title:
-Workout Result Banner
+Workout Reward Modal
 
 Category:
 UX
@@ -1811,16 +1811,25 @@ Status:
 Accepted
 
 Decision:
-After Finish Workout, the Result Banner shows **only what changed**, in priority order **Stage → Level → XP** (largest reward first; smaller rewards below). Companion reactions are **rare** and appear only for meaningful milestones (Decisions 036, 037).
+After Finish Workout, the reward is presented as a **modal window over a dimmed background** — **not** a separate screen, **not** a bottom banner, **not** a toast. The modal shows **only the values that changed**, in priority order **Stage → Level → XP** (largest reward first; smaller rewards below).
+
+Modal behavior depends on whether a Stage Evolution occurred:
+
+- **No Stage growth:** the modal carries a single button — **Return To Activity** — which returns the user to the Activity screen.
+- **Stage growth:** the modal has **no button**. After **5–7 seconds** it automatically transitions to **Home**, where the Evolution Animation plays (Decision 069). The user may **tap the modal to speed up** the transition to Home; the tap only accelerates the transition and can **never skip the Evolution Animation** (Decision 069).
+
+Companion reactions remain **rare** and appear only for meaningful milestones (Decisions 036, 037).
+
+Update note (2026-06-23, final version): this finalizes Decision 067, superseding the interim "Result Banner" presentation. The only-what-changed rule and the Stage → Level → XP ordering are unchanged; the surface is now a **modal over a dimmed background** with the auto-advance (Stage growth) / Return To Activity (no Stage growth) behavior above. Where any document still says "Result Banner," it means this Reward Modal.
 
 Reason:
-Showing only changes, largest-first, keeps reward feedback honest and calm (BFG_UI_RULES.md §5, §13). A rare companion reaction respects the event-driven Voice and its frequency governor (Decisions 035, 036, 037).
+Showing only changes, largest-first, keeps reward feedback honest and calm (BFG_UI_RULES.md §5, §13). A modal over a dimmed background focuses the reward moment without a screen change, while never blocking via a toast or competing as a standing surface. Auto-advancing on Stage growth carries the user into the evolution moment on Home (Decisions 069, 002, 007); the tap-to-speed-up (never tap-to-skip) rule keeps the most significant progression moment unskippable (Decision 035). A rare companion reaction respects the event-driven Voice and its frequency governor (Decisions 035, 036, 037).
 
 Implementation Status:
 Not Implemented — no workout session interface exists today.
 
 Related Documents:
-BFG_UI_RULES.md §18, Decisions 035, 036, 037, 066, 069
+BFG_UI_RULES.md §18, Decisions 035, 036, 037, 066, 069, 070
 
 ---
 
@@ -1863,21 +1872,61 @@ Accepted
 Decision:
 A **Stage Evolution overrides the post-reward destination** and routes to **Home**, where the Evolution Animation plays — regardless of whether a workout or a quest triggered it.
 
-- **Normal workout completion:** Finish Workout → Result Banner → **Return to Activity**.
+- **Normal workout completion:** Finish Workout → Reward Modal → **Return To Activity** (Decision 067 — no Stage growth, modal button).
 - **Normal quest completion:** Quest Complete → Reward Display → **remain on Activity**.
-- **Workout causing Stage Evolution:** Finish Workout → Result Banner → **Home → Evolution Animation**.
+- **Workout causing Stage Evolution:** Finish Workout → Reward Modal → **Home → Evolution Animation**.
 - **Quest causing Stage Evolution:** Quest Complete → Reward Display → **Home → Evolution Animation**.
 
-Principle: Stage Evolution has priority over the current screen; the reason for the evolution does not matter; **Home is the emotional stage for the avatar transformation**.
+Rules (final version, 2026-06-23):
+
+- **Stage Evolution has absolute priority** over the current screen; the reason for the evolution does not matter.
+- The **transformation cannot be skipped**.
+- On Stage growth, the Reward Modal has no button and auto-advances to Home after 5–7 seconds (Decision 067). A **tap may speed up the transition to Home**, but a **tap can never skip the Evolution Animation**.
+- **Home is the emotional stage for the avatar transformation.**
+
+Update note (2026-06-23, final version): this finalizes Decision 069. The destination logic is unchanged; the post-reward surface is the **Reward Modal** (Decision 067, finalized) rather than a "Result Banner," and the unskippable-transformation / tap-to-speed-up-not-skip rules are made explicit.
 
 Reason:
-The Stage Evolution is the most significant progression moment (Decision 035) and the living Presence on Home is the emotional center of the product (Decisions 002, 007, 039). Staging every evolution on Home, regardless of trigger, keeps the transformation where the Presence lives. Non-evolution completions return to the surface the user came from (Activity), so only the milestone moment redirects.
+The Stage Evolution is the most significant progression moment (Decision 035) and the living Presence on Home is the emotional center of the product (Decisions 002, 007, 039). Staging every evolution on Home, regardless of trigger, keeps the transformation where the Presence lives. Making the transformation unskippable (tap accelerates, never skips) protects the milestone weight of the evolution moment. Non-evolution completions return to the surface the user came from (Activity), so only the milestone moment redirects.
 
 Implementation Status:
 Not Implemented — no workout session interface, reward flow, or evolution reveal routing exists today.
 
 Related Documents:
-BFG_UI_RULES.md §15 / §18, Decisions 002, 007, 035, 039, 066, 067
+BFG_UI_RULES.md §15 / §18, Decisions 002, 007, 035, 039, 066, 067, 070
+
+---
+
+# Decision 070
+
+Title:
+Deferred Progress Visualization
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+After any progression change, the system must persist **the last visually-shown state of each progress surface separately** — not a notion of "unviewed XP." The user must always be able to **see the progress indicators move**, even when the underlying change happened significantly earlier (e.g. between sessions, after the app was closed, or while the user stayed on a screen that does not show that indicator).
+
+**Per-screen visualization memory.** Each screen owns an **independent** record of the last state it visually presented. When a screen is opened and its current value differs from its last-shown value, the screen **animates from the last-shown state to the current state**; after the animation completes, that screen's memory is updated to the current state ("cleared"). Memory is per-screen and never shared:
+
+- **Home memory.** Home has its own visualization memory covering at least its **Level Progress Bar** (progress between the current and next stage) and its **Activity Progress Ring** (e.g. 12/24). If the user has not yet seen an update, Home animates from the last-seen state to the current state; after the animation, Home's memory is cleared.
+- **Progress memory.** The Progress screen has its own independent visualization memory covering its progression elements (e.g. **XP Progress, Level Progress, Stage Progress, and any other progression elements present**). Its animations play independently of Home.
+- **Independence rule.** Viewing Home does **not** clear Progress memory; viewing Progress does **not** clear Home memory. Each surface is satisfied only when that surface itself has shown its animation.
+
+**Scenarios that must resolve correctly** (non-exhaustive): completed a workout; completed a quest; closed the app; stayed only on Activity for a long time; visited Home but not Progress; visited Progress but not Home.
+
+Reason:
+Progress movement is the felt reward, not the number itself. If a bar simply appears already-full because the change happened off-screen, the user never experiences the progression. Persisting the last-shown state per screen (rather than a single global "unviewed" flag) guarantees that every progress surface plays its movement exactly once, on the first visit after a change, regardless of which screen the change happened on or how much time passed — without double-counting across screens. This keeps the reward honest and calm (BFG_UI_RULES.md §5, §13) and consistent with the no-shame rule (Decision 031): the animation is acknowledgment of movement, never pressure about what was missed.
+
+Implementation Status:
+Not Implemented — no Home rings/bars, Progress screen hierarchy (Decision 008), or visualization-memory persistence exist today (Decisions 008, 039 Not Implemented).
+
+Related Documents:
+BFG_UI_RULES.md §15 / §19, Decisions 008, 031, 035, 039, 067, 069
 
 ---
 
@@ -1916,7 +1965,7 @@ Decision 060 (Workout Step Architecture, accepted 2026-06-20) introduces no cont
 
 Decision 061 (Program Architecture, accepted 2026-06-22) introduces no contradictions — it formalizes the entity above the Workout Template (the Program) that D046 referenced informally as "program" without defining. It refines D040/D041/D046/D047/D051/D058/D059/D060 without altering them: progression still derives only from workout completion (D040); weight history stays keyed to the immutable Exercise ID (D041); the count-agnostic repeating cycle and pointer are unchanged (D046/D051); all workouts stay accessible (D047); the single-active-workout rule is honored on replacement (D058); the pointer resets to Workout 1 on replacement using the initial-state logic (D059); and the content hierarchy now reads Program → Workout Template → Workout Step → Exercise (D060). Program Updates and Program Replacement affect future workout content only and never XP/Level/Stage/Streak/Workout History/Weight History. D061 also **resolves the Tracking Architecture §7 open item "Plan snapshot at completion"** by requiring completions to reference a content snapshot. See the acceptance note under Implementation summary.
 
-Decisions 062–069 (Workout Session Architecture, accepted 2026-06-22) introduce no contradictions — they are explicit UX refinements of the accepted session model: **D062** (Start Screen) extends the minimal-surface rules (D045, D055) and the start/return routing (D049, D058); **D063** (swipe-only navigation) builds on Step navigation carrying no completion meaning (D060); **D064/D065** fix the single-exercise and superset Step layouts on the Workout Step entity (D060) with weight gated post-start (D053, D044); **D066** (Finish Screen) and **D067** (Result Banner) sit on the completion boundary (D050) and the event-driven Voice (D036, D037); **D068** resolves the card "Exercise Count" vs Step-count ambiguity flagged in the Activity architecture review (D045, D055 vs D060); **D069** stages every Stage Evolution on Home, consistent with Home as the emotional center (D002, D007, D039) and the evolution-as-milestone moment (D035). One **UI item to reconcile, not a contradiction:** D065's **horizontal two-card superset layout with vertical-orientation videos** must be reconciled at mobile width with `BFG_UI_RULES.md §1` (mobile-first 360–430px) and the §13 "no carousels where a list would do" guidance — the two cards are shown simultaneously (not a scrolling carousel) and the portrait video orientation is chosen to fit the two-up layout; recorded as a §1/§13 reconciliation follow-up. See the acceptance note under Implementation summary.
+Decisions 062–069 (Workout Session Architecture, accepted 2026-06-22) introduce no contradictions — they are explicit UX refinements of the accepted session model: **D062** (Start Screen) extends the minimal-surface rules (D045, D055) and the start/return routing (D049, D058); **D063** (swipe-only navigation) builds on Step navigation carrying no completion meaning (D060); **D064/D065** fix the single-exercise and superset Step layouts on the Workout Step entity (D060) with weight gated post-start (D053, D044); **D066** (Finish Screen) and **D067** (Result Banner — since finalized as the **Reward Modal**, 2026-06-23, see Decision 067) sit on the completion boundary (D050) and the event-driven Voice (D036, D037); **D068** resolves the card "Exercise Count" vs Step-count ambiguity flagged in the Activity architecture review (D045, D055 vs D060); **D069** stages every Stage Evolution on Home, consistent with Home as the emotional center (D002, D007, D039) and the evolution-as-milestone moment (D035). One **UI item to reconcile, not a contradiction:** D065's **horizontal two-card superset layout with vertical-orientation videos** must be reconciled at mobile width with `BFG_UI_RULES.md §1` (mobile-first 360–430px) and the §13 "no carousels where a list would do" guidance — the two cards are shown simultaneously (not a scrolling carousel) and the portrait video orientation is chosen to fit the two-up layout; recorded as a §1/§13 reconciliation follow-up. See the acceptance note under Implementation summary.
 
 Two items provisionally listed as contradictions in the first registry draft were reclassified at the 2026-06-10 refinement:
 
@@ -1956,9 +2005,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 43 | 003–006, 008, 014, 024–028, 034, 039–069 |
+| Not Implemented | 44 | 003–006, 008, 014, 024–028, 034, 039–070 |
 
-Total decisions: 69.
+Total decisions: 70.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -1986,4 +2035,8 @@ Decision 060 (Workout Step Architecture) was accepted 2026-06-20 and registered 
 
 Decision 061 (Program Architecture) was accepted 2026-06-22 and registered together with the new `docs/fitness/BFG_PROGRAM_ARCHITECTURE.md` specification. It formalizes the **Program** — a coach-authored, named, ordered set of **2–5 Workout Templates**, assigned deterministically by **Sex × Fitness Level × Training Format (Home / Gym)**, cycling forever via the existing Journey logic (D046). It completes the content hierarchy as **Program → Workout Template → Workout Step → Exercise**. The Program is a content selector, **not** a progression system: assignment, monthly **Program Updates**, and **Program Replacement** affect future workout content only and never XP, Level, Stage, Streak, Workout History, or Weight History — guaranteed structurally because progression runs off completion (D040) and weight history keys on the immutable Exercise ID (D041). Two edges are accepted: on replacement the pointer **resets to Workout 1** of the new Program (D059 logic); replacement **does not cancel** an In-Progress workout (D058 — it completes against its start-time snapshot, then the new Program activates). **Program Version** is an internal-only mechanism for safe updates, historical consistency, and active-workout protection (completion snapshots), which **resolves the Tracking Architecture §7 "plan snapshot at completion" open item**. D061 refines D040/D041/D046/D047/D051/D058/D059/D060 without contradiction. Not Implemented (no Program entity, assignment mapping, versioning, or onboarding-by-attributes exists today). The Program concept is recorded in the new `docs/fitness/BFG_PROGRAM_ARCHITECTURE.md`; the hierarchy/companion references are added to `docs/fitness/BFG_WORKOUT_STEP_ARCHITECTURE.md`, `docs/fitness/BFG_EXERCISE_LIBRARY_ARCHITECTURE.md`, and `docs/fitness/BFG_WORKOUT_TRACKING_ARCHITECTURE.md` (which marks §7 item 1 resolved); the authoring layer is added to `WORKOUT_CONTENT_GUIDE.md` §13.
 
-Decisions 062–069 (Workout Session Architecture) were accepted 2026-06-22 and registered together — the concrete workout-session UX on top of the accepted content/journey model. **D062** Workout Start Screen (Title + ordered Step list; Start Workout / Return To Workout; no duration/difficulty/categories/analytics/companion content). **D063** Workout Navigation (swipe forward/backward only; no Next/Previous buttons; Start Screen → Steps → Finish Screen). **D064** Single Exercise Step layout (Video → Title → Prescription → optional Weight, video primary; weight visible only after Start). **D065** Superset Step layout (one Step; both exercises shown simultaneously in a horizontal card structure; vertical-orientation videos; two independent weight fields; no Superset entity, no "1/2"/"2/2" notation, no "2 exercises" label; exercises visually distinct, read as one Step). **D066** Workout Finish Screen (separate screen; "Workout Complete" + Finish Workout button; no companion content, no extra metrics). **D067** Workout Result Banner (show only changes; Stage → Level → XP, largest first; rare companion reactions for meaningful milestones only). **D068** Workout Card Count Semantics (workout card shows Exercise Count; Start Screen shows Workout Steps; the two counts are different concepts — resolves the count ambiguity flagged in the Activity architecture review). **D069** Evolution Reveal Flow (a Stage Evolution overrides the destination and routes to Home for the Evolution Animation regardless of trigger; normal workout completion returns to Activity, normal quest completion remains on Activity; Home is the emotional stage for the transformation). All eight are Not Implemented (no workout session interface, reward flow, or evolution reveal exists today). The session-screen and flow rules are recorded in the new `BFG_UI_RULES.md §18`; the card-count clarification is added to `BFG_UI_RULES.md §16`; the Home-as-evolution-stage note is added to `BFG_UI_RULES.md §15`. One UI reconciliation follow-up (D065 horizontal layout at mobile width vs §1/§13) is recorded under the Contradictions note. `WORKOUT_CONTENT_GUIDE.md` was reviewed and not changed — these are session-UX decisions, not content-authoring changes.
+Decisions 062–069 (Workout Session Architecture) were accepted 2026-06-22 and registered together — the concrete workout-session UX on top of the accepted content/journey model. **D062** Workout Start Screen (Title + ordered Step list; Start Workout / Return To Workout; no duration/difficulty/categories/analytics/companion content). **D063** Workout Navigation (swipe forward/backward only; no Next/Previous buttons; Start Screen → Steps → Finish Screen). **D064** Single Exercise Step layout (Video → Title → Prescription → optional Weight, video primary; weight visible only after Start). **D065** Superset Step layout (one Step; both exercises shown simultaneously in a horizontal card structure; vertical-orientation videos; two independent weight fields; no Superset entity, no "1/2"/"2/2" notation, no "2 exercises" label; exercises visually distinct, read as one Step). **D066** Workout Finish Screen (separate screen; "Workout Complete" + Finish Workout button; no companion content, no extra metrics). **D067** Workout Reward Modal (modal over a dimmed background — not a screen/banner/toast; show only changes; Stage → Level → XP, largest first; on no Stage growth a **Return To Activity** button, on Stage growth no button + 5–7s auto-advance to Home, tap speeds up; rare companion reactions for meaningful milestones only — **finalized 2026-06-23, superseding the interim "Result Banner"**). **D068** Workout Card Count Semantics (workout card shows Exercise Count; Start Screen shows Workout Steps; the two counts are different concepts — resolves the count ambiguity flagged in the Activity architecture review). **D069** Evolution Reveal Flow (a Stage Evolution overrides the destination and routes to Home for the Evolution Animation regardless of trigger; normal workout completion returns to Activity, normal quest completion remains on Activity; Home is the emotional stage for the transformation). All eight are Not Implemented (no workout session interface, reward flow, or evolution reveal exists today). The session-screen and flow rules are recorded in the new `BFG_UI_RULES.md §18`; the card-count clarification is added to `BFG_UI_RULES.md §16`; the Home-as-evolution-stage note is added to `BFG_UI_RULES.md §15`. One UI reconciliation follow-up (D065 horizontal layout at mobile width vs §1/§13) is recorded under the Contradictions note. `WORKOUT_CONTENT_GUIDE.md` was reviewed and not changed — these are session-UX decisions, not content-authoring changes.
+
+Decisions 067 and 069 were **finalized 2026-06-23** (final versions, accepted after additional UX design). **D067** changes the post-completion reward surface from the interim "Result Banner" to a **Reward Modal over a dimmed background** (not a screen, banner, or toast), keeping the only-what-changed rule and the Stage → Level → XP order, and adds the behavior split: **no Stage growth → a Return To Activity button**; **Stage growth → no button, 5–7s auto-advance to Home, tap to speed up**. **D069** keeps its destination logic (Stage Evolution overrides the destination and routes to Home regardless of trigger; normal workout completion → Activity, normal quest completion stays on Activity) and now references the **Reward Modal** instead of a banner, and makes explicit that the **transformation is unskippable** — a tap may accelerate the transition to Home but can never skip the Evolution Animation. Both updates are recorded in place in the D067/D069 entries (with dated update notes) and in `BFG_UI_RULES.md §18` / §15; neither changes any other decision and neither introduces a contradiction.
+
+Decision 070 (Deferred Progress Visualization) was accepted 2026-06-23. After any progression change the system persists **the last visually-shown state per progress surface separately** (not an "unviewed XP" flag), so the user always sees the indicators **move** even when the change happened earlier. Memory is **per-screen and independent**: **Home** owns its memory (Level Progress Bar + Activity Progress Ring) and animates last-seen → current, then clears; the **Progress** screen owns separate memory (XP / Level / Stage / other progression elements) and animates independently; viewing one surface never clears the other's memory. It is consistent with the calm-motion budget (§5, §13) and the no-shame rule (D031), and depends on the Home composition (D039) and Progress hierarchy (D008), both Not Implemented. The rule is recorded in the new `BFG_UI_RULES.md §19` (with a cross-reference from §15). D070 introduces no contradiction — it adds a presentation-persistence rule on top of accepted surfaces and changes no existing decision. Total decisions: **70**.
