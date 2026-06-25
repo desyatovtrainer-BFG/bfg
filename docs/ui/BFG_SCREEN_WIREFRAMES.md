@@ -4,9 +4,9 @@ First official **Wireframe Layer** for BFG. This document specifies screen *comp
 
 > Source of truth: [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) (decisions win on any conflict) and [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §15–§19. Where this document and a decision disagree, the decision wins and this document must be corrected.
 
-Status: first slice. This pass covers **Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow**. Home, Progress, and per-variant detail are deferred to a later wireframe pass.
+Status: first slice. This pass covers **Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home**. Progress and per-variant detail are deferred to a later wireframe pass.
 
-Last updated: 2026-06-23 (Reward Modal final D067, Evolution Flow final D069, Deferred Progress Visualization D070).
+Last updated: 2026-06-25 (Final Home Product Structure D071 — Home wireframe added).
 
 For every screen this document records, in order:
 
@@ -24,7 +24,7 @@ For every screen this document records, in order:
 - Mobile-first frame, 360–430px, dark/calm (BFG_UI_RULES §1).
 - Workout card content = **Workout Number · Workout Title · Exercise Count** only (D045, D055, D068).
 - Card outline by state (D054): **Default** = blue · **Upcoming** = orange + marker · **In Progress** = green + marker. One state marker per card (D048); In Progress has list-wide priority over Upcoming (D057).
-- "Continue Journey" (the global resume action) lives on **Home**, never on Activity (D043). Home is out of scope for this slice.
+- "Continue Journey" (the global resume action) lives on **Home**, never on Activity (D043). Home is specified in §8.
 - Session navigation is **swipe-only**, no Next/Previous buttons (D063).
 
 ---
@@ -310,10 +310,68 @@ Quest:   Quest Complete → Reward Display (Stage shown)─┤
 
 ---
 
+# 8. Home (Final Home Product Structure, D071)
+
+The **emotional center** of BFG (D002, D007, D039, D071) — not a dashboard, activity feed, statistics screen, or workout list. Home answers: *"Where is my Presence now, and how do I continue the journey?"* Composition is fixed; the Voice Slot is the only conditional element.
+
+```
+┌─────────────────────────────┐
+│                        (👤) │  Minimal Header — Profile button only (D006)
+│                             │  no notification bell in MVP (D071)
+│          ╭───────╮          │  Two OPEN rings around the Presence (D071):
+│        ╭─┤ ◉ ◉ ◉ ├─╮        │   • Inner Ring  = Level Progress   "12 УР."
+│        │ │ Living│ │        │   • Outer Ring  = Weekly Activity  "12/24 АКТ."
+│        ╰─┤Presence├─╯        │  open arcs: visible start/end + split,
+│          ╰───────╯          │  value label in the split, calm fill (§5/§13)
+│                             │
+│        SEEKER / STAGE 3     │  Stage Block — Title + Number (D071)
+│   "you came back."          │  Voice Slot (event-driven, rare; may be empty) (D036–038, D071)
+│                             │
+│   ┌─────────────────────┐   │
+│   │   Continue Journey   │   │  the ONLY primary CTA (D043) — no competitors
+│   └─────────────────────┘   │
+├─────────────────────────────┤
+│  BottomNav                  │  (D003)
+└─────────────────────────────┘
+```
+
+**1. Goal:** ground the user in their Presence (where am I now) and offer the single way forward (continue the journey).
+
+**2. Composition top → bottom (D071):** Minimal Header (Profile button) → **Living Presence** (center, dominant) wrapped by **two open rings** (Inner = Level Progress, Outer = Weekly Activity Progress) → **Stage Block** (Title + Number) → **event-driven Voice Slot** (conditional) → **Continue Journey** CTA → BottomNav.
+
+**3. Primary visual accent:** the **Living Presence**. The rings are a supporting layer and must never out-weigh it (§15).
+
+**4. Secondary element:** the two open rings and the Stage Block; the Voice Slot when (rarely) present.
+
+**5. User action:** tap **Continue Journey** (the only primary action); tap the header Profile button for account/subscription (D006).
+
+**6. Destination after the action (Continue Journey, D043):**
+- brand-new user → **Workout 1 Start Screen** (§2, D059);
+- normal cycle → **next workout** in the current Program cycle (§2, D046);
+- a workout is already In Progress → the **active workout session** (D058).
+
+### Ring semantics (D071)
+
+| Ring | Represents | Label | Resets weekly? | Counting |
+|---|---|---|---|---|
+| **Inner** | Level Progress | "12 УР." | No (long-term) | arc = progress toward next level |
+| **Outer** | Weekly Activity Progress | "12/24 АКТ." | **Yes — UTC week** | 1 completed workout = 1 · 1 completed daily quest = 1 · only completed actions count |
+
+> **Outer Ring denominator (weekly activity capacity, D071):** 21 daily-quest activities (3 × 7, D017) + the **active Program cycle length** (2–5 Workout Templates, D061) → 23–26. This is the **Program cycle length, not "workouts per week"** (the Journey/Program model is count-agnostic, D046/D061). **Overflow** caps the display (e.g. "24/24 АКТ."); deeper history lives on Progress, not Home.
+> **Does NOT count toward the Outer Ring (D071):** opening the app, viewing a workout/quest, maintaining a streak, entering weight, visiting Home/Progress, profile actions, passive app time.
+> **Tone (D031, Companion no-ledger §X):** the Weekly Activity Ring is never framed as debt, failure, quota, or punishment; the Voice never treats it as a target.
+> **Deferred Progress Visualization (D070, §19):** on entering Home, both rings animate from their last-seen state to current, then Home clears its own memory — independently of the Progress screen.
+
+**Home must not show (D071):** workout list, quest list, raw XP table, achievement grid, detailed statistics, activity history, strength analytics, weight history, profile/account details, subscription details, multiple primary CTAs, a permanent companion chat panel, a notification bell (MVP), a third ring, a streak ring, a separate XP ring, a quest progress ring, red failure states, shame copy, hype copy, or casino-style reward animation.
+
+> Stage Evolution (§7, D069) temporarily takes over Home for the Evolution Animation; the standard composition above resumes after — it is a transient milestone, not a new fixture (§15).
+
+---
+
 ## Decisions referenced
 
-D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19.
+D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19.
 
 ## Out of scope for this slice (later wireframe passes)
 
-Home, Progress, the per-state Activity screen mockups, the Reward Modal value variants in detail, and any new screens. No new product decisions are created by this document.
+Progress, the per-state Activity screen mockups, the Reward Modal value variants in detail, and any new screens. No new product decisions are created by this document.

@@ -1930,6 +1930,65 @@ BFG_UI_RULES.md §15 / §19, Decisions 008, 031, 035, 039, 067, 069
 
 ---
 
+# Decision 071
+
+Title:
+Final Home Product Structure
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The MVP Home screen adopts the final Home structure. This decision **finalizes** the Home composition begun in Decision 039: it confirms the accepted elements, **closes the open Presence-Voice placement question** left by Decision 039 (#9), standardizes the ring vocabulary across Decisions 039 and 070, and defines the Outer Ring's activity model.
+
+Home is the emotional center of BFG. It is not a dashboard, not an activity feed, not a statistics screen, and not a workout list. Home answers one question: **"Where is my Presence now, and how do I continue the journey?"**
+
+**MVP Home composition (top → bottom):**
+
+1. Minimal Header
+2. Living Presence Zone
+3. Two Open Progress Rings (around the Living Presence)
+4. Stage Block
+5. Event-driven Voice Slot
+6. Primary CTA: Continue Journey
+7. Bottom Navigation
+
+**Minimal Header.** Home carries a minimal header whose only standing function is **Profile access via a small header button** (Decision 006 — Profile is administrative, reached by a small header button, not a bottom-nav tab). **No notification bell in MVP** (notification surfaces were out of scope at Decision 039 and are deferred here to post-MVP).
+
+**Two Open Progress Rings.** Home contains **exactly two** progress rings around the Living Presence: an **Inner Ring — Level Progress** and an **Outer Ring — Weekly Activity Progress**. No additional rings, meters, bars, XP gauges, streak rings, quest rings, or raw progress indicators are allowed on Home. Both are **open rings / open arcs**, never fully closed circles. Each ring must have: a visible start; a visible end; a deliberate split / open segment; a value label placed inside or near the split zone; and a calm fill animation when its value changes (calm motion budget — BFG_UI_RULES.md §5, §13; no casino-style sweeps).
+
+**Inner Ring — Level Progress.** Represents Level Progress; shows the current level value (e.g. "12 УР."); arc fill represents progress toward the next level; does not reset weekly; belongs to long-term vertical progression; participates in Home visualization memory (Decision 070). The Inner Ring is an **open ring** — this standardizes the "Level Progress bar/ring" wording of Decision 070 / §19 in favor of a ring.
+
+**Outer Ring — Weekly Activity Progress.** Represents Weekly Activity Progress; shows the weekly activity count (e.g. "12/24 АКТ."); arc fill represents weekly activity completed against weekly activity capacity. One completed workout = one activity; one completed daily quest = one activity; **only completed actions count**. Opening the app, viewing a workout, viewing a quest, maintaining a streak, entering weight, visiting Home/Progress, profile actions, and passive app time **do not count**. The Outer Ring resets at the start of each new UTC week (MVP); previous weekly activity belongs to Progress / History, not Home. It must never be framed as debt, failure, quota pressure, or punishment (no-shame rule, Decision 031; no-ledger principle, BFG_Companion_Doctrine.md §X). The Voice must never reference the ring as a quota or target.
+
+**Weekly Activity denominator.** Weekly activity capacity = **21 daily-quest activities** (3 quests × 7 days, Decision 017) **+ the active Program's cycle length** (its number of Workout Templates, 2–5 per Decision 061). The workout term is the **active Program cycle length**, **not** "workouts per week" — this stays compatible with the count-agnostic Journey/Program model (Decisions 046, 061), which defines no weekly workout cadence. Mapping: cycle length 2 → 23 · 3 → 24 · 4 → 25 · 5 → 26. Therefore "12/24 АКТ." means 12 activities completed during a week whose active Program has a 3-workout cycle. **Week boundary:** the UTC week (consistent with the UTC-day model in BFG_GAME_SYSTEMS.md). **Overflow:** if completed activity exceeds the denominator (the cycle can repeat within a week), Home shows a **capped** value (e.g. "24/24 АКТ."); any deeper history or overflow belongs to Progress / History, not Home.
+
+**Stage Block.** Sits directly under the Living Presence; contains a Stage Title + Stage Number (example structure: SEEKER / STAGE 3; final stage names and Russian copy may change later — the structure is fixed, the words are not). During a Stage Evolution, Home becomes the stage for the transformation (Decision 069); after evolution completes, the Stage Block shows the updated stage.
+
+**Voice Slot.** Home may contain a Voice Slot under the Stage Block. **This closes the open Voice-placement question from Decision 039 (#9) and BFG_UI_RULES.md §15.** It is **not** a permanent companion text panel: Voice is event-driven and rare; idle Home may show no voice line. Voice follows the Companion Doctrine and the Presence Response System (Decisions 036–038): calm, restrained, specific, no hype, no guilt, no pressure. This placement decision does not promote the Voice to a standing fixture or change its cadence.
+
+**Continue Journey.** Home has one primary CTA: Continue Journey. It opens the next assigned workout directly and does not open Activity (Decision 043). Routing: brand-new user → Workout 1 Start Screen (Decision 059); normal cycle → next workout in the current Program cycle (Decision 046); active workout exists → the active workout session (Decision 058). No competing primary CTA is allowed on Home.
+
+**Home must not show:** workout list; quest list; raw XP table; achievement grid; detailed statistics; activity history; strength analytics; weight history; profile/account details; subscription details; multiple primary CTAs; permanent companion chat panel; notification bell (MVP); a third progress ring; a streak ring; a separate XP ring; a quest progress ring; red failure states; shame copy; motivational hype copy; casino-style reward animation.
+
+**MVP scope of this decision:** Living Presence as central Home focus; exactly two open progress rings; Inner Ring = Level Progress; Outer Ring = Weekly Activity Progress; weekly (UTC) reset for the Outer Ring; one workout = one activity; one quest = one activity; Stage Block; event-driven Voice Slot; Continue Journey CTA; Profile as small header access; accepted bottom navigation (Decision 003).
+
+**Post-MVP (deferred):** notification bell; notification center; richer idle interactions; advanced Home personalization; cosmetics showcase on Home; deep weekly recap; manual Home customization; multiple Home layouts; complex companion conversation on Home.
+
+Reason:
+Decision 039 approved the Home composition (Presence, two rings, Stage Block, Continue Journey) but left the Voice placement open and never defined the Outer Ring's activity model or denominator. D071 finalizes the structure so Home can be built without further ambiguity: it keeps the Presence as the emotional center, fixes the two rings as calm open arcs, and defines the Weekly Activity Ring in a way that is honest (only completed actions count), calm (no debt/quota framing, capped overflow), and architecturally compatible with the count-agnostic Program/Journey model (the denominator reads the active Program's cycle length, never a non-existent weekly workout quota).
+
+Implementation Status:
+Not Implemented — no Home rings/bars, Stage Block, Voice Slot, Continue Journey CTA, or weekly-activity counting exist today (Decisions 008, 039 Not Implemented).
+
+Related Documents:
+BFG_UI_RULES.md §15 / §19, docs/ui/BFG_SCREEN_WIREFRAMES.md, BFG_Companion_Doctrine.md, Decisions 002, 003, 006, 007, 008, 017, 031, 036, 037, 038, 039, 043, 046, 059, 061, 069, 070
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -2005,9 +2064,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 44 | 003–006, 008, 014, 024–028, 034, 039–070 |
+| Not Implemented | 45 | 003–006, 008, 014, 024–028, 034, 039–071 |
 
-Total decisions: 70.
+Total decisions: 71.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -2040,3 +2099,5 @@ Decisions 062–069 (Workout Session Architecture) were accepted 2026-06-22 and 
 Decisions 067 and 069 were **finalized 2026-06-23** (final versions, accepted after additional UX design). **D067** changes the post-completion reward surface from the interim "Result Banner" to a **Reward Modal over a dimmed background** (not a screen, banner, or toast), keeping the only-what-changed rule and the Stage → Level → XP order, and adds the behavior split: **no Stage growth → a Return To Activity button**; **Stage growth → no button, 5–7s auto-advance to Home, tap to speed up**. **D069** keeps its destination logic (Stage Evolution overrides the destination and routes to Home regardless of trigger; normal workout completion → Activity, normal quest completion stays on Activity) and now references the **Reward Modal** instead of a banner, and makes explicit that the **transformation is unskippable** — a tap may accelerate the transition to Home but can never skip the Evolution Animation. Both updates are recorded in place in the D067/D069 entries (with dated update notes) and in `BFG_UI_RULES.md §18` / §15; neither changes any other decision and neither introduces a contradiction.
 
 Decision 070 (Deferred Progress Visualization) was accepted 2026-06-23. After any progression change the system persists **the last visually-shown state per progress surface separately** (not an "unviewed XP" flag), so the user always sees the indicators **move** even when the change happened earlier. Memory is **per-screen and independent**: **Home** owns its memory (Level Progress Bar + Activity Progress Ring) and animates last-seen → current, then clears; the **Progress** screen owns separate memory (XP / Level / Stage / other progression elements) and animates independently; viewing one surface never clears the other's memory. It is consistent with the calm-motion budget (§5, §13) and the no-shame rule (D031), and depends on the Home composition (D039) and Progress hierarchy (D008), both Not Implemented. The rule is recorded in the new `BFG_UI_RULES.md §19` (with a cross-reference from §15). D070 introduces no contradiction — it adds a presentation-persistence rule on top of accepted surfaces and changes no existing decision. Total decisions: **70**.
+
+Decision 071 (Final Home Product Structure) was accepted 2026-06-25 and **finalizes** the Home composition opened by D039. It introduces no contradiction — it confirms the accepted Home elements and resolves three items D039 left open or that drifted between decisions: (1) it **closes the open Presence-Voice placement** (D039 #9) by siting an event-driven, non-permanent Voice Slot under the Stage Block, consistent with the Companion cadence (D036–038) and without promoting the Voice to a standing fixture; (2) it **standardizes the ring vocabulary** — both Home rings are calm **open arcs**, the Inner Ring is the **Level Progress open ring** (reconciling the "Level Progress bar/ring" wording of D070/§19) and the Outer Ring is **Weekly Activity Progress** (refining D039's "Weekly Progress" label and aligning with the D070 "Activity Progress ring (12/24)"); (3) it **defines the Outer Ring activity model** — only completed actions count (1 workout = 1 activity, 1 daily quest = 1 activity), weekly **UTC** reset, and a denominator of **21 daily-quest activities + the active Program cycle length (2–5, D061)** = 23–26, with a **capped** overflow value. The denominator deliberately reads the **active Program cycle length, not a "workouts per week" quota**, keeping it compatible with the count-agnostic Journey/Program model (D046, D061), which defines no weekly workout cadence. The weekly-resetting ring is guarded against debt/quota framing (D031 no-shame; Companion no-ledger §X). D071 is recorded in `BFG_UI_RULES.md §15` (rewrite) and §19 (vocabulary alignment), and the Home wireframe is added to `docs/ui/BFG_SCREEN_WIREFRAMES.md` (previously out of scope). Not Implemented (no Home rings, Stage Block, Voice Slot, Continue Journey CTA, or weekly-activity counting exist today). Total decisions: **71**.
