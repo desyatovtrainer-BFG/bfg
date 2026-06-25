@@ -55,6 +55,8 @@ That's the loop. Everything else is out of MVP.
 - `proxy.ts` for Supabase session refresh.
 - Server Actions for all writes.
 
+> **Backend host (infrastructure, not user-facing scope).** Supabase Cloud is accepted during development for speed. Migration to official Self-Hosted Supabase on a Russian VPS is required before closed beta / production. This is an infrastructure decision — it does **not** change the user-facing MVP scope or the loop above. Strategy: [`infra/BFG_SUPABASE_STRATEGY.md`](./infra/BFG_SUPABASE_STRATEGY.md).
+
 ---
 
 ## 3. Out of scope (MVP)

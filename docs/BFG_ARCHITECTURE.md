@@ -40,6 +40,16 @@ Practical architecture for a feature-oriented modular monolith built on Next.js 
 
 > TanStack Query and Zustand are not yet in `package.json`. They are the **mandated tools** when those needs arise; do not introduce alternatives.
 
+### 2.1 Supabase: technology, not Cloud dependency
+
+BFG commits to **Supabase the technology**, not Supabase Cloud as a mandatory dependency.
+
+- **Development** runs on Supabase Cloud for speed and zero ops.
+- **Pre-beta and production** target **official Self-Hosted Supabase on a Russian VPS**, so production runs on Russian servers and end users reach BFG from Russia without a mandatory VPN.
+- BFG must stay **Supabase-compatible and NOT Supabase-Cloud-dependent**: same `supabase-js`, same RLS, same Server Actions across hosts. No hardcoded Cloud project URLs; the host is an env-var switch.
+
+Full strategy, constraints, and the self-hosted migration checklist: [`infra/BFG_SUPABASE_STRATEGY.md`](./infra/BFG_SUPABASE_STRATEGY.md).
+
 ---
 
 ## 3. Folder structure

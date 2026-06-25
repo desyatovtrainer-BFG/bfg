@@ -71,12 +71,14 @@ Goal: a closed-beta-quality build that we are willing to give to first real user
 - **Companion** on every screen where it adds value (dashboard, post-workout, daily quests page).
 - **Subscription gating** wired in but used only for non-core extras. Core loop stays free during trial and after expiry.
 - **Operational basics**: an environment for staging, manual smoke checklist in `BFG_SECURITY.md`, a documented "apply migration" runbook.
+- **Self-Hosted Supabase release gate (infrastructure, not user-facing scope)**: M1 development and internal staging may continue on Supabase Cloud. But **before any closed-beta access for real users in Russia**, BFG must pass the Self-Hosted Supabase gate from INFRA-001 ([`BFG_SECURITY.md`](./BFG_SECURITY.md) §14.1), **or** the release must be explicitly limited to internal development / staging users only. The full migration task and checklist live in M2 §3.1 and `BFG_SECURITY.md` §14.1. Strategy: [`infra/BFG_SUPABASE_STRATEGY.md`](./infra/BFG_SUPABASE_STRATEGY.md).
 
 ### 2.2 Acceptance
 - Smoke checklist passes on staging and prod.
 - Lighthouse mobile ≥ 85 on dashboard, workouts list, workout session, profile.
 - No "TODO security" left in `awardXp`, quest claim, workout complete.
 - Reviewer signs off `BFG_SECURITY.md` release checklist.
+- Either the INFRA-001 Self-Hosted Supabase gate (`BFG_SECURITY.md` §14.1) has passed, or the build is access-limited to internal development / staging users — no real Russian closed-beta users on Supabase Cloud.
 
 ### 2.3 Out of scope (M1)
 - Payments. LLM-augmented companion. Push notifications. Social. Leaderboards.
@@ -96,6 +98,7 @@ Goal: open the doors to a small public audience in Russia, validate retention.
 - **`workout_completions` log table** to replace ad-hoc completion writes.
 - **Push-style nudges OPT-IN only** through PWA install + native browser notifications. No forced prompts.
 - **Onboarding** with calm welcome, 3-4 steps maximum.
+- **Self-Hosted Supabase migration (infrastructure, not a product feature)**: Supabase Cloud is accepted during development for speed; migrating to official Self-Hosted Supabase on a Russian VPS is **required before closed beta / production**. Same backend architecture, env-var host switch only. Run the security gate in [`BFG_SECURITY.md`](./BFG_SECURITY.md) §14.1. This does **not** change user-facing MVP scope. Strategy: [`infra/BFG_SUPABASE_STRATEGY.md`](./infra/BFG_SUPABASE_STRATEGY.md).
 
 ### 3.2 Acceptance
 - 7-day retention metric is wired and visible internally.

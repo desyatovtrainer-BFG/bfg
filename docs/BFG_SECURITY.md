@@ -281,6 +281,18 @@ Before each release, a reviewer must check all of the following. A failure block
 - [ ] Lighthouse mobile targets met on key screens.
 - [ ] PR description names anything intentionally left out.
 
+### 14.1 Self-Hosted deployment checklist (before closed beta)
+
+BFG migrates from Supabase Cloud to official Self-Hosted Supabase on a Russian VPS before closed beta. Strategy and full migration checklist: [`infra/BFG_SUPABASE_STRATEGY.md`](./infra/BFG_SUPABASE_STRATEGY.md). The security-relevant gate below must pass before the cutover.
+
+- [ ] **Backup and restore tested** — a backup is taken and a full restore is rehearsed on a separate instance. See [`BFG_DATABASE.md`](./BFG_DATABASE.md) §9.
+- [ ] **RLS verified** — every `public.*` table enforces the same policies on self-hosted as on Cloud (§5).
+- [ ] **Auth verified** — sign-up, sign-in, `proxy.ts` session refresh, password reset, email verification all work against the self-hosted instance (§3).
+- [ ] **Storage verified** — private-by-default buckets, per-user `auth.uid()` policies, and signed-URL TTLs behave identically (§10).
+- [ ] **SSL / domain configured** — served over HTTPS on a stable domain reachable from Russia without a mandatory VPN.
+- [ ] **Migration rehearsal** — all migrations applied in order and a data-migration dry run validated on a throwaway instance before the real cutover.
+- [ ] **Env-only switch** — the cutover changes only env vars (Supabase URL + keys); service-role keys live solely in the self-hosted Edge Function environment. No code changes required.
+
 ---
 
 ## 15. Anti-cheat philosophy

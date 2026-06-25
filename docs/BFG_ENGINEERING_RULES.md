@@ -155,6 +155,15 @@ BFG must work in Russia without a mandatory VPN. This is a product constraint, n
 - AI: route AI calls through an Edge Function so we can swap providers (OpenAI ↔ proxy ↔ on-prem) without touching the client. See [`BFG_AI_COMPANION.md`](./BFG_AI_COMPANION.md).
 - Any new third-party domain must be checked for RU accessibility before integration.
 
+### 10.1 Supabase host portability
+
+BFG uses Supabase the technology, not Supabase Cloud as a mandatory dependency. Development runs on Cloud; pre-beta and production target Self-Hosted Supabase on a Russian VPS. Full strategy: [`infra/BFG_SUPABASE_STRATEGY.md`](./infra/BFG_SUPABASE_STRATEGY.md).
+
+- ❌ No hardcoded Supabase Cloud project URLs (`*.supabase.co`) anywhere in code, config, or docs. The host is an env var.
+- All Supabase URLs and keys come from env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, server-only keys). See [`BFG_SECURITY.md`](./BFG_SECURITY.md) §6.
+- Avoid Cloud-only assumptions wherever an equivalent exists. A choice that only works on Supabase Cloud is rejected or gated until a self-hostable path exists.
+- Every new backend / storage / auth decision must be checked against two constraints: **(a)** works from Russia without a mandatory VPN, and **(b)** preserves a realistic migration path to Self-Hosted Supabase. Pointing BFG at a self-hosted instance must remain an env-var switch, not a code change.
+
 ---
 
 ## 11. Git, PRs, and reviews
