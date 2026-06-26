@@ -39,6 +39,8 @@ That's the loop. Everything else is out of MVP.
 - Companion screen (read-only reflective phrase). *(Voice-role of the unified presence.)*
 - Progression screen (XP bar, streak panel, evolution block).
 
+> **Progress & avatar identity (Decisions 072, 073).** The Progress surface (the merged Avatar + Progress + Profile destination, D005) is structured per D072: a **static, non-interactive identity portrait** (Primary) → Level / XP / Streak / Stage position (Secondary) → History / Statistics / Achievements as entry points (Additional). Avatar customization is entered **only from the Home Living Presence** (tap → Avatar Customization, D073); Progress never opens customization. **MVP correctness:** there is **one shared avatar visual state**, and the Home live Presence and the Progress static portrait must always render the **same** customized avatar — Home↔Progress visual parity is a correctness property (D001 at the rendering layer), not deferrable polish. **Not forced into MVP by these decisions:** the customization **catalog depth** (clothing/cosmetics catalogs, currency-linked cosmetics, rich editor) — the *entry model* and *shared state* are MVP; *catalog depth* is scoped separately and may be MVP or Post-MVP (cosmetics remain catalog-only at MVP per §3.2, and never affect gameplay — D029/D034).
+
 ### 2.2 Systems
 - XP grants from workouts and daily quests. (Daily login XP removed from MVP. Streak milestones trigger emotional presence feedback only — no XP. `MILESTONE` is reserved for future progression work. See [`BFG_GAME_SYSTEMS.md`](./BFG_GAME_SYSTEMS.md) §2.2.)
 - Level derivation from total XP (`calculateLevel`).

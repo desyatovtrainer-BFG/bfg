@@ -1989,6 +1989,191 @@ BFG_UI_RULES.md §15 / §19, docs/ui/BFG_SCREEN_WIREFRAMES.md, BFG_Companion_Doc
 
 ---
 
+# Decision 072
+
+Title:
+Final Progress Screen Product Structure
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The Progress screen is the identity / history / progression surface. It answers
+"Кем я стал? Как я развиваюсь? Что уже накопилось в моей истории?" — identity,
+trajectory, and accumulated archive. It is retrospective; Home (Decision 071) is
+the living present. This decision finalizes and **refines Decision 008** (block
+hierarchy) and Decision 005 (Avatar + Progress + Profile merge).
+
+1. Composition, top → bottom: Minimal Header (title + small Profile button) →
+   Primary Identity Block → Secondary Progression Block → Additional Archive
+   Block → Bottom Navigation.
+
+2. Primary Identity Block — identity ("кем я стал"):
+   - Static identity portrait. Progress shows the avatar's current evolved and
+     customized form as a STILL image. It does not move, animate, breathe, or
+     respond to taps, and it is NOT a customization entry point.
+   - One avatar, two representations (Decision 001). The Home Living Presence and
+     the Progress portrait are not separate avatars — they are two renderings of
+     the same single avatar identity and the same visual state. Home renders the
+     live, interactive, customizable form; Progress renders a static,
+     non-interactive portrait of that same form.
+   - Read-side synchronization. The Progress portrait always reflects the current
+     customized avatar state (appearance, clothing, cosmetics, current evolved
+     stage form). Any change made in Avatar Customization (entered from Home,
+     Decision 073) is reflected in the Progress portrait. The portrait is never
+     stale, yet it updates statically and silently — no movement, no tap
+     transition, no animated reveal, no celebration.
+   - Stage / Evolution identity, shown as journey position ("Stage 3 of 10" /
+     "3 из 10") — never quota, deficit, or completion framing.
+   - Legend slot (system-assigned only, Decision 027; never user-selected, no
+     classes), with a pre-Legend placeholder ("Path is still forming"; final
+     Russian copy later) framed as emerging identity, never empty or missing.
+   - The portrait must not claim Home's dominant, living, emotional-center role.
+     The differentiator is living + interactive (Home) vs still + inert
+     (Progress), not size. Progress must not become a second Home.
+
+3. Secondary Progression Block — trajectory ("как я развиваюсь"): Level, XP
+   (progress toward next), Streak, Stage position. Calm accumulation framing.
+   Streak is continuity, never currency (Decision 021) and never pressure
+   (Decisions 031, 038).
+
+4. Additional Archive Block — archive ("что накопилось"): History, Statistics,
+   Achievements — all as entry points / progressive disclosure, never dense
+   inline dashboard walls.
+   - History: a private chronicle of completed workouts and evolution milestones
+     (receives completion history, Decision 056).
+   - Statistics: opt-in, support not hero; strength stats appear only after the
+     first weight is logged (Decision 040), with no empty-state pressure.
+   - Achievements: live inside the Additional block; MVP = lightweight earned
+     shelf / preview; Post-MVP = full Achievement Constellations / collection
+     grid (Decision 026). Achievements must not outrank the Primary Identity
+     block; no completion-%, no rarity comparison, locked = quiet potential.
+
+5. Profile access: one shared account/profile surface reached via the small
+   header button (Decision 006), present on both Home and Progress.
+   Administrative; not a bottom-nav tab; not an inline Progress block. Profile is
+   not the primary emotional entry into avatar customization (Decision 073).
+
+6. D070 Progress visualization memory (independent from Home, Decision 070,
+   BFG_UI_RULES §19): participants are XP Progress, Level Progress, Stage
+   Progress. Non-participants: Streak, History, Achievements, Statistics, and the
+   static portrait (a state display, not an animated progression indicator).
+   Viewing Home never clears Progress memory; viewing Progress never clears Home
+   memory. Portrait synchronization is not a D070 catch-up animation — it is a
+   silent static update, outside the §19 path.
+
+Forbidden on Progress:
+leaderboards; PvP; social comparison; leagues; followers/kudos feed;
+user-selected classes; gear/loadout stats; closed rings / perfect-week framing;
+red failure states; shame copy; streak-loss pressure; numeric Energy / readiness
+/ daily-verdict scores; performance-gated rewards (e.g. a crown for hitting a
+score); completion-% or rarity pressure; rank/level overlaid on the avatar;
+avatar built for social identification; empty-state pressure to log weight;
+dense analytics walls; duplicating Home's two rings; duplicating Home's
+"Continue Journey" CTA; duplicating Home's living/interactive Presence role; an
+interactive or tappable avatar on Progress; any avatar movement, idle animation,
+or tap transition on Progress; customization entry from the Progress portrait;
+casino-style animation.
+
+Reason:
+Home (Decision 071) deliberately excludes detail, so Progress must absorb
+identity, progression, history, statistics, and achievements while staying calm
+and never becoming a second Home. A web-verified benchmark (Duolingo, Strava,
+Apple Fitness, Fitbit, Garmin, Whoop, Oura, Habitica, Steam, Fitbod/Freeletics/
+NTC) confirmed the structure: identity-screen apps keep the avatar small and
+non-dominant; the apps with no identity figure (Apple Activity, Whoop, Oura) are
+exactly the verdict/dashboard surfaces BFG must avoid; the only dominant-avatar
+model (Habitica) is bound to chosen class + gear, which BFG forbids
+(Decision 027). A static, non-interactive, always-synchronized portrait gives
+identity its anchor while keeping the living, interactive, customizable Presence
+unique to Home.
+
+Implementation Status:
+Not Implemented — current /progress shows an XP bar, streak panel, and evolution
+block in legacy order; the three-block hierarchy, static portrait, Legend slot,
+History/Statistics/Achievements blocks, and D070 Progress memory do not exist.
+
+Related Documents:
+BFG_UI_RULES.md §20 (Progress), §19 (D070 memory); ui/BFG_SCREEN_WIREFRAMES.md
+(Progress section); Decisions 001, 005, 006, 008, 026, 027, 040, 056, 070, 071,
+073.
+
+---
+
+# Decision 073
+
+Title:
+Avatar Customization Entry & Interaction
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+This decision defines how avatar customization is entered and how the single
+avatar visual state is owned. It **refines Decision 071** (which specified the
+Home Living Presence and the single "Continue Journey" CTA but did not define
+what tapping the Presence does). It deliberately separates the ENTRY MODEL
+(decided now) from CUSTOMIZATION CATALOG DEPTH (scoped later).
+
+1. Entry model (decided now):
+   - Tapping the Home Living Presence opens Avatar Customization / Appearance /
+     Clothing. The Home Living Presence is the primary — and in MVP the only —
+     emotional entry into avatar customization.
+   - The tap is an affordance on the Presence itself, not a competing button; it
+     does not violate the single-primary-CTA rule (Decision 071, "Continue
+     Journey" remains the only primary CTA).
+   - The tap may use a short, calm transition (BFG_UI_RULES §5, §13). Its purpose
+     is navigation to customization with a clear product result — not a
+     decorative or standalone tap-reaction.
+   - Progress never opens customization (Decision 072). The Profile header button
+     (Decision 006) may hold account/subscription/settings and may expose a
+     secondary/administrative customization path post-MVP, but Profile is not the
+     primary emotional entry into customization.
+
+2. Write-side single source of truth (MVP correctness):
+   - Avatar Customization writes to one shared avatar visual state (appearance,
+     clothing, cosmetics, current evolved stage form).
+   - Every avatar surface reads from that single state — the Home live Presence
+     and the Progress static portrait included. No surface holds a divergent
+     copy (Decision 001 at the rendering layer).
+   - Home ↔ Progress visual parity is therefore a correctness property, not a
+     polish feature: a change saved in customization is immediately the truth for
+     every avatar surface.
+
+3. Customization catalog depth (scoped later, may be MVP or Post-MVP):
+   - The interaction model and navigation entry (item 1) and the shared-state /
+     visual parity (item 2) are accepted now.
+   - The actual customization depth — clothing catalog, cosmetics catalog,
+     currency-linked cosmetics (Decision 034), and rich editor depth — is not
+     locked to MVP by this decision and will be scoped separately. Cosmetics
+     never affect gameplay or progression (Decision 029); currency-bought items
+     are personalization only (Decision 034).
+
+Reason:
+Tapping the Presence gives the avatar interaction a clear product result
+(navigation to customization) instead of a decorative tap-reaction, and makes
+Home the single emotional home of avatar identity and change. Separating the
+entry model from catalog depth lets the interaction and the one-avatar
+correctness invariant be settled now, while content depth follows later scope
+without reopening the navigation model.
+
+Implementation Status:
+Not Implemented — the current dashboard shows a static stage-colored avatar; the
+living Presence, the tap-to-customize entry, the customization surface, and the
+shared avatar visual state do not exist.
+
+Related Documents:
+BFG_UI_RULES.md §15 (Home); ui/BFG_SCREEN_WIREFRAMES.md (Home annotation);
+Decisions 001, 006, 029, 034, 071, 072.
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -2064,9 +2249,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 45 | 003–006, 008, 014, 024–028, 034, 039–071 |
+| Not Implemented | 47 | 003–006, 008, 014, 024–028, 034, 039–073 |
 
-Total decisions: 71.
+Total decisions: 73.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -2101,3 +2286,5 @@ Decisions 067 and 069 were **finalized 2026-06-23** (final versions, accepted af
 Decision 070 (Deferred Progress Visualization) was accepted 2026-06-23. After any progression change the system persists **the last visually-shown state per progress surface separately** (not an "unviewed XP" flag), so the user always sees the indicators **move** even when the change happened earlier. Memory is **per-screen and independent**: **Home** owns its memory (Level Progress Bar + Activity Progress Ring) and animates last-seen → current, then clears; the **Progress** screen owns separate memory (XP / Level / Stage / other progression elements) and animates independently; viewing one surface never clears the other's memory. It is consistent with the calm-motion budget (§5, §13) and the no-shame rule (D031), and depends on the Home composition (D039) and Progress hierarchy (D008), both Not Implemented. The rule is recorded in the new `BFG_UI_RULES.md §19` (with a cross-reference from §15). D070 introduces no contradiction — it adds a presentation-persistence rule on top of accepted surfaces and changes no existing decision. Total decisions: **70**.
 
 Decision 071 (Final Home Product Structure) was accepted 2026-06-25 and **finalizes** the Home composition opened by D039. It introduces no contradiction — it confirms the accepted Home elements and resolves three items D039 left open or that drifted between decisions: (1) it **closes the open Presence-Voice placement** (D039 #9) by siting an event-driven, non-permanent Voice Slot under the Stage Block, consistent with the Companion cadence (D036–038) and without promoting the Voice to a standing fixture; (2) it **standardizes the ring vocabulary** — both Home rings are calm **open arcs**, the Inner Ring is the **Level Progress open ring** (reconciling the "Level Progress bar/ring" wording of D070/§19) and the Outer Ring is **Weekly Activity Progress** (refining D039's "Weekly Progress" label and aligning with the D070 "Activity Progress ring (12/24)"); (3) it **defines the Outer Ring activity model** — only completed actions count (1 workout = 1 activity, 1 daily quest = 1 activity), weekly **UTC** reset, and a denominator of **21 daily-quest activities + the active Program cycle length (2–5, D061)** = 23–26, with a **capped** overflow value. The denominator deliberately reads the **active Program cycle length, not a "workouts per week" quota**, keeping it compatible with the count-agnostic Journey/Program model (D046, D061), which defines no weekly workout cadence. The weekly-resetting ring is guarded against debt/quota framing (D031 no-shame; Companion no-ledger §X). D071 is recorded in `BFG_UI_RULES.md §15` (rewrite) and §19 (vocabulary alignment), and the Home wireframe is added to `docs/ui/BFG_SCREEN_WIREFRAMES.md` (previously out of scope). Not Implemented (no Home rings, Stage Block, Voice Slot, Continue Journey CTA, or weekly-activity counting exist today). Total decisions: **71**.
+
+Decisions 072 and 073 (Progress structure + Avatar Customization entry) were accepted 2026-06-26 and registered together; they were prepared via a web-verified benchmark of Progress/Profile/Achievement/Identity surfaces (Duolingo, Strava, Apple Fitness, Fitbit, Garmin, Whoop, Oura, Habitica, Steam, Fitbod/Freeletics/NTC). They introduce no contradiction. **D072** finalizes and **refines D008** (Progress block hierarchy) and completes the D005 Avatar+Progress+Profile merge: it fixes the three-block structure (Primary identity / Secondary progression / Additional archive), standardizes "Presence" on Progress as a **static, non-interactive identity portrait** (not a large render, not Home's living center), places Achievements inside the Additional block (MVP earned shelf → Post-MVP Constellations, D026), and names the D070 Progress-memory participants (XP / Level / Stage). **D073 refines D071** by defining the previously-undefined Home Presence interaction: tapping the Living Presence opens Avatar Customization (the primary, MVP-only customization entry; an affordance on the Presence, not a second CTA), and establishes a **single shared avatar visual state** read by both the Home live Presence and the Progress static portrait (Decision 001 at the rendering layer) — making Home↔Progress visual parity a correctness property. D073 deliberately separates the **entry model** (accepted now) from **customization catalog depth** (scoped later, may be MVP or Post-MVP); cosmetics/currency stay governed by D029/D034. Recorded in `BFG_UI_RULES.md` §15 (Home tap) and the new §20 (Progress), with the Progress wireframe added to `docs/ui/BFG_SCREEN_WIREFRAMES.md`. Both Not Implemented. Total decisions: **73**.

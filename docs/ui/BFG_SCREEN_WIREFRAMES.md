@@ -2,11 +2,11 @@
 
 First official **Wireframe Layer** for BFG. This document specifies screen *composition, hierarchy, state, and transitions* — not visual design. It is built strictly from accepted product decisions; it invents nothing.
 
-> Source of truth: [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) (decisions win on any conflict) and [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §15–§19. Where this document and a decision disagree, the decision wins and this document must be corrected.
+> Source of truth: [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) (decisions win on any conflict) and [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §15–§20. Where this document and a decision disagree, the decision wins and this document must be corrected.
 
-Status: first slice. This pass covers **Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home**. Progress and per-variant detail are deferred to a later wireframe pass.
+Status: first slice. This pass covers **Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
 
-Last updated: 2026-06-25 (Final Home Product Structure D071 — Home wireframe added).
+Last updated: 2026-06-26 (Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
 
 For every screen this document records, in order:
 
@@ -343,7 +343,9 @@ The **emotional center** of BFG (D002, D007, D039, D071) — not a dashboard, ac
 
 **4. Secondary element:** the two open rings and the Stage Block; the Voice Slot when (rarely) present.
 
-**5. User action:** tap **Continue Journey** (the only primary action); tap the header Profile button for account/subscription (D006).
+**5. User action:** tap **Continue Journey** (the only primary action); **tap the Living Presence → Avatar Customization / Appearance / Clothing** (the primary, MVP-only customization entry, D073 — an affordance on the Presence, not a second CTA); tap the header Profile button for account/subscription (D006).
+
+> **Living Presence is interactive (D073).** Tap the Presence → Avatar Customization. The tap is a Presence affordance, not a competing button — "Continue Journey" stays the only primary CTA. Customization writes to **one shared avatar visual state**; changes propagate to the **Progress static portrait** (§9). One avatar, two representations (D001, D072, D073).
 
 **6. Destination after the action (Continue Journey, D043):**
 - brand-new user → **Workout 1 Start Screen** (§2, D059);
@@ -368,10 +370,55 @@ The **emotional center** of BFG (D002, D007, D039, D071) — not a dashboard, ac
 
 ---
 
+# 9. Progress (Final Progress Product Structure, D072)
+
+The **identity / history / progression surface** (D005, D008, D072). Progress answers: *"Кем я стал? Как я развиваюсь? Что уже накопилось в моей истории?"* Home is the living present; Progress is the retrospective record. **Progress must not become a second Home, and must not become a noisy analytics dashboard.**
+
+```
+┌─────────────────────────────┐
+│  Прогресс              (👤) │  Minimal Header — title + Profile button (D006)
+├─────────────────────────────┤
+│         ┌───────────┐       │  PRIMARY — Identity
+│         │  ▢ STATIC  │       │  static identity portrait (D072):
+│         │  PORTRAIT  │       │   • non-interactive · no tap · no animation
+│         └───────────┘       │   • always = current customized avatar (D001)
+│      SEEKER · STAGE 3 of 10 │  Stage / Evolution — journey position, not quota
+│      Legend: «Путь ещё…»    │  Legend slot / pre-Legend placeholder (D027)
+├─────────────────────────────┤
+│  Ур. 12 · XP →next          │  SECONDARY — Progression (calm accumulation)
+│  Серия 9 · Стадия 3/10      │  Streak = continuity, no pressure (D021/D031)
+├─────────────────────────────┤
+│  ▸ История                  │  ADDITIONAL — Archive (entry points, not walls)
+│  ▸ Статистика               │  Statistics opt-in; strength only after 1st weight (D040)
+│  ▸ Достижения               │  Achievements: MVP earned shelf → Post-MVP grid (D026)
+├─────────────────────────────┤
+│  BottomNav                  │  (D003)
+└─────────────────────────────┘
+```
+
+**1. Goal:** show **who the user has become** (identity), **how they have grown** (progression), and **what has accumulated** (archive) — calmly, without duplicating Home's living center.
+
+**2. Composition top → bottom (D072):** Minimal Header (title + Profile button) → **Primary Identity Block** (static portrait + Stage/Evolution + Legend slot) → **Secondary Progression Block** (Level · XP · Streak · Stage position) → **Additional Archive Block** (History · Statistics · Achievements, as entry points) → BottomNav.
+
+**3. Primary visual accent:** the **static identity portrait** — but it is an identity *marker*, not Home's dominant living hero. The differentiator vs Home is **still + inert (Progress) vs living + interactive (Home)**, not size.
+
+**4. Portrait rules (D072, D001):**
+- **Static · non-interactive** — does not move, animate, breathe, or respond to taps; **never opens customization** (customization is entered only from Home, D073, §8).
+- **Always reflects the current customized avatar state** (appearance, clothing, cosmetics, current stage form) — never stale — but it updates **statically and silently** (no movement, no tap transition, no animated reveal). This is **not** a D070 catch-up animation.
+- One avatar, two representations: Home and Progress render the **same** avatar from the **same** shared visual state.
+
+**5. D070 Progress memory (independent from Home, §19):** on entering Progress, **XP / Level / Stage** animate last-seen → current (calm, < 600ms, `prefers-reduced-motion`), then Progress clears its own memory. Streak, History, Achievements, Statistics, and the static portrait do **not** participate. Viewing Home never clears Progress memory and vice versa.
+
+**6. Achievements (D072):** MVP = lightweight **earned shelf** / preview; Post-MVP = full **Achievement Constellations / grid** (D026). No completion-%, no rarity comparison; locked = quiet potential; never outranks the Primary block.
+
+**Progress must not show (D072):** leaderboards; PvP; social comparison; leagues; followers/kudos; user-selected classes; gear/loadout stats; closed rings / perfect-week framing; red failure states; shame copy; streak-loss pressure; numeric Energy / readiness / daily-verdict scores; performance-gated rewards; completion-% / rarity pressure; rank/level overlaid on the avatar; an avatar built for social identification; empty-state pressure to log weight; dense analytics walls; duplicating Home's two rings; duplicating Home's "Continue Journey" CTA; duplicating Home's living/interactive Presence role; an interactive/tappable avatar; avatar movement / idle animation / tap transition; customization entry from the portrait; casino-style animation.
+
+---
+
 ## Decisions referenced
 
-D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19.
+D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20.
 
 ## Out of scope for this slice (later wireframe passes)
 
-Progress, the per-state Activity screen mockups, the Reward Modal value variants in detail, and any new screens. No new product decisions are created by this document.
+The per-state Activity screen mockups, the Reward Modal value variants in detail, the Avatar Customization surface itself (D073 catalog depth), and any new screens. No new product decisions are created by this document.
