@@ -28,6 +28,7 @@ That's the loop. Everything else is out of MVP.
 ## 2. In scope
 
 ### 2.1 Product
+- **Entry / Auth Start screen (Decision 074)** — the unauthenticated first-contact screen that precedes Sign Up: a neutral Seed Form (never Stage 10 / never a default-final avatar), a single primary CTA → Sign Up, a quiet Log In path, no scroll, no trial/pricing. See `BFG_UI_RULES.md §21` / `ui/BFG_SCREEN_WIREFRAMES.md §0`. Final copy is not yet locked (D074 fixes structure and interaction rules only).
 - Email/password authentication via Supabase.
 - BFG profile bootstrap on first login.
 - Dashboard screen with their presence (avatar body + companion voice), level, streak.

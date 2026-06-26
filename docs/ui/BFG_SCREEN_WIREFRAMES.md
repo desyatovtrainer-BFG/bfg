@@ -4,9 +4,9 @@ First official **Wireframe Layer** for BFG. This document specifies screen *comp
 
 > Source of truth: [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) (decisions win on any conflict) and [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §15–§20. Where this document and a decision disagree, the decision wins and this document must be corrected.
 
-Status: first slice. This pass covers **Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
+Status: first slice. This pass covers **Entry / Auth Start, Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail, the onboarding flow, and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
 
-Last updated: 2026-06-26 (Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
+Last updated: 2026-06-26 (Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
 
 For every screen this document records, in order:
 
@@ -26,6 +26,53 @@ For every screen this document records, in order:
 - Card outline by state (D054): **Default** = blue · **Upcoming** = orange + marker · **In Progress** = green + marker. One state marker per card (D048); In Progress has list-wide priority over Upcoming (D057).
 - "Continue Journey" (the global resume action) lives on **Home**, never on Activity (D043). Home is specified in §8.
 - Session navigation is **swipe-only**, no Next/Previous buttons (D063).
+- The **Entry / Auth Start** screen (§0) is the **unauthenticated** first contact; all other screens here are post-auth (D074).
+
+---
+
+# 0. Entry / Auth Start Screen
+
+The **unauthenticated** first-contact screen (D074). Calm, dark, cinematic — not a raw login form, not a marketing landing page. Leads into Sign Up (email/password, MVP) → onboarding, with a quiet Log In path for returning users. **No scroll** — the whole screen fits the initial mobile viewport (BFG_UI_RULES §1, §21).
+
+```
+┌─────────────────────────────┐
+│  BFG.                        │  Minimal brand mark (small, top)
+│                             │
+│          ╭───────╮          │  SEED FORM (First Presence Form) — optical center
+│          │ ◌ ◌ ◌ │          │   • alive but minimal: breathing + subtle glow (MVP Body floor)
+│          │ first │          │   • neutral · unfinished · not gendered · not customized
+│          │ form  │          │   • NOT a default/final avatar · NEVER Stage 10 (D010)
+│          ╰───────╯          │   • Voice-silent (first Voice moment = first session, PRS §4)
+│                             │   • tap-reactive DECORATIVELY · NOT a navigation affordance
+│   [headline — placeholder]  │  calm, sentence case (no all-caps, no «победы») — copy not final
+│   [subtitle — placeholder]  │  optional one-line subtitle — copy not final
+│                             │
+│   ┌─────────────────────┐   │
+│   │   [Primary CTA]      │   │  the ONLY primary action → Sign Up (copy not final)
+│   └─────────────────────┘   │
+│         [Log in]            │  quiet secondary link → Log In (copy not final)
+│                             │
+└─────────────────────────────┘
+   Mobile-first 360–430px · dark/calm · NO SCROLL · fits initial viewport
+```
+
+**1. Goal:** make calm, premium first contact and offer the single way in (Sign Up), with a quiet Log In path — without showing the final avatar, without marketing, without a dry form.
+
+**2. Composition top → bottom (D074):** Minimal brand mark → **Seed Form** (center) → calm headline (+ optional one-line subtitle) → **single primary CTA** (→ Sign Up) → quiet secondary **Log In** link.
+
+**3. Primary visual accent:** the **Seed Form** — alive but minimal, neutral, non-final (never Stage 10 / never a default avatar, D010).
+
+**4. Secondary element:** the headline/subtitle and the quiet Log In link. The **primary CTA** is the only primary action (the Seed Form is not a competing action).
+
+**5. User action:** press the **primary CTA** → Sign Up. Optionally **tap the Seed Form** → a **decorative path hint only** (soft stir/glow toward the CTA, short and calm, within the §5 motion budget, `prefers-reduced-motion` respected) — it does **not** navigate, open auth/onboarding/customization, speak, or open any modal/tooltip/hint (D074). Tap the quiet link → Log In.
+
+**6. Destination after the action:**
+- Primary CTA → **Sign Up** (email/password) → **onboarding** (onboarding flow specified separately).
+- Seed Form tap → **no destination** (decorative hint only; stays on the Entry screen).
+- Log In link → **Log In** (returning users).
+
+> **Scope (D074):** §0 governs the Entry / Auth Start screen only. The **onboarding** Seed Form interaction is **outside D074 scope** and is specified separately by future onboarding decisions (none accepted yet); a later onboarding Seed Form must not become a repeated tap target. **No final copy** is approved — headline / subtitle / CTA text above are placeholders; D074 approves structure, interaction rules, and copy principles only.
+> **Forbidden here (D074):** Stage 10 / any evolved or final avatar; a gendered/customized/finished avatar; the Seed Form as a navigation affordance or a second CTA; a second primary CTA; a companion Voice line / chat; trial / subscription / pricing (MVP); feature lists / marketing bullets / testimonials / paragraphs; "победы" / win / competition copy; hype; exclamation marks; all-caps motivational headline; casino-style motion; any scroll; emoji.
 
 ---
 
@@ -417,7 +464,7 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ## Decisions referenced
 
-D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20.
+**D074 (Entry / Auth Start Screen)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
 
 ## Out of scope for this slice (later wireframe passes)
 

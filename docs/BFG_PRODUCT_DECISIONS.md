@@ -2174,6 +2174,103 @@ Decisions 001, 006, 029, 034, 071, 072.
 
 ---
 
+# Decision 074
+
+Title:
+Entry / Auth Start Screen (unauthenticated first contact)
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The first unauthenticated screen is an atmospheric Entry / Auth Start screen —
+not a raw email/password form and not a marketing landing page. It makes calm,
+premium first contact and leads into Sign Up (email/password, MVP), then
+onboarding, with a quiet Log In path for returning users. D074 governs the Entry
+/ Auth Start screen only.
+
+1. Seed Form (First Presence Form).
+   - A neutral, unfinished pre-presence: not gendered, not customized, never a
+     default/final avatar, and never Stage 10 or any evolved form (Decision 010).
+   - It is a pre-figuration of the Presence, NOT the user's avatar. The default
+     avatar is received only after onboarding.
+   - Alive but minimal (breathing + subtle glow — the MVP Body floor) and
+     Voice-silent: the first-ever Presence Voice moment belongs to the first
+     session after account creation (BFG_PRESENCE_RESPONSE_SYSTEM.md §4) and must
+     not be consumed on the Entry screen.
+
+2. Seed Form interaction is context-scoped (no global clickable / non-clickable
+   rule). On the Entry / Auth Start screen, Seed Form is tap-reactive decoratively
+   but is not a navigation affordance.
+   - The tap does not navigate, does not open auth, does not open onboarding, does
+     not open customization, does not show Voice / companion text, and does not
+     show any modal, tooltip, or text hint. It never becomes a second CTA.
+   - Permitted tap response (a decorative path hint only): softly stir / pulse /
+     brighten the Seed Form; send a subtle glow / path toward the primary CTA;
+     and / or softly highlight the primary CTA. The response is a short, calm
+     moment within the existing motion budget (BFG_UI_RULES.md §5 / §13 — up to
+     ~600ms, prefers-reduced-motion respected, degrading to a static emphasis). It
+     stays calm, premium, non-casino, and non-marketing.
+   - Onboarding Seed Form behavior is outside D074 scope and will be specified
+     separately by future onboarding decisions. Boundary note only: a later
+     onboarding Seed Form should not become a repeated tap target. D074 neither
+     defines nor overrides any onboarding Seed Form interaction, and there is no
+     accepted onboarding Seed Form decision today.
+
+3. Single primary action.
+   - Exactly one primary CTA leads to Sign Up; it is the only path forward. The
+     Seed Form's decorative tap-reactivity does not make it a competing action
+     (single-primary-CTA discipline, Decisions 071, 073; the Body never reaches,
+     companion/BFG_Companion_Doctrine.md §X). A low-emphasis secondary Log In link
+     serves returning users.
+
+4. Copy & tone (principles only — no final copy approved).
+   - Calm, sentence-case headline + optional one-line subtitle; no all-caps
+     motivational headline, no exclamation marks, no win / achievement /
+     competition framing ("победы" and equivalents are forbidden — Decision 032,
+     BFG_UI_RULES.md §11), no corporate fitness vocabulary, warm "ты", no emoji.
+     The screen does not over-explain and is not aggressive marketing.
+   - D074 approves structure, interaction rules, and copy principles only. No
+     final headline / subtitle / CTA copy is approved by this decision; all
+     current text variants are placeholders and remain editable later.
+
+5. No trial / subscription on entry.
+   - No 30-day trial, pricing, or subscription state on the Entry screen (these are
+     account / profile details, Decision 006, and never gate the core loop,
+     Decision 030). A quiet trial-reassurance line is Post-MVP only, never hype.
+
+6. Layout.
+   - Mobile-first 360–430px is the source of truth, dark / calm; the entire screen
+     fits the initial viewport with NO SCROLL (BFG_UI_RULES.md §1, BFG_MVP_SCOPE.md
+     §5.1).
+
+Reason:
+First contact sets the emotional contract. A Seed Form that is alive but
+identity-less keeps the promise ("this will become yours") without showing the
+final form early (Decision 010), without spending the real first Presence moment,
+and without the Body reaching (Doctrine §X). Decorative tap-reactivity rewards
+curiosity and gently points at the one way forward while keeping a single
+unambiguous primary action; keeping trial and marketing off the screen keeps it
+calm and honest rather than a conversion-anxious landing page.
+
+Implementation Status:
+Not Implemented — the current start screen has an all-caps motivational headline
+("...ТВОИ ПОБЕДЫ"), a descriptive paragraph, a central placeholder form, and
+"Старт" / "Есть аккаунт" buttons; the Seed Form treatment, calm copy, the
+decorative tap-hint, and the single-CTA + Log-In structure are not built.
+
+Related Documents:
+BFG_UI_RULES.md §21 (Entry / Auth Start); ui/BFG_SCREEN_WIREFRAMES.md (Entry /
+Auth Start section); companion/BFG_Companion_Doctrine.md §X / §XI;
+BFG_PRESENCE_RESPONSE_SYSTEM.md §4; BFG_MVP_SCOPE.md §2.1; Decisions 001, 006,
+010, 030, 031, 032, 071, 073. (Onboarding Seed Form role: governed separately by
+future onboarding decisions — none accepted yet.)
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -2249,9 +2346,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
-| Not Implemented | 47 | 003–006, 008, 014, 024–028, 034, 039–073 |
+| Not Implemented | 48 | 003–006, 008, 014, 024–028, 034, 039–074 |
 
-Total decisions: 73.
+Total decisions: 74.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -2288,3 +2385,5 @@ Decision 070 (Deferred Progress Visualization) was accepted 2026-06-23. After an
 Decision 071 (Final Home Product Structure) was accepted 2026-06-25 and **finalizes** the Home composition opened by D039. It introduces no contradiction — it confirms the accepted Home elements and resolves three items D039 left open or that drifted between decisions: (1) it **closes the open Presence-Voice placement** (D039 #9) by siting an event-driven, non-permanent Voice Slot under the Stage Block, consistent with the Companion cadence (D036–038) and without promoting the Voice to a standing fixture; (2) it **standardizes the ring vocabulary** — both Home rings are calm **open arcs**, the Inner Ring is the **Level Progress open ring** (reconciling the "Level Progress bar/ring" wording of D070/§19) and the Outer Ring is **Weekly Activity Progress** (refining D039's "Weekly Progress" label and aligning with the D070 "Activity Progress ring (12/24)"); (3) it **defines the Outer Ring activity model** — only completed actions count (1 workout = 1 activity, 1 daily quest = 1 activity), weekly **UTC** reset, and a denominator of **21 daily-quest activities + the active Program cycle length (2–5, D061)** = 23–26, with a **capped** overflow value. The denominator deliberately reads the **active Program cycle length, not a "workouts per week" quota**, keeping it compatible with the count-agnostic Journey/Program model (D046, D061), which defines no weekly workout cadence. The weekly-resetting ring is guarded against debt/quota framing (D031 no-shame; Companion no-ledger §X). D071 is recorded in `BFG_UI_RULES.md §15` (rewrite) and §19 (vocabulary alignment), and the Home wireframe is added to `docs/ui/BFG_SCREEN_WIREFRAMES.md` (previously out of scope). Not Implemented (no Home rings, Stage Block, Voice Slot, Continue Journey CTA, or weekly-activity counting exist today). Total decisions: **71**.
 
 Decisions 072 and 073 (Progress structure + Avatar Customization entry) were accepted 2026-06-26 and registered together; they were prepared via a web-verified benchmark of Progress/Profile/Achievement/Identity surfaces (Duolingo, Strava, Apple Fitness, Fitbit, Garmin, Whoop, Oura, Habitica, Steam, Fitbod/Freeletics/NTC). They introduce no contradiction. **D072** finalizes and **refines D008** (Progress block hierarchy) and completes the D005 Avatar+Progress+Profile merge: it fixes the three-block structure (Primary identity / Secondary progression / Additional archive), standardizes "Presence" on Progress as a **static, non-interactive identity portrait** (not a large render, not Home's living center), places Achievements inside the Additional block (MVP earned shelf → Post-MVP Constellations, D026), and names the D070 Progress-memory participants (XP / Level / Stage). **D073 refines D071** by defining the previously-undefined Home Presence interaction: tapping the Living Presence opens Avatar Customization (the primary, MVP-only customization entry; an affordance on the Presence, not a second CTA), and establishes a **single shared avatar visual state** read by both the Home live Presence and the Progress static portrait (Decision 001 at the rendering layer) — making Home↔Progress visual parity a correctness property. D073 deliberately separates the **entry model** (accepted now) from **customization catalog depth** (scoped later, may be MVP or Post-MVP); cosmetics/currency stay governed by D029/D034. Recorded in `BFG_UI_RULES.md` §15 (Home tap) and the new §20 (Progress), with the Progress wireframe added to `docs/ui/BFG_SCREEN_WIREFRAMES.md`. Both Not Implemented. Total decisions: **73**.
+
+Decision 074 (Entry / Auth Start Screen) was accepted 2026-06-26. It is the first decision covering the **unauthenticated** surface (all prior screen decisions — D039/D042–D069/D071/D072 — are post-auth) and introduces no contradiction: it honors no-Stage-10-early (D010), the single-primary-CTA discipline (D071, D073), no-shame / no-competition framing (D031, D032, "победы" forbidden per BFG_UI_RULES §11), the core-loop-never-gated rule (D030, no trial/pricing on entry), and the Body-never-reaches / under-promise onboarding philosophy (Companion Doctrine §X/§XI). It deliberately keeps the **Seed Form interaction context-scoped** — "On the Entry / Auth Start screen, Seed Form is tap-reactive decoratively but is not a navigation affordance" — and records **no global** clickable / non-clickable rule. D074 is **self-contained**: the first-onboarding Seed Form interaction is governed separately by future onboarding decisions (none accepted today), so D074 forward-references no accepted onboarding decision and invents none; the only onboarding mention is a boundary note (a later onboarding Seed Form must not become a repeated tap target). D074 approves **structure, interaction rules, and copy principles only — not final copy** (current headline/subtitle/CTA variants remain placeholders). One UI follow-up, not a contradiction: the decorative tap-hint must stay within the `BFG_UI_RULES.md §5` motion budget (up to ~600ms, prefers-reduced-motion respected) — recorded for the §5/§13 pass. Recorded in `BFG_UI_RULES.md` §21 (new Entry section) and `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Entry / Auth Start section), with a one-line precedence note added to `BFG_MVP_SCOPE.md §2.1`. Not Implemented. Total decisions: **74**.
