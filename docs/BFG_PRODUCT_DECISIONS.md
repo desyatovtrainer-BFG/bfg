@@ -2339,6 +2339,229 @@ Decisions 074, 071, 072.
 
 ---
 
+# Decision 076
+
+Title:
+Sign Up / Log In Auth Surface
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The Auth flow that follows the Entry / Auth Start screen (D074) is
+a single Auth surface with **three states — Sign Up · Verify Email · Log In —
+sharing one visual shell**. It is a real navigation step from Entry, not a modal /
+sheet over Entry. Overall flow: Entry → Auth Surface → Onboarding → Home.
+
+1. Surface model.
+   - One Auth surface, three states (Sign Up · Verify Email · Log In), one shared
+     shell. Entry's primary CTA opens the Sign Up state; Entry's quiet secondary
+     Log In link opens the Log In state; a quiet in-place switch link toggles
+     Sign Up ↔ Log In.
+   - A minimal top bar carries only a back affordance → returns to Entry (D074).
+     No bottom navigation (auth is a pre-app surface), no other top-bar content
+     (BFG_UI_RULES.md §2).
+
+2. Seed Form continuity.
+   - The Seed Form continues from Entry as a reduced, NON-interactive background
+     presence (glow / silhouette): not central, not tappable (the Entry decorative
+     tap-hint was context-scoped to Entry, D074), Voice-silent (the first Presence
+     Voice moment belongs to the first onboarding session,
+     BFG_PRESENCE_RESPONSE_SYSTEM.md §4). It recedes further while the soft
+     keyboard is open so it never crowds the form.
+
+3. Sign Up state.
+   - Composition: minimal top bar (back → Entry) → small brand mark + receded Seed
+     Form atmosphere → one calm heading (+ optional one-line subtitle) → email
+     field → password field (show/hide, new-password semantics) → single primary
+     submit CTA → quiet switch link to Log In → optional quiet legal line
+     (Terms/Privacy) where required.
+   - Success → Verify Email state (D077). Sign Up never goes straight to onboarding.
+
+4. Verify Email state (required gate, governed by D077).
+   - Composition: same shell → calm heading → a "code sent to {email}" line →
+     6-digit OTP field → primary verify CTA → quiet "resend code" (with a visible
+     cooldown) → quiet "change email" action → calm inline error state.
+   - "Change email" returns to Sign Up with the email editable, invalidates the
+     old code, and sends a new code (covers the dominant failure: a typo'd
+     address). No companion Voice, no onboarding questions, no pricing.
+   - Correct OTP → onboarding start.
+
+5. Log In state.
+   - Composition: same shell → email field → password field (show/hide,
+     current-password semantics) → a quiet "forgot password" link (entry point
+     only; the reset flow is a separate future decision) → single primary submit
+     CTA → quiet switch link to Sign Up.
+
+6. Destinations / routing.
+   - Sign Up success → Verify Email state.
+   - Verify Email (correct OTP) → onboarding start.
+   - Log In, verified + onboarding done → Home (D071).
+   - Log In, verified + onboarding unfinished → resume onboarding (resume
+     granularity governed by future onboarding decisions).
+   - Log In, unverified account with correct credentials → Verify Email state.
+   - Log In, wrong credentials → generic invalid-credentials error (never reveals
+     that the account exists-but-unverified — BFG_SECURITY.md §3).
+   - Already-authenticated request to the Auth surface → redirect away (Home /
+     resume onboarding / Verify Email by state); never show the form.
+
+7. States & feedback.
+   - Default · Loading · Error · Success. Loading is inline on the CTA (disabled +
+     calm indicator), fields locked, no full-screen spinner, no layout shift.
+   - Errors are calm, Russian, inline under the field/form — never a toast
+     (BFG_UI_RULES.md §7, §13). Error copy is GENERIC and non-enumerating. No
+     aggressive live validation — validate on submit (server-authoritative), with
+     light native cues only. Rate limits on submit/send/verify with a calm
+     "try later" message that leaks no specifics.
+
+8. UX guards.
+   - No trial / pricing / subscription on auth (D006, D030). No marketing
+     paragraphs / feature lists, no companion Voice line, no onboarding questions
+     inside auth, no dashboard metrics, no bottom navigation, no account-existence
+     leaking. Calm, sentence-case, warm "ты", no exclamation marks, no emoji
+     (BFG_UI_RULES.md §11).
+
+9. Responsive (Adaptive Cinematic Canvas, D075).
+   - Mobile-first 360–430px is the source of truth; no horizontal scroll; the
+     keyboard-closed viewport has no vertical scroll. On tablet the atmosphere /
+     Seed silhouette / side fields may expand while the FORM COLUMN stays capped
+     (readable width, CTA ~320–420px) and centered; never a desktop dashboard.
+     When the soft keyboard is open, the active field and CTA must remain
+     reachable; minimal internal scroll of the form region is allowed only as a
+     keyboard fallback, never as the default.
+
+10. Copy.
+   - D076 approves structure, interaction, states, and copy PRINCIPLES only. No
+     final headline / subtitle / CTA / error copy is locked; all text is a
+     placeholder pending a later copy pass.
+
+Reason:
+A single calm Auth shell preserves the emotional thread from Entry (D074) instead
+of dropping the user into a dry form, while a reduced non-interactive Seed Form
+keeps presence felt without crowding the form on a small viewport. Generic,
+inline, non-enumerating errors honor both the calm tone and the security model.
+One surface with three states keeps the Sign Up → Verify Email → Log In paths a
+frictionless set of toggles on one maintainable shell.
+
+Implementation Status:
+Not Implemented (verify at sync) — Supabase email/password auth and a base
+`auth-input.tsx` exist, but the D074-continuous single Auth surface (shared shell,
+receded Seed Form, three-state Sign Up / Verify Email / Log In, OTP gate, calm
+inline non-enumerating errors, D075 responsive form column) is not built or
+standardized.
+
+Related Documents:
+BFG_UI_RULES.md §2 / §7 / §11 / §21 / §22 (Auth surface);
+ui/BFG_SCREEN_WIREFRAMES.md (Auth section); ui/BFG_ENTRY_AUTH_START_BRIEF.md;
+BFG_SECURITY.md §3; BFG_MVP_SCOPE.md §1 / §2.1; Decisions 006, 030, 074, 075, 077.
+(Password-reset flow: separate future decision — none accepted yet.)
+
+---
+
+# Decision 077
+
+Title:
+Required Email Verification Before Onboarding (MVP)
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+1. Required, before onboarding, inside Auth.
+   - After Sign Up (email + password), the user MUST verify their email before
+     onboarding begins. Verification is a state of the Auth Surface (D076), never
+     part of onboarding. Successful verification → onboarding start. This is a
+     hard-blocking gate on the happy path.
+   - Verification is NEVER placed on the Naming Ceremony or any onboarding screen.
+     The Naming Ceremony must never contain verification fields, password
+     confirmation, legal consent, payment, or subscription fields; it remains
+     purely emotional.
+
+2. OTP code, not magic link.
+   - Verification uses a one-time 6-digit code (OTP) entered in the Verify Email
+     state, keeping the user in the same Auth shell / session. Magic links are not
+     used for this gate (they break session / onboarding context and are less
+     robust on RU email clients).
+
+3. Verify Email state (composition — see D076 §4).
+   - Same Auth shell (receded, non-interactive Seed Form; D075 canvas) → calm
+     heading → "code sent to {email}" line → OTP field → primary verify CTA →
+     quiet "resend code" (with cooldown) → quiet "change email" → calm inline
+     errors. No toast, no red pressure, no companion Voice, no pricing/marketing,
+     no onboarding questions.
+
+4. Fallbacks (required on the blocking path).
+   - Resend code with a visible cooldown (rate-limited).
+   - Change email → returns to Sign Up with the email editable, invalidates the
+     old code, sends a new code (covers the dominant failure: a typo'd address).
+   - Spam-folder guidance in calm copy.
+
+5. Edge cases.
+   - Unverified user logs in with correct credentials → Verify Email state (resend
+     a code). Wrong credentials → generic invalid-credentials error (never leak
+     that the account exists-but-unverified).
+   - Verified user, onboarding unfinished → resume onboarding. Verified user,
+     onboarding done → Home (D071). Already-authenticated user visiting Auth →
+     redirect away (Home / resume onboarding / Verify Email); never show the form.
+
+6. No standing reminder on the happy path.
+   - Because Home is reached only after verification, neither Home (D071) nor
+     Profile shows a standing verification banner in the normal path. Profile
+     surfaces verification only on failure / recovery (e.g., a later email change).
+
+7. Security & tone.
+   - Generic, calm, non-enumerating copy; no account-existence leaking; inline,
+     not toast; no aggressive validation; rate limits on send and verify attempts
+     with a calm "try later" message that leaks no specifics (BFG_SECURITY.md §3,
+     consistent with D076).
+
+8. Delivery dependency (infrastructure).
+   - A blocking gate requires a properly configured, RU-reachable SMTP /
+     transactional email provider (infra/BFG_SUPABASE_STRATEGY.md). This is a
+     launch prerequisite for the blocking model.
+
+9. Grace-degradation contingency (NOT the default).
+   - The hard-blocking model is the default product behavior. Only if RU email
+     delivery cannot be made reliable near launch may the gate degrade to "verify
+     within the first session, soft-allow continue" as an emergency contingency.
+     No first-session grace escape is baked into the normal flow.
+
+10. Forward note.
+   - With verification guaranteed at account creation, future payment /
+     subscription actions (post-MVP, BFG_MVP_SCOPE.md §3.1) inherit a verified
+     email and must NOT introduce a separate surprise verification gate at the
+     payment moment. Password reset remains a separate future decision.
+
+11. Copy.
+   - Structure and principles only; no final copy is locked.
+
+Reason:
+Any deferred-verification model lands its cost at the payment moment — the
+highest-friction, lowest-tolerance step. Requiring verification at account
+creation, when commitment is cheap and the emotional onboarding has not yet begun
+(Entry already delivered the Seed-Form hook, D074), pays a small early cost to
+keep the payment moment clean, guarantees a real address for recovery and future
+billing, and reduces fake signups. Keeping it in the Auth shell as an OTP step
+preserves session continuity and the calm tone.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §22 (Verify Email state); ui/BFG_SCREEN_WIREFRAMES.md (Auth
+section); BFG_SECURITY.md §3; BFG_MVP_SCOPE.md §1 / §2.1 / §3.1 / §5.3;
+infra/BFG_SUPABASE_STRATEGY.md §4; Decisions 006, 030, 074, 075, 076.
+(Password-reset flow and post-MVP payment verification: separate future
+decisions.)
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -2414,9 +2637,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
-| Not Implemented | 48 | 003–006, 008, 014, 024–028, 034, 039–074 |
+| Not Implemented | 50 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077 |
 
-Total decisions: 75.
+Total decisions: 77.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -2457,3 +2680,5 @@ Decisions 072 and 073 (Progress structure + Avatar Customization entry) were acc
 Decision 074 (Entry / Auth Start Screen) was accepted 2026-06-26. It is the first decision covering the **unauthenticated** surface (all prior screen decisions — D039/D042–D069/D071/D072 — are post-auth) and introduces no contradiction: it honors no-Stage-10-early (D010), the single-primary-CTA discipline (D071, D073), no-shame / no-competition framing (D031, D032, "победы" forbidden per BFG_UI_RULES §11), the core-loop-never-gated rule (D030, no trial/pricing on entry), and the Body-never-reaches / under-promise onboarding philosophy (Companion Doctrine §X/§XI). It deliberately keeps the **Seed Form interaction context-scoped** — "On the Entry / Auth Start screen, Seed Form is tap-reactive decoratively but is not a navigation affordance" — and records **no global** clickable / non-clickable rule. D074 is **self-contained**: the first-onboarding Seed Form interaction is governed separately by future onboarding decisions (none accepted today), so D074 forward-references no accepted onboarding decision and invents none; the only onboarding mention is a boundary note (a later onboarding Seed Form must not become a repeated tap target). D074 approves **structure, interaction rules, and copy principles only — not final copy** (current headline/subtitle/CTA variants remain placeholders). One UI follow-up, not a contradiction: the decorative tap-hint must stay within the `BFG_UI_RULES.md §5` motion budget (up to ~600ms, prefers-reduced-motion respected) — recorded for the §5/§13 pass. Recorded in `BFG_UI_RULES.md` §21 (new Entry section) and `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Entry / Auth Start section), with a one-line precedence note added to `BFG_MVP_SCOPE.md §2.1`. Not Implemented. Total decisions: **74**.
 
 Decision 075 (Adaptive Cinematic Canvas Responsive Model) was accepted 2026-06-26. It is **app-wide** (every screen), not specific to any surface, and introduces no contradiction — it **refines `BFG_UI_RULES.md §2`**: the strict "tablet/desktop content capped to 480px centered" rule is replaced by "readable/interactive content is capped, but the atmospheric canvas (glow, rings, ambient space, visual stage, side fields) may expand," with **mobile-first 360–430px remaining the source of truth** and a four-tier ladder (Phone 360–430 / Large-phone–small-tablet 431–600 / Tablet 600–900 / Desktop 900+), and the app never becoming a desktop dashboard. It is consistent with the calm/cinematic non-negotiables (§1, §4, §5) and the single-primary-CTA discipline (D071, D073) — caps apply to CTA width, headline/subtitle line length, form controls, dense blocks, and text size. D075 is the responsive model that D074's Entry brief applies. Recorded in `BFG_UI_RULES.md §2` (rewrite), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (Conventions), and `docs/ui/BFG_ENTRY_AUTH_START_BRIEF.md`. **Partially Implemented** — Chrome already adapts somewhat, but the model is not standardized or verified across screens. Total decisions: **75**.
+
+Decisions 076 and 077 (Sign Up / Log In Auth Surface + Required Email Verification Before Onboarding) were accepted 2026-06-26 and registered together; they define the Auth flow that follows the Entry / Auth Start screen (D074): **Entry → Auth Surface → Onboarding → Home**. They introduce no contradiction. **D076** specifies a single Auth surface with **three states — Sign Up · Verify Email · Log In** — sharing one shell, reached as a real navigation step from Entry (not a modal), continuing the reduced non-interactive Voice-silent Seed Form (D074) and the Adaptive Cinematic Canvas (D075, form column capped while atmosphere may expand), with calm inline **generic non-enumerating** errors (no toast — §7/§13; BFG_SECURITY §3) and no trial/pricing (D006, D030). **D077** makes email verification a **hard-blocking** pre-onboarding gate using a **6-digit OTP** (not a magic link), with required **resend (cooldown)** and **change-email** fallbacks; it forbids any verification/legal/payment field on the Naming Ceremony or any onboarding screen, keeps **no standing Home/Profile verification banner on the happy path** (Home is reached only after verification, so D071 is unchanged), and records that future payments inherit the verified email with **no surprise verification gate at payment time**. The blocking model depends on a **RU-reachable transactional email provider** (infra/BFG_SUPABASE_STRATEGY §4) as a launch prerequisite; the **grace-degradation** fallback is an emergency contingency only, **not** the default flow. The password-reset flow and post-MVP payment-verification enforcement remain **separate future decisions**. Recorded in `BFG_UI_RULES.md §22` (new Auth section), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Auth section: Sign Up / Verify Email / Log In), `BFG_MVP_SCOPE.md` (§1/§2.1/§3.1/§5.3 — auth path now Sign Up → Verify Email → Onboarding → Home), `BFG_SECURITY.md §3` (light note), and `infra/BFG_SUPABASE_STRATEGY.md §4` (launch prerequisite). Both Not Implemented. Total decisions: **77**.

@@ -52,6 +52,7 @@ Rules:
 - Server identity is established via `getUser()` (`lib/auth/get-user.ts`). Server Actions call it first thing.
 - Future OAuth providers must be reachable from Russia without VPN. Google / Apple SSO can be added when the RU-availability check passes.
 - Password reset and email verification go through Supabase's built-in flows.
+- **Email verification is a required, hard-blocking pre-onboarding step** (Decisions 076, 077): after Sign Up the user enters a 6-digit OTP (not a magic link) in the Verify Email auth state before onboarding begins. Feedback is **calm and inline (never a toast)**; error and verification copy is **generic and non-enumerating** (never reveals whether an email is registered, incl. the unverified-account case); **rate limits** apply to send/verify/resend with a calm "try later" message that leaks no specifics. The blocking gate requires a RU-reachable transactional email provider (`infra/BFG_SUPABASE_STRATEGY.md §4`).
 
 ### 3.1 Rules
 - ❌ Never accept a `userId` from the client. Always use `auth.uid()` (server) or `getUser()` (Next server).

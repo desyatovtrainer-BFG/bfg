@@ -13,7 +13,7 @@ The MVP scope is the **smallest BFG that is worth playing**. Anything outside th
 
 The MVP is "shippable" when a real user in Russia, on a mid-range Android phone, without VPN, can:
 
-1. **Sign up** with email + password.
+1. **Sign up** with email + password, **verify the email with a one-time code**, then complete onboarding. The MVP auth/onboarding path is **Sign Up → Verify Email → Onboarding → Home** (Decisions 074, 076, 077). Email verification is a **required, hard-blocking** pre-onboarding OTP gate (D077); final copy is not locked.
 2. **See their dashboard** with their presence (avatar body + companion voice), level, XP, streak.
 3. **Complete a daily quest** and receive XP, with the change visible.
 4. **Open a workout**, watch a Kinescope video for each exercise, mark the workout as completed.
@@ -29,6 +29,7 @@ That's the loop. Everything else is out of MVP.
 
 ### 2.1 Product
 - **Entry / Auth Start screen (Decision 074)** — the unauthenticated first-contact screen that precedes Sign Up: a neutral Seed Form (never Stage 10 / never a default-final avatar), a single primary CTA → Sign Up, a quiet Log In path, no scroll, no trial/pricing. See `BFG_UI_RULES.md §21` / `ui/BFG_SCREEN_WIREFRAMES.md §0`. Final copy is not yet locked (D074 fixes structure and interaction rules only).
+- **Auth surface (Decisions 076, 077)** — one Auth surface with three states (Sign Up · Verify Email · Log In), reached from Entry. The MVP path is **Sign Up → Verify Email → Onboarding → Home**, with a **required, hard-blocking pre-onboarding 6-digit OTP** verification gate (D077, OTP not magic link; resend/change-email fallbacks). No verification/legal/payment field ever appears on the Naming Ceremony or any onboarding screen. See `BFG_UI_RULES.md §22` / `ui/BFG_SCREEN_WIREFRAMES.md §0.1`. The blocking gate requires a RU-reachable transactional email provider (infra) as a launch prerequisite. **Payments/subscriptions remain post-MVP (§3.1), but the verified email is prepared now** so no surprise verification gate appears at payment time. Final copy is not locked.
 - Email/password authentication via Supabase.
 - BFG profile bootstrap on first login.
 - Dashboard screen with their presence (avatar body + companion voice), level, streak.
@@ -138,7 +139,7 @@ If a PR introduces anything in §3.x, the PR must first promote that item in [`B
 ### 5.3 Smoke checklist (manual, before every release)
 See `BFG_SECURITY.md` §release checklist for the full list. Includes:
 
-- Sign up → see dashboard.
+- Sign up → verify email (one-time code) → onboarding → Home/dashboard (D076, D077).
 - Complete a daily quest → XP increases, streak updates.
 - Complete a workout → XP/level/avatar update, the presence speaks.
 - Reload after each action → state persists.

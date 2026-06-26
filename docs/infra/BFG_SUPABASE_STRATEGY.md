@@ -69,6 +69,7 @@ These are binding on every new architecture, storage, auth, and backend decision
 - **Env-based configuration only.** Supabase URL and keys come from env vars. See [`../BFG_SECURITY.md`](../BFG_SECURITY.md) §6.
 - **No hardcoded Supabase project URLs and no Cloud-only assumptions.** Code must not assume the backend is `*.supabase.co`.
 - **Every new backend / storage / auth decision must preserve a realistic migration path to Self-Hosted Supabase.** If a choice only works on Supabase Cloud, it is rejected or gated until a self-hostable equivalent exists.
+- **Reliable RU-reachable transactional email is a launch prerequisite.** Required email verification before onboarding (product Decision 077) is a hard-blocking OTP gate, so a properly configured transactional email provider reachable from Russia must be in place before launch. If delivery cannot be made reliable near launch, the product-side grace-degradation contingency (D077) applies — it is an emergency fallback, not the default.
 
 ---
 

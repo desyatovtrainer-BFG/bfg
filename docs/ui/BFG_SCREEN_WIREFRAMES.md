@@ -4,9 +4,9 @@ First official **Wireframe Layer** for BFG. This document specifies screen *comp
 
 > Source of truth: [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) (decisions win on any conflict) and [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §15–§20. Where this document and a decision disagree, the decision wins and this document must be corrected.
 
-Status: first slice. This pass covers **Entry / Auth Start, Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail, the onboarding flow, and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
+Status: first slice. This pass covers **Entry / Auth Start, Auth Surface (Sign Up / Verify Email / Log In), Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail, the onboarding flow, and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
 
-Last updated: 2026-06-26 (Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
+Last updated: 2026-06-26 (Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
 
 For every screen this document records, in order:
 
@@ -26,7 +26,7 @@ For every screen this document records, in order:
 - Card outline by state (D054): **Default** = blue · **Upcoming** = orange + marker · **In Progress** = green + marker. One state marker per card (D048); In Progress has list-wide priority over Upcoming (D057).
 - "Continue Journey" (the global resume action) lives on **Home**, never on Activity (D043). Home is specified in §8.
 - Session navigation is **swipe-only**, no Next/Previous buttons (D063).
-- The **Entry / Auth Start** screen (§0) is the **unauthenticated** first contact; all other screens here are post-auth (D074).
+- The **Entry / Auth Start** screen (§0) is the **unauthenticated** first contact; all other screens here are post-auth (D074). The **Auth Surface** (§0.1) sits between Entry and Onboarding: **Entry → Auth Surface → Onboarding → Home** (D076, D077).
 
 ---
 
@@ -73,6 +73,89 @@ The **unauthenticated** first-contact screen (D074). Calm, dark, cinematic — n
 
 > **Scope (D074):** §0 governs the Entry / Auth Start screen only. The **onboarding** Seed Form interaction is **outside D074 scope** and is specified separately by future onboarding decisions (none accepted yet); a later onboarding Seed Form must not become a repeated tap target. **No final copy** is approved — headline / subtitle / CTA text above are placeholders; D074 approves structure, interaction rules, and copy principles only.
 > **Forbidden here (D074):** Stage 10 / any evolved or final avatar; a gendered/customized/finished avatar; the Seed Form as a navigation affordance or a second CTA; a second primary CTA; a companion Voice line / chat; trial / subscription / pricing (MVP); feature lists / marketing bullets / testimonials / paragraphs; "победы" / win / competition copy; hype; exclamation marks; all-caps motivational headline; casino-style motion; any scroll; emoji.
+
+---
+
+# 0.1 Auth Surface — Sign Up / Verify Email / Log In
+
+The Auth flow between Entry (§0) and Onboarding (D076, D077). **One Auth surface, three states — Sign Up · Verify Email · Log In — sharing one shell**, reached as a real navigation step from Entry (not a modal). Flow: **Entry → Auth Surface → Onboarding → Home.** Mobile-first 360–430px, **no scroll** with the keyboard closed; the reduced **Seed Form** continues as a non-interactive background glow/silhouette (Voice-silent, not tappable). Email verification is a **required, hard-blocking** pre-onboarding **OTP** gate (D077).
+
+**State A — Sign Up**
+```
+┌─────────────────────────────┐
+│ ‹ back            BFG.        │  minimal top bar: back → Entry (D074); brand mark
+│                             │  (receded Seed Form glow behind, non-interactive)
+│   [heading — placeholder]   │  one calm line, sentence case
+│   Почта                     │  email (type=email, autocomplete=email)
+│   [______________________]  │
+│   Пароль                ◡   │  password + show/hide (autocomplete=new-password)
+│   [______________________]  │
+│   ┌─────────────────────┐   │
+│   │   [Primary CTA]      │   │  single primary → create account (capped ~320–420)
+│   └─────────────────────┘   │
+│   Уже есть аккаунт? Войти    │  quiet switch → Log In
+│   [legal/privacy line]      │  one quiet line (Terms/Privacy), links only, if required
+└─────────────────────────────┘
+   success → Verify Email (never straight to onboarding)
+```
+
+**State B — Verify Email (required gate, D077)**
+```
+┌─────────────────────────────┐
+│ ‹ back            BFG.        │
+│   [heading — placeholder]   │  calm, e.g. "подтверди почту"
+│   Код отправлен на {email}  │  "code sent to {email}" line
+│   [ _ _ _  _ _ _ ]          │  6-digit OTP field
+│   ┌─────────────────────┐   │
+│   │   [Verify CTA]       │   │  primary → verify
+│   └─────────────────────┘   │
+│   Отправить код ещё раз (30s)│  quiet resend with visible cooldown
+│   Изменить почту            │  quiet change-email → back to Sign Up (email editable)
+│   [inline error — calm]     │  generic, non-enumerating, never a toast
+└─────────────────────────────┘
+   correct OTP → ONBOARDING START
+```
+
+**State C — Log In**
+```
+┌─────────────────────────────┐
+│ ‹ back            BFG.        │
+│   [heading — placeholder]   │
+│   Почта                     │  email (autocomplete=email)
+│   [______________________]  │
+│   Пароль                ◡   │  password + show/hide (autocomplete=current-password)
+│   [______________________]  │
+│   Забыли пароль?            │  quiet link → Supabase reset email (entry only; reset flow = future decision)
+│   ┌─────────────────────┐   │
+│   │   [Primary CTA]      │   │  single primary → войти
+│   └─────────────────────┘   │
+│   Нет аккаунта? Создать      │  quiet switch → Sign Up
+└─────────────────────────────┘
+```
+
+**1. Goal:** create an account (with a verified email) or sign back in, in a calm shell continuous with Entry — then hand off to onboarding (Sign Up) or route an existing user home/onboarding (Log In).
+
+**2. Composition top → bottom:** minimal top bar (back → Entry) → brand mark + receded Seed Form → state body (fields / OTP) → single primary CTA → quiet secondary action(s).
+
+**3. Primary visual accent:** the single primary CTA of the active state. The Seed Form is atmosphere, never the accent here.
+
+**4. Secondary element:** the quiet switch / resend / change-email / forgot-password links; the receded Seed Form glow.
+
+**5. User action:** Sign Up (email + password) → Verify Email; enter the 6-digit OTP → onboarding; or Log In. Resend (cooldown) / change email are the Verify Email fallbacks. Errors are calm, inline, generic, non-enumerating (never a toast).
+
+**6. Destination after the action:**
+- Sign Up success → **Verify Email** (§0.1 State B).
+- Verify Email correct OTP → **Onboarding start** (onboarding flow specified separately).
+- Log In, verified + onboarding done → **Home** (§8).
+- Log In, verified + onboarding unfinished → **resume onboarding**.
+- Log In, unverified + correct credentials → **Verify Email**.
+- Log In, wrong credentials → **generic invalid-credentials error** (stay on Log In).
+- Already-authenticated visit → **redirect** (Home / resume onboarding / Verify Email); never the form.
+
+**Tablet (D075):** same centered, capped form column; the Seed silhouette / glow / side fields expand as atmosphere around it. No extra panels, no dashboard.
+
+> **Scope (D077):** verification lives **only** in the Verify Email auth state. **No verification, password-confirmation, legal-consent, payment, or subscription field appears on the Naming Ceremony or any onboarding screen** — the Naming Ceremony stays purely emotional. Home is reached only after verification, so there is **no standing Home/Profile verification banner on the happy path** (Profile surfaces verification only on failure / recovery). The blocking gate depends on a RU-reachable transactional email provider (infra/BFG_SUPABASE_STRATEGY §4); grace-degradation is an emergency contingency only, not the default.
+> **Forbidden here (D076, D077):** trial / subscription / pricing; marketing paragraphs / feature lists / testimonials; companion Voice line / chat; onboarding questions; dashboard metrics; bottom navigation; the Seed Form as central / interactive / tappable; aggressive live red validation; toast as primary feedback; account-existence-leaking errors; hype; exclamation marks; all-caps headings; casino-style motion; emoji; horizontal scroll; default-state vertical scroll (keyboard closed); a separate tablet/desktop layout with extra content. **No final copy is locked** — all text above is placeholder.
 
 ---
 
@@ -464,7 +547,7 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ## Decisions referenced
 
-**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
+**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
 
 ## Out of scope for this slice (later wireframe passes)
 
