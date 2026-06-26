@@ -21,7 +21,7 @@ For every screen this document records, in order:
 
 ## Conventions
 
-- Mobile-first frame, 360–430px, dark/calm (BFG_UI_RULES §1).
+- Mobile-first frame, 360–430px, dark/calm (BFG_UI_RULES §1). These wireframes are **mobile-first** and describe the 360–430px source-of-truth structure; on tablet the **cinematic canvas may expand** (atmosphere/glow/rings/side fields scale up) while readable/interactive content stays capped and centered — the app never becomes a desktop dashboard (Adaptive Cinematic Canvas, **Decision 075** / BFG_UI_RULES §2).
 - Workout card content = **Workout Number · Workout Title · Exercise Count** only (D045, D055, D068).
 - Card outline by state (D054): **Default** = blue · **Upcoming** = orange + marker · **In Progress** = green + marker. One state marker per card (D048); In Progress has list-wide priority over Upcoming (D057).
 - "Continue Journey" (the global resume action) lives on **Home**, never on Activity (D043). Home is specified in §8.
@@ -464,7 +464,7 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ## Decisions referenced
 
-**D074 (Entry / Auth Start Screen)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
+**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
 
 ## Out of scope for this slice (later wireframe passes)
 

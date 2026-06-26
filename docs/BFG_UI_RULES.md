@@ -23,7 +23,17 @@ Practical UI engineering rules for BFG: a mobile-first, dark, cinematic, calm in
 ## 2. Layout
 
 - Root container width on mobile: full viewport, 16px gutters.
-- Max content width on tablet/desktop: 480px centered. We are not designing a desktop dashboard.
+
+### Adaptive Cinematic Canvas (Decision 075)
+
+BFG is **mobile-first, not mobile-only**, and this model is **app-wide** (every screen). It **refines** the previous "max content width 480px centered on tablet/desktop" rule: the strict 480px-everywhere cap is replaced by **readable content is capped, but the atmospheric canvas may expand.** Mobile-first remains the source of truth and the app never becomes a desktop dashboard.
+
+- **Source of truth.** The **360–430px** phone layout decides structure and hierarchy on every screen.
+- **Atmosphere expands on wider screens.** Atmospheric / background elements MAY expand: glow, rings, ambient space, the visual stage, side fields, and large visual presence areas where appropriate.
+- **Readable / interactive elements stay capped.** Headline / subtitle line length, **CTA width, form controls, dense content blocks, and text size** remain capped and centered. Text and buttons must **not** scale endlessly with viewport width.
+- **Same app, not two products.** Tablet is a valid, intentional case — an expanded cinematic canvas, not a separate tablet layout with extra content. Desktop Chrome shows a **centered app / cinematic canvas**, never desktop-dashboard content.
+- **Responsive tiers:** **Tier 1 Phone 360–430px** (source of truth) · **Tier 2 Large phone / small tablet 431–600px** (slightly expanded spacing) · **Tier 3 Tablet 600–900px** (expanded cinematic canvas, central content preserved) · **Tier 4 Desktop Chrome 900px+** (centered app / cinematic canvas, no desktop dashboard).
+
 - Bottom navigation bar is the primary nav inside `(app)`. Top app bars are minimal — a title or a back arrow, nothing else.
 - Safe-area aware: respect `env(safe-area-inset-bottom)` for the bottom nav, especially on iOS PWAs.
 - No fixed footers other than the bottom nav.
@@ -318,6 +328,7 @@ The MVP rules for the first **unauthenticated** screen (Decision 074). This sect
 **Composition, top → bottom (Decision 074):** Minimal brand mark → **Seed Form (First Presence Form)** in the optical center → calm headline (+ optional one-line subtitle) → **single primary CTA** → quiet secondary Log In link.
 
 - **No scroll.** The entire screen fits the initial viewport on mobile-first 360–430px (§1). Nothing lives below the fold; the screen is the source-of-truth frame.
+- **Responsive (Adaptive Cinematic Canvas, §2 / Decision 075).** No scroll is **mandatory** on the phone viewport (and should also hold on larger tiers). On tablet the **Seed Form and atmosphere (glow / rings / side fields / visual stage) may scale up moderately**; the **headline / subtitle stay capped and centered** and the **primary CTA stays capped (~320–420px)**. Do not force the screen into a narrow ~480px strip when the viewport supports a richer stage, and do not build a separate tablet/desktop layout with extra content.
 - **Seed Form — visual center, non-final.** A neutral, unfinished **pre-presence**: not gendered, not customized, **never a default/final avatar, never Stage 10 or any evolved form** (Decision 010). It is a *pre-figuration* of the Presence, **not** the user's avatar — the default avatar is received only after onboarding. It is **alive but minimal** (breathing + subtle glow, the MVP Body floor — §5, BFG_PRESENCE_RESPONSE_SYSTEM §7) and **Voice-silent**: the first-ever Presence Voice moment belongs to the first session after account creation (BFG_PRESENCE_RESPONSE_SYSTEM §4) and must not be spent here.
 - **Seed Form interaction is context-scoped — no global rule.** On the Entry / Auth Start screen, **Seed Form is tap-reactive decoratively but is not a navigation affordance** (Decision 074). The tap **does not** navigate, open auth, open onboarding, open customization, show Voice/companion text, or show any modal / tooltip / text hint, and **never becomes a second CTA**. The permitted tap response is a **decorative path hint only**: softly stir / pulse / brighten the Seed Form, send a subtle glow / path toward the primary CTA, and/or softly highlight the primary CTA — a **short, calm moment within the existing motion budget** (§5 / §13 — up to ~600ms, `prefers-reduced-motion` respected, degrading to a static emphasis), never casino-style, never marketing.
   - **Onboarding boundary (note only).** Onboarding Seed Form behavior is **outside §21 / Decision 074 scope** and is specified separately by future onboarding decisions (none accepted today). Boundary note: a later onboarding Seed Form must **not** become a repeated tap target. This section neither defines nor overrides any onboarding Seed Form interaction.

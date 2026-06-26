@@ -59,6 +59,7 @@ Optimized for agents starting cold: read this file first, then go to the one doc
 | `BFG_SECURITY.md` | Security rules, RLS contract, anti-cheat, service-role constraints, release checklist. |
 | `BFG_DATABASE.md` | Schema reference (all tables, columns, RLS), migration discipline, identifier conventions. |
 | `BFG_UI_RULES.md` | Animation budget, motion rules, layout constraints, tone of visual design. |
+| `ui/BFG_ENTRY_AUTH_START_BRIEF.md` | Implementation brief for the D074 Entry / Auth Start screen, applying D075 responsive canvas rules. |
 
 ### Systems
 

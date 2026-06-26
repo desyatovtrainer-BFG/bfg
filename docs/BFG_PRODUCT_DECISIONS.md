@@ -2271,6 +2271,74 @@ future onboarding decisions — none accepted yet.)
 
 ---
 
+# Decision 075
+
+Title:
+Adaptive Cinematic Canvas Responsive Model
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+BFG's responsive model is **mobile-first, not mobile-only**. This decision is
+app-wide (every screen), not specific to any one surface.
+
+1. Source of truth.
+   - The 360–430px phone layout remains the source of truth for structure and
+     hierarchy on every screen.
+
+2. Tablet is valid and intentional.
+   - Tablet use is a valid, first-class case and must look intentional — an
+     expanded cinematic canvas, never an afterthought and never a separate tablet
+     product. The layout must feel like the same app across phone and tablet.
+   - The app must NOT become a desktop dashboard at any width.
+
+3. Atmosphere expands; readable content stays capped.
+   - On wider screens, atmospheric / background elements MAY expand: glow, rings,
+     ambient space, the visual stage, side fields, and large visual presence areas
+     where appropriate.
+   - Readable and interactive elements REMAIN capped: headline / subtitle line
+     length, CTA width, form controls, dense content blocks, and text size. Text
+     and buttons must not scale endlessly with viewport width.
+   - Desktop Chrome may show a centered app / cinematic canvas but must not
+     introduce desktop-dashboard content.
+
+4. Responsive tiers.
+   - Tier 1 — Phone: 360–430px — source of truth.
+   - Tier 2 — Large phone / small tablet: 431–600px — slightly expanded spacing.
+   - Tier 3 — Tablet: 600–900px — expanded cinematic canvas, central content
+     preserved.
+   - Tier 4 — Desktop Chrome: 900px+ — centered app / cinematic canvas, no desktop
+     dashboard.
+
+5. Refinement of the prior BFG_UI_RULES.md §2 rule.
+   - This decision explicitly **refines** the old §2 rule that capped tablet /
+     desktop content to a fixed 480px-centered column. The strict "everything is
+     capped to 480px" reading is replaced: **readable content is capped, but the
+     atmospheric canvas may expand.** Mobile-first remains the source of truth.
+
+Reason:
+The 480px-everywhere cap made tablet and desktop feel like a narrow phone strip
+in a wide empty frame, which contradicts BFG's calm, cinematic intent. Letting
+the atmosphere breathe on larger viewports while holding readable/interactive
+elements to legible, thumb-friendly caps keeps one coherent app across devices
+without drifting into a desktop dashboard.
+
+Implementation Status:
+Partially Implemented — current layouts already adapt somewhat in Chrome, but the
+adaptive cinematic canvas model is not yet standardized or verified across
+screens.
+
+Related Documents:
+BFG_UI_RULES.md §2 (adaptive cinematic canvas model); ui/BFG_SCREEN_WIREFRAMES.md
+(Conventions); ui/BFG_ENTRY_AUTH_START_BRIEF.md (D074 application of this model);
+Decisions 074, 071, 072.
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -2345,10 +2413,10 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 | Status | Count | Decisions |
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
-| Partially Implemented | 9 | 002, 007, 009, 016, 022, 035, 036, 037, 038 |
+| Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
 | Not Implemented | 48 | 003–006, 008, 014, 024–028, 034, 039–074 |
 
-Total decisions: 74.
+Total decisions: 75.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -2387,3 +2455,5 @@ Decision 071 (Final Home Product Structure) was accepted 2026-06-25 and **finali
 Decisions 072 and 073 (Progress structure + Avatar Customization entry) were accepted 2026-06-26 and registered together; they were prepared via a web-verified benchmark of Progress/Profile/Achievement/Identity surfaces (Duolingo, Strava, Apple Fitness, Fitbit, Garmin, Whoop, Oura, Habitica, Steam, Fitbod/Freeletics/NTC). They introduce no contradiction. **D072** finalizes and **refines D008** (Progress block hierarchy) and completes the D005 Avatar+Progress+Profile merge: it fixes the three-block structure (Primary identity / Secondary progression / Additional archive), standardizes "Presence" on Progress as a **static, non-interactive identity portrait** (not a large render, not Home's living center), places Achievements inside the Additional block (MVP earned shelf → Post-MVP Constellations, D026), and names the D070 Progress-memory participants (XP / Level / Stage). **D073 refines D071** by defining the previously-undefined Home Presence interaction: tapping the Living Presence opens Avatar Customization (the primary, MVP-only customization entry; an affordance on the Presence, not a second CTA), and establishes a **single shared avatar visual state** read by both the Home live Presence and the Progress static portrait (Decision 001 at the rendering layer) — making Home↔Progress visual parity a correctness property. D073 deliberately separates the **entry model** (accepted now) from **customization catalog depth** (scoped later, may be MVP or Post-MVP); cosmetics/currency stay governed by D029/D034. Recorded in `BFG_UI_RULES.md` §15 (Home tap) and the new §20 (Progress), with the Progress wireframe added to `docs/ui/BFG_SCREEN_WIREFRAMES.md`. Both Not Implemented. Total decisions: **73**.
 
 Decision 074 (Entry / Auth Start Screen) was accepted 2026-06-26. It is the first decision covering the **unauthenticated** surface (all prior screen decisions — D039/D042–D069/D071/D072 — are post-auth) and introduces no contradiction: it honors no-Stage-10-early (D010), the single-primary-CTA discipline (D071, D073), no-shame / no-competition framing (D031, D032, "победы" forbidden per BFG_UI_RULES §11), the core-loop-never-gated rule (D030, no trial/pricing on entry), and the Body-never-reaches / under-promise onboarding philosophy (Companion Doctrine §X/§XI). It deliberately keeps the **Seed Form interaction context-scoped** — "On the Entry / Auth Start screen, Seed Form is tap-reactive decoratively but is not a navigation affordance" — and records **no global** clickable / non-clickable rule. D074 is **self-contained**: the first-onboarding Seed Form interaction is governed separately by future onboarding decisions (none accepted today), so D074 forward-references no accepted onboarding decision and invents none; the only onboarding mention is a boundary note (a later onboarding Seed Form must not become a repeated tap target). D074 approves **structure, interaction rules, and copy principles only — not final copy** (current headline/subtitle/CTA variants remain placeholders). One UI follow-up, not a contradiction: the decorative tap-hint must stay within the `BFG_UI_RULES.md §5` motion budget (up to ~600ms, prefers-reduced-motion respected) — recorded for the §5/§13 pass. Recorded in `BFG_UI_RULES.md` §21 (new Entry section) and `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Entry / Auth Start section), with a one-line precedence note added to `BFG_MVP_SCOPE.md §2.1`. Not Implemented. Total decisions: **74**.
+
+Decision 075 (Adaptive Cinematic Canvas Responsive Model) was accepted 2026-06-26. It is **app-wide** (every screen), not specific to any surface, and introduces no contradiction — it **refines `BFG_UI_RULES.md §2`**: the strict "tablet/desktop content capped to 480px centered" rule is replaced by "readable/interactive content is capped, but the atmospheric canvas (glow, rings, ambient space, visual stage, side fields) may expand," with **mobile-first 360–430px remaining the source of truth** and a four-tier ladder (Phone 360–430 / Large-phone–small-tablet 431–600 / Tablet 600–900 / Desktop 900+), and the app never becoming a desktop dashboard. It is consistent with the calm/cinematic non-negotiables (§1, §4, §5) and the single-primary-CTA discipline (D071, D073) — caps apply to CTA width, headline/subtitle line length, form controls, dense blocks, and text size. D075 is the responsive model that D074's Entry brief applies. Recorded in `BFG_UI_RULES.md §2` (rewrite), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (Conventions), and `docs/ui/BFG_ENTRY_AUTH_START_BRIEF.md`. **Partially Implemented** — Chrome already adapts somewhat, but the model is not standardized or verified across screens. Total decisions: **75**.
