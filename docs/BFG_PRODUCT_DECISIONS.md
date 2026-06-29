@@ -2599,13 +2599,15 @@ ONLY after email verification succeeds (D077) and ends by handing off to Home
      time as the Seed Form; carries the first-ever Presence Voice moment
      (BFG_PRESENCE_RESPONSE_SYSTEM.md §4); no inputs, one forward action. Still
      neutral/unformed — not the default avatar, never Stage 10 (D010, D074).
-   - S2 Goal + Sex: the Presence frames Goal first (single-select), then Sex
-     (single-select), same screen. Sex is a Program-assignment key (D061); Goal is
-     not (item 4).
+   - S2 Goal + Sex: the Presence frames Goal first, then Sex, same screen. Goal is
+     multi-select (≥1) and Sex is single-select per D079 (this refines the earlier
+     "single-select" wording for Goal). Sex is a Program-assignment key (D061);
+     Goal is not (item 4).
    - S3 Fitness Level + Environment / Home-Gym: same screen; the Presence frames
-     both. Environment = Training Format (Home/Gym, D061). The Presence shows the
-     first subtle formation beat reflecting S2 answers — still not the final
-     default avatar.
+     both. Environment = Training Format (Home/Gym, D061). D081 adds a conditional
+     Weekly Frequency question to S3 (shown only after Experience and Training
+     Format are selected). The Presence shows the first subtle formation beat
+     reflecting S2 answers — still not the final default avatar.
    - S4 Default Avatar + Naming Ceremony: the Presence is now the Stage-1 Default
      Avatar; it receives its name from the user. The emotional completion of the
      dialogue and the final screen before Home; purely emotional.
@@ -2693,7 +2695,251 @@ BFG_UI_RULES.md §23 (Onboarding); ui/BFG_SCREEN_WIREFRAMES.md (Onboarding secti
 BFG_MVP_SCOPE.md §1 / §2.1; companion/BFG_Companion_Doctrine.md §XI;
 BFG_PRESENCE_RESPONSE_SYSTEM.md §4; fitness/BFG_PROGRAM_ARCHITECTURE.md §4;
 Decisions 001, 010, 059, 061, 071, 073, 074, 076, 077. (Option taxonomies, avatar
-art, final copy: separate content/art decisions.)
+art, final copy: separate content/art decisions — D079.)
+
+---
+
+# Decision 079
+
+Title:
+MVP Onboarding Screen Copy and Answer Taxonomies
+
+Category:
+UX / Content Taxonomy
+
+Status:
+Accepted
+
+Decision:
+Defines the MVP onboarding screen copy (S1–S4), answer taxonomies, internal enum
+values, validation, what affects Program Assignment, and what may affect avatar
+direction. It builds on D078 (structure) and does NOT redesign the flow. It does
+NOT define final avatar art, code, database schema, or animation detail beyond
+basic trigger behavior. Russian copy follows BFG_UI_RULES §11 (warm "ты", calm, no
+hype, no shame, no emoji).
+
+1. S1 — Seed Form / First Meeting.
+   - Initial state: the Seed Form is visible with NO text and NO CTA.
+   - Trigger: the user taps the Seed Form, OR 2–3 seconds of inactivity pass.
+   - After trigger the Presence says: "Давай сделаем первый шаг. / Я помогу тебе
+     начать." CTA: [Продолжить]. No answer choice on S1; the reply is pressing
+     [Продолжить]. Destination: S2.
+
+2. S2 — Goal + Hero/Heroine.
+   - Copy: "Сейчас выберем направление и подстроим тренировки под тебя. / Пара
+     ответов — и я пойму, с чего нам начать."
+   - Q1 "Какой результат тебе сейчас важен?" — Goal, MULTI-select (≥1, may select
+     several or all). Options/enums: Снижение веса `weight_loss` · Наращивание
+     мышечной массы `muscle_gain` · Улучшение выносливости `endurance` · Общая
+     физическая форма `general_fitness` · Рекомпозиция тела `body_recomposition`.
+     Goal does NOT drive MVP Program Assignment; it may affect future Presence
+     tone, personalization, quest tone, and future avatar starting-form direction
+     (Post-MVP). Goal is editable later in Profile (D080).
+   - Q2 "Герой или героиня — чью главу мы открываем?" — single-select. Options/
+     enums: Герой `male` · Героиня `female`. `male`/`female` are internal system
+     values; UI labels are "Герой"/"Героиня"; no "(М)"/"(Ж)" markers. Drives
+     Program Assignment AND basic Stage-1 avatar direction; framed as opening a
+     story path, not identity policing; editable later in Profile (D080).
+   - Helper line: "Информацию можно будет изменить позже в разделе «Профиль»."
+   - CTA [Продолжить] active only when ≥1 Goal AND Hero/Heroine are selected.
+
+3. S3 — Experience + Training Format + Conditional Weekly Frequency.
+   - Copy (before frequency): "Мне нужно понять, какая нагрузка подойдёт тебе
+     сейчас. / И где ты будешь тренироваться."
+   - Q1 "Какой уровень тебе ближе?" — Experience, single-select. Options/enums:
+     Только начинаю `beginner` · Тренируюсь менее года `intermediate` · Тренируюсь
+     регулярно больше года `advanced`. Framed as current training background, not
+     worth/identity; no shame language.
+   - Q2 "Где будешь тренироваться?" — Training Format, single-select. Options/
+     enums: Дома `home` · В зале `gym`.
+   - Conditional Weekly Frequency (governed by D081): hidden until BOTH Experience
+     and Training Format are selected — no question, no hint, no placeholder before
+     then. After both are selected, "Сколько раз в неделю тебе удобно
+     тренироваться?" shows ONLY the allowed options for the chosen Experience ×
+     Training Format (D081). Enums: `two_per_week` (2) · `three_per_week` (3) ·
+     `four_per_week` (4). If Experience or Training Format changes after a
+     frequency was chosen, an invalid frequency is cleared and the options
+     refresh. Editable later in Profile (D080).
+   - Helper line: "Информацию можно будет изменить позже в разделе «Профиль»."
+   - CTA [Продолжить] active only when Experience, Training Format, and Weekly
+     Frequency are all selected.
+   - The user never sees internal labels (full body, split, program family,
+     program variant, assignment key) — only level, place, frequency.
+
+4. Silent Program Assignment after S3 (D081 / D061).
+   - The system silently determines the active Program Family / Program Variant
+     from sex × fitness_level × training_format × weekly_frequency plus the
+     Home/Gym content model (D081). No program-preview screen, no visible loading
+     screen, no "creating your program" screen, no manual program/workout choice.
+     Goal and Avatar Name never drive Program Assignment.
+
+5. S4 — Default Avatar + Naming Ceremony.
+   - Copy: "Путь выбран. / Осталось выбрать имя." (gender-neutral — avoids
+     выбрал/выбрала branching by Hero/Heroine.) Input [Имя]; CTA [Продолжить].
+   - Mandatory: S4 cannot be skipped; there is no [Пропустить]; a valid name is
+     required; [Продолжить] is inactive until a valid name is entered. After
+     [Продолжить], onboarding is complete and the user enters Home. A future
+     suggested/default name does not make S4 skippable — the user still confirms.
+   - Avatar Name is editable later in Profile (D080) and never affects Program
+     Assignment, XP, Level, Stage, Streak, Workout History, Weight History, or
+     Avatar Progression.
+   - The basic Stage-1 default avatar appears on S4; its direction is from
+     Hero/Heroine. Future avatar starting-form direction may use Goal signals
+     (Post-MVP only); final avatar art is not locked here.
+
+6. Tone guard (Goal → future avatar direction).
+   - Goal is not "meaningless": Post-MVP it may become a gentle visual signal for
+     the avatar's starting-form direction (examples, future intent only): weight
+     loss → slightly softer starting form; muscle gain → slightly slimmer/less
+     muscular starting form; recomposition → balanced/neutral. Never framed as
+     shame, punishment, "bad/ugly/failed/unhealthy/inferior" body; no body-negative
+     or before/after-humiliation copy; gentle variation only. Multi-goal visual
+     resolution is deferred (not locked here). MVP does not change the avatar by
+     Goal yet.
+
+Reason:
+Locking calm, benchmark-aligned copy and a small structured taxonomy keeps
+onboarding short and Presence-led, supplies exactly the keys the Program model
+needs (sex, fitness_level, training_format, weekly_frequency), keeps Goal as
+emotional framing rather than a hidden selector, and preserves a required Naming
+Ceremony — without locking avatar art, schema, or implementation.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §23; ui/BFG_SCREEN_WIREFRAMES.md §0.2; BFG_MVP_SCOPE.md §1 / §2.1;
+fitness/BFG_PROGRAM_ARCHITECTURE.md §4; Decisions 059, 061, 074, 077, 078, 080,
+081. (Final avatar art direction, DB schema, and broader identity options:
+separate future decisions.)
+
+---
+
+# Decision 080
+
+Title:
+Editable Onboarding Inputs After Onboarding
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+The user can change key onboarding inputs after onboarding, preliminarily in
+Profile (exact Profile UI placement finalized later). No input change ever resets
+progression: editing never resets XP, Level, Stage, Streak, Workout History,
+Weight History, or Avatar Progression.
+
+Editable inputs and their effects:
+- Goal (D079): does NOT affect MVP Program Assignment; may affect future Presence
+  tone, personalization, quest tone, and future avatar visual direction (immediate
+  avatar change not locked — future avatar/art decision).
+- Hero/Heroine / Sex (D079): changes Program Assignment and basic avatar
+  direction; follows Program Replacement logic where applicable (D061/D081).
+- Experience (fitness_level): changes Program Assignment / Program Family /
+  Program Variant (D081).
+- Training Format: changes Program Assignment / Program Family / Program Variant
+  (D081).
+- Weekly Frequency: changes weekly training volume and may change Program Variant;
+  for Home, may change how many workouts from the shared home family are active;
+  for Gym, may switch to a valid frequency-specific authored variant (D081).
+- Avatar Name (D079): editable; does not affect Program Assignment.
+
+Reason:
+Onboarding answers are logistical, not permanent commitments; letting the user
+adjust them later (without ever penalizing progression) keeps the product calm and
+honest and matches the no-shame / no-ledger philosophy (D031, D038).
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §23; BFG_MVP_SCOPE.md §2.1; fitness/BFG_PROGRAM_ARCHITECTURE.md §4
+/ §7 (Program Replacement); Decisions 006, 040, 041, 059, 061, 078, 079, 081.
+
+---
+
+# Decision 081
+
+Title:
+Conditional Weekly Frequency and Program Family Model
+
+Category:
+Fitness System
+
+Status:
+Accepted
+
+Decision:
+Refines D061 (Program Architecture) and extends D078 S3 by adding a conditional
+Weekly Frequency input and a Program Family / Program Variant model. The user only
+ever sees simple onboarding questions (level, place, frequency) — never the
+internal model.
+
+1. Conditional Weekly Frequency (S3).
+   - Weekly Frequency is selected on S3 only AFTER Experience and Training Format
+     are selected. Before that: no frequency question, no hint, no placeholder.
+     After: only the allowed options for the chosen Experience × Training Format
+     appear. Changing Experience or Training Format clears an now-invalid frequency
+     and refreshes the options. Enums: `two_per_week` · `three_per_week` ·
+     `four_per_week`.
+
+2. Program Family / Program Variant.
+   - A Program Family is the trainer-authored content family selected by user
+     attributes. A Program Variant may exist when different weekly frequencies
+     require distinct authored structure. These terms are internal — never shown to
+     the user (nor "full body" / "split" / "assignment key").
+
+3. Home content model.
+   - Home may use a shared, scalable 4-workout home family for MVP. The selected
+     frequency determines how many of the 4 workouts are active in the weekly
+     cycle (Home can support 2, 3, or 4). Home does not need separate authored
+     programs per experience if the trainer judges the shared family safe and
+     valid — keeping MVP content workload manageable.
+
+4. Gym content model.
+   - Beginner + Gym: allowed frequency 2 or 3 / week; full-body logic (user never
+     sees "full body").
+   - Intermediate + Gym: allowed frequency 2 or 3 / week; more complex than
+     beginner; may require frequency-specific authored variants.
+   - Advanced + Gym: allowed frequency 3 or 4 / week; the 3-day and 4-day split
+     variants must be separate valid authored variants — a 4-day split must NOT be
+     truncated into a 3-day split where that breaks the program. The trainer
+     controls authored content.
+
+5. Program Assignment keys.
+   - Program Assignment now accounts for sex × fitness_level × training_format ×
+     weekly_frequency, plus the Home/Gym content model. Goal does NOT drive
+     Program Assignment; Avatar Name does NOT drive Program Assignment.
+
+6. Editing after onboarding.
+   - Changing Sex / Experience / Training Format / Weekly Frequency after
+     onboarding triggers Program Replacement / Variant recalculation (D061 §7,
+     D080) WITHOUT resetting XP, Level, Stage, Streak, Workout History, Weight
+     History, or Avatar Progression. On replacement the pointer resets to Workout 1
+     of the new Program/Variant (D059), and an in-progress workout is not cancelled
+     (D058).
+
+7. Content-workload guard.
+   - The model deliberately reduces trainer workload: do not require 24 fully
+     independent monthly programs where Program Families and scalable Home content
+     can absorb the variation. But do not fake scalability for gym split programs
+     where truncation would be unsafe or poor training design.
+
+Reason:
+Adding frequency conditionally (only once it is meaningful) keeps S3 calm and
+avoids choice before context, while the Family/Variant model captures real training
+reality — Home scales cleanly, gym splits do not — without exposing internal
+structure to the user or exploding authored content into 24 separate programs.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+fitness/BFG_PROGRAM_ARCHITECTURE.md §3 / §4 / §6 / §7; BFG_UI_RULES.md §23;
+ui/BFG_SCREEN_WIREFRAMES.md §0.2; Decisions 046, 058, 059, 061, 078, 079, 080.
 
 ---
 
@@ -2772,9 +3018,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
-| Not Implemented | 51 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078 |
+| Not Implemented | 54 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081 |
 
-Total decisions: 78.
+Total decisions: 81.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -2819,3 +3065,5 @@ Decision 075 (Adaptive Cinematic Canvas Responsive Model) was accepted 2026-06-2
 Decisions 076 and 077 (Sign Up / Log In Auth Surface + Required Email Verification Before Onboarding) were accepted 2026-06-26 and registered together; they define the Auth flow that follows the Entry / Auth Start screen (D074): **Entry → Auth Surface → Onboarding → Home**. They introduce no contradiction. **D076** specifies a single Auth surface with **three states — Sign Up · Verify Email · Log In** — sharing one shell, reached as a real navigation step from Entry (not a modal), continuing the reduced non-interactive Voice-silent Seed Form (D074) and the Adaptive Cinematic Canvas (D075, form column capped while atmosphere may expand), with calm inline **generic non-enumerating** errors (no toast — §7/§13; BFG_SECURITY §3) and no trial/pricing (D006, D030). **D077** makes email verification a **hard-blocking** pre-onboarding gate using a **6-digit OTP** (not a magic link), with required **resend (cooldown)** and **change-email** fallbacks; it forbids any verification/legal/payment field on the Naming Ceremony or any onboarding screen, keeps **no standing Home/Profile verification banner on the happy path** (Home is reached only after verification, so D071 is unchanged), and records that future payments inherit the verified email with **no surprise verification gate at payment time**. The blocking model depends on a **RU-reachable transactional email provider** (infra/BFG_SUPABASE_STRATEGY §4) as a launch prerequisite; the **grace-degradation** fallback is an emergency contingency only, **not** the default flow. The password-reset flow and post-MVP payment-verification enforcement remain **separate future decisions**. Recorded in `BFG_UI_RULES.md §22` (new Auth section), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Auth section: Sign Up / Verify Email / Log In), `BFG_MVP_SCOPE.md` (§1/§2.1/§3.1/§5.3 — auth path now Sign Up → Verify Email → Onboarding → Home), `BFG_SECURITY.md §3` (light note), and `infra/BFG_SUPABASE_STRATEGY.md §4` (launch prerequisite). Both Not Implemented. Total decisions: **77**.
 
 Decision 078 (MVP Onboarding Flow Structure) was accepted 2026-06-26 and defines the onboarding flow that follows email verification (D077): **Verify Email ✓ → S1 Seed Form → S2 Goal + Sex → S3 Fitness Level + Environment/Home-Gym → [silent Program Assignment] → S4 Default Avatar + Naming Ceremony → Home**. It introduces no contradiction; it consumes D061 (Program Architecture) and D059 (Initial Journey State) and honors D010/D074 (no Stage 10 / no default avatar before S4), D001/D073 (single shared avatar state; heavy customization only from Home), and D077 (no verification/legal/payment field on the Naming Ceremony or any onboarding screen). Its **governing principle is Presence-led dialogue**: the Presence is present on **every** onboarding screen and **owns the question framing** (the options are the user's structured replies), via restrained Voice/text per the Presence Response System §4 and the Companion Doctrine — never free-form chat, no chat panel, no Voice overuse. Three accepted overrides: **(1)** the Naming Ceremony is **required** (not skippable; a soft suggested/default name may be offered but S4 must be completed, and the onboarding-complete flag flips only after S4); **(2)** **Goal does not drive MVP Program Assignment** (collected for framing/future use; assignment stays strictly Sex × Fitness Level × Training Format, D061); **(3)** **Sex drives Program Assignment and the basic Stage-1 default-avatar direction** (basic masculine/feminine direction only — no classes/stereotypes/manual editing/cosmetics/gameplay/social mechanics; final avatar art is a separate decision). Avatar **formation** is woven into transitions (changes appear on the following screen; the Stage-1 default avatar first appears on S4); program assignment is **silent** (no "building your path" screen). Recorded in `BFG_UI_RULES.md §23` (new Onboarding section), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Onboarding section S1–S4), `BFG_MVP_SCOPE.md` (§1/§2.1 onboarding screens named), and a light cross-reference in `fitness/BFG_PROGRAM_ARCHITECTURE.md §4`. Option taxonomies, avatar art direction, and final copy are scoped separately. Not Implemented. Total decisions: **78**.
+
+Decisions 079, 080, and 081 were accepted 2026-06-26 and registered together; they build on D078 (onboarding structure) without redesigning the flow and introduce no contradiction. **D079** (MVP Onboarding Screen Copy and Answer Taxonomies) locks S1–S4 copy and the answer taxonomies/enums: **S1** has a tap-or-2–3s-inactivity reveal of "Давай сделаем первый шаг…" + [Продолжить]; **S2** Goal is **multi-select (≥1)** (`weight_loss` · `muscle_gain` · `endurance` · `general_fitness` · `body_recomposition`, not assignment-driving, editable later, future-only avatar starting-form signal) and Hero/Heroine single-select (`male`/`female`, labels «Герой»/«Героиня», drives assignment + basic avatar direction); **S3** Experience (`beginner`/`intermediate`/`advanced`) + Training Format (`home`/`gym`) + a **conditional** Weekly Frequency (`two_per_week`/`three_per_week`/`four_per_week`) shown only after the first two and refreshed/cleared on change; **S4** required Naming Ceremony (no skip). This **refines the D078 "single-select" Goal wording to multi-select** and adds the conditional-frequency question to S3 (D081). **D080** (Editable Onboarding Inputs After Onboarding) makes Goal, Sex, Experience, Training Format, Weekly Frequency, and Avatar Name editable later (preliminarily in Profile) with **no progression reset** (XP/Level/Stage/Streak/Workout History/Weight History/Avatar Progression preserved); Sex/Experience/Format/Frequency changes trigger Program Replacement/Variant recalculation (D061 §7, D081). **D081** (Conditional Weekly Frequency and Program Family Model) **refines D061**: it adds `weekly_frequency` as a fourth assignment dimension and a Program Family / Program Variant model (internal-only) — a shared scalable 4-workout **Home** family (frequency = how many of the 4 are active) vs frequency-specific authored **Gym** variants (beginner/intermediate gym 2–3/wk full-body; advanced gym 3–4/wk with separate 3-day and 4-day split variants, never truncated) — deliberately avoiding 24 independent monthly programs while not faking scalability for gym splits. Goal and Avatar Name remain outside Program Assignment. Recorded in `BFG_UI_RULES.md §23`, `ui/BFG_SCREEN_WIREFRAMES.md §0.2`, `BFG_MVP_SCOPE.md §1/§2.1`, and `fitness/BFG_PROGRAM_ARCHITECTURE.md §4` (+ Family/Variant + frequency). All three Not Implemented. Total decisions: **81**.

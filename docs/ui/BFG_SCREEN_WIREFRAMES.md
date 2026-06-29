@@ -6,7 +6,7 @@ First official **Wireframe Layer** for BFG. This document specifies screen *comp
 
 Status: first slice. This pass covers **Entry / Auth Start, Auth Surface (Sign Up / Verify Email / Log In), Onboarding (S1–S4), Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
 
-Last updated: 2026-06-26 (MVP Onboarding Flow Structure D078 — Onboarding S1–S4 wireframes added; Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
+Last updated: 2026-06-26 (Onboarding copy/taxonomies D079 + editable inputs D080 + conditional frequency / Program Family D081 — Onboarding S1–S4 wireframes finalized; MVP Onboarding Flow Structure D078 — Onboarding S1–S4 wireframes added; Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
 
 For every screen this document records, in order:
 
@@ -162,78 +162,97 @@ The Auth flow between Entry (§0) and Onboarding (D076, D077). **One Auth surfac
 
 # 0.2 Onboarding — S1–S4 (Presence-led dialogue)
 
-Onboarding begins only after Verify Email succeeds (§0.1, D077) and ends at Home (§8). **Four screens + a silent program-assignment step** (D078). **Governing rule:** the **Presence is on every screen and owns the question framing** — it asks, the on-screen options are the user's **structured replies**. It must feel like *"the Presence is getting to know me,"* not a form wizard. Voice/text framing is restrained and rare (PRS §4, Companion Doctrine); **no chat panel, no free-form chat**. Mobile-first 360–430px (D075); calm motion (D075/§5). **No final copy — all text below is placeholder.**
+Onboarding begins only after Verify Email succeeds (§0.1, D077) and ends at Home (§8). **Four screens + a silent program-assignment step** (D078). **Governing rule:** the **Presence is on every screen and owns the question framing** — it asks, the on-screen options are the user's **structured replies**. It must feel like *"the Presence is getting to know me,"* not a form wizard. Voice/text framing is restrained and rare (PRS §4, Companion Doctrine); **no chat panel, no free-form chat**. Mobile-first 360–430px (D075); calm motion (D075/§5). **Copy below is the accepted MVP copy (D079); taxonomies are D079; conditional frequency + Program Family/Variant are D081; post-onboarding editability is D080.**
 
 ```
 Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no screen] → S4 → Home (§8)
 ```
 
-**S1 — Seed Form (First Meeting)**
+**S1 — Seed Form / First Meeting (D079)** — initial state has **no text and no CTA**; after a **tap on the Seed Form OR 2–3 s inactivity**, the line + [Продолжить] appear.
 ```
 ┌─────────────────────────────┐
 │        ╭───────╮            │  PRESENCE ZONE — living Seed Form (first meeting)
 │        │ ◌ Seed │           │  neutral/unformed · not default avatar · never Stage 10
-│        ╰───────╯            │
-│   «…first restrained line…» │  optional first Voice moment (PRS §4) — placeholder
+│        ╰───────╯            │  (before trigger: no text, no CTA)
+│   Давай сделаем первый шаг. │  appears after tap / 2–3 s inactivity
+│   Я помогу тебе начать.     │
 │   ┌─────────────────────┐   │
-│   │     [continue]       │   │  single forward action · no inputs
+│   │     [Продолжить]     │   │  single forward action · no answer choice
 │   └─────────────────────┘   │
 └─────────────────────────────┘
 ```
-- **Goal:** the first true meeting with the Presence after verification. **Inputs:** none. **Presence:** living Seed Form, first appearance as Body, may speak once. **Destination:** → S2. **Forbidden:** any input/auth field; default avatar; Stage 10; chat panel.
+- **Goal:** first meeting with the Presence. **Inputs:** none (reply = pressing [Продолжить]). **Trigger:** tap Seed Form OR 2–3 s inactivity reveals text + CTA. **Destination:** → S2. **Forbidden:** any input/auth field; default avatar; Stage 10; chat panel.
 
-**S2 — Goal + Sex (Presence asks)**
+**S2 — Goal + Hero/Heroine (D079)**
 ```
 ┌─────────────────────────────┐
 │        ╭───────╮            │  PRESENCE ZONE — present, owns the framing (not decorative)
 │        │ ◌ Seed │           │  unchanged on this screen (formation shows next screen)
 │        ╰───────╯            │
-│   «…Goal question…»         │  Presence frames Goal FIRST — placeholder
-│   [ goal ] [ goal ] [ goal ]│  user's replies (single-select)
-│   «…Sex question…»          │  Presence frames Sex SECOND — placeholder
-│   [ муж ]  [ жен ]          │  user's replies (single-select)
+│  Сейчас выберем направление │  S2 intro copy (D079)
+│  и подстроим тренировки…    │
+│  Какой результат тебе важен?│  Q1 Goal — MULTI-select (≥1)
+│  [Снижение веса] [Масса]    │   weight_loss · muscle_gain · endurance ·
+│  [Выносливость] [Форма] [Рекомп.]│ general_fitness · body_recomposition
+│  Герой или героиня —        │  Q2 Hero/Heroine — single-select
+│  чью главу открываем?       │
+│  [ Герой ]  [ Героиня ]     │   male · female (labels «Герой»/«Героиня»)
+│  Информацию можно изменить  │  helper line (→ Профиль)
+│  позже в разделе «Профиль». │
 │   ┌─────────────────────┐   │
-│   │     [continue]       │   │
+│   │     [Продолжить]     │   │  active only when ≥1 Goal AND Hero/Heroine
 │   └─────────────────────┘   │
 └─────────────────────────────┘
 ```
-- **Goal:** collect Goal (first) and Sex (second). **Inputs:** Goal single-select, Sex single-select (required). **Sex** is a Program-assignment key (D061); **Goal is not** (framing/future use). **Presence:** present and framing; unchanged visually. **Destination:** → S3. **Forbidden:** biometrics; safety screening; program/workout choice; default avatar; Stage 10.
+- **Inputs:** Goal **multi-select (≥1)**; Hero/Heroine single-select (both required). **Hero/Heroine** drives Program Assignment + basic Stage-1 avatar direction (D061/D081); **Goal does NOT** drive assignment (framing / future personalization / future Post-MVP avatar starting-form). **Editable later in Profile (D080).** **Destination:** → S3.
 
-**S3 — Fitness Level + Environment / Home-Gym (Presence asks)**
+**S3 — Experience + Training Format + Conditional Weekly Frequency (D079, D081)**
 ```
 ┌─────────────────────────────┐
 │        ╭───────╮            │  PRESENCE ZONE — first subtle FORMATION beat (from S2)
 │        │ ◌ ~~~ │           │  still not the final default avatar
 │        ╰───────╯            │
-│   «…Level question…»        │  Presence frames Fitness Level — placeholder
-│   [ нов ] [ сред ] [ опыт ] │  user's replies (single-select)
-│   «…Environment question…»  │  Presence frames Environment — placeholder
-│   [ Дом ]  [ Зал ]         │  Training Format (Home/Gym, D061) — single-select
+│  Мне нужно понять, какая    │  S3 intro copy (D079)
+│  нагрузка подойдёт… и где.  │
+│  Какой уровень тебе ближе?  │  Q1 Experience — single-select
+│  [Только начинаю]           │   beginner
+│  [Тренируюсь менее года]    │   intermediate
+│  [Регулярно больше года]    │   advanced
+│  Где будешь тренироваться?  │  Q2 Training Format — single-select
+│  [ Дома ]  [ В зале ]       │   home · gym
+│  ── frequency hidden until both above selected (D081) ──
+│  Сколько раз в неделю       │  Q3 appears ONLY after Experience + Format
+│  тебе удобно тренироваться? │   shows only ALLOWED options (D081 matrix)
+│  [ 2 ] [ 3 ] [ 4 ]          │   two_/three_/four_per_week (allowed subset)
+│  Информацию можно изменить  │  helper line (→ Профиль)
+│  позже в разделе «Профиль». │
 │   ┌─────────────────────┐   │
-│   │     [continue]       │   │
+│   │     [Продолжить]     │   │  active only when Level + Place + Frequency set
 │   └─────────────────────┘   │
 └─────────────────────────────┘
-   → [silent Program Assignment: Sex × Level × Format → Program (D061); no screen]
+   → [silent Program Assignment: sex × fitness_level × training_format × weekly_frequency
+      + Home/Gym content model → Program Family / Variant (D081/D061); no screen]
 ```
-- **Goal:** collect Fitness Level + Environment (the remaining D061 keys). **Inputs:** both single-select (required). **Presence:** present, framing, first formation beat. **Destination:** silent Program Assignment (no screen, no "building your path") → S4. **Forbidden:** "choose your program/workout" UI; biometrics; safety screening; Stage 10; a visible assignment/loading screen.
+- **Conditional frequency (D081):** hidden until **both** Experience and Training Format are chosen — no question, hint, or placeholder before then; then only allowed options show; changing Experience/Format clears an invalid frequency and refreshes. **Allowed matrix:** Home → 2/3/4 (shared scalable 4-workout family); Gym beginner → 2/3; Gym intermediate → 2/3; Gym advanced → 3/4 (separate 3- and 4-day split variants). **Never expose** full body / split / family / variant / assignment key. **Editable later (D080).** **Destination:** silent assignment → S4. **Forbidden:** equipment checklist; biometrics/BMI/weight/height/injury; "choose your program/workout"; a visible assignment/loading screen.
 
-**S4 — Default Avatar + Naming Ceremony (required)**
+**S4 — Default Avatar + Naming Ceremony (required, D079)**
 ```
 ┌─────────────────────────────┐
 │        ╭───────╮            │  PRESENCE ZONE — now the STAGE-1 DEFAULT AVATAR
-│        │  ◉◉◉  │           │  first appearance · Sex sets basic m/f direction only
-│        ╰───────╯            │  (no classes/cosmetics/editing — D078)
-│   «…naming line…»           │  optional restrained Voice — placeholder
-│   Имя  [ suggested name__ ] │  single name field (soft suggested default, editable)
+│        │  ◉◉◉  │           │  first appearance · direction from Hero/Heroine (basic m/f)
+│        ╰───────╯            │  (no classes/cosmetics/editing — D078/D079)
+│   Путь выбран.             │  S4 copy (D079) — gender-neutral (no выбрал/выбрала)
+│   Осталось выбрать имя.     │
+│   Имя  [ ____________ ]     │  required name field (future soft default still confirmed)
 │   ┌─────────────────────┐   │
-│   │   [confirm → Home]   │   │  REQUIRED — not skippable; completes onboarding
+│   │     [Продолжить]     │   │  REQUIRED · no [Пропустить] · inactive until valid name
 │   └─────────────────────┘   │
 └─────────────────────────────┘
-   confirm → onboarding complete → Home (§8); Continue Journey → Workout 1 (D059)
+   [Продолжить] → onboarding complete → Home (§8); Continue Journey → Workout 1 (D059)
 ```
-- **Goal:** reveal the Stage-1 Default Avatar and name it — the emotional completion. **Inputs:** avatar **name** (required; a soft suggested/default name may be offered, acceptable or editable; S4 must be completed). **Presence:** the Stage-1 Default Avatar (first appearance; never beyond Stage 1 — D010); writes to the single shared avatar visual state (D001, §9). **Destination:** confirm → onboarding complete flag set → Home (§8). **Forbidden:** email-verification/OTP, password confirmation, legal consent, payment, subscription, any auth/security/admin field (D077); heavy customization; any evolved/Stage-10 form; metrics; trial/pricing; marketing; shame; "skip/later" as the naming default.
+- **Inputs:** avatar **name** (required; **no skip / no [Пропустить]**; [Продолжить] inactive until valid; a future suggested default is still confirmed). **Presence:** Stage-1 Default Avatar (first appearance; never beyond Stage 1 — D010); direction from Hero/Heroine; writes to the single shared avatar visual state (D001, §9). Name **editable later in Profile (D080)** and never affects assignment/progression. **Destination:** onboarding complete flag set → Home (§8). **Forbidden:** email-verification/OTP, password confirmation, legal consent, payment, subscription, any auth/security/admin field (D077); heavy customization; any evolved/Stage-10 form; metrics; trial/pricing; marketing; shame/body-negative copy; a [Пропустить].
 
-**1. Goal (section):** turn account creation into a calm first dialogue that collects the three Program keys (Sex, Fitness Level, Environment) and ends by giving the user their named Stage-1 avatar.
+**1. Goal (section):** a calm Presence-led first dialogue that collects the four Program keys (Hero/Heroine, Experience, Training Format, Weekly Frequency — D081) plus Goal (framing only), and ends by giving the user their named Stage-1 avatar.
 
 **2. Composition top → bottom (every screen):** Presence zone (asks/frames) → the question(s) as Presence dialogue → structured options / one name field (the replies) → single primary CTA.
 
@@ -241,7 +260,7 @@ Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no
 
 **4. Routing:** Verify Email ✓ → S1 · onboarding complete (S4 done) → Home · returning verified user with unfinished onboarding → resume at the earliest unanswered screen · verified + complete → Home (D076, D077, D078).
 
-> **Scope (D078):** option taxonomies (Goal set, Level/Environment labels), default-avatar art direction, and final copy are separate content/art decisions. Program assignment is silent and deterministic (Sex × Fitness Level × Training Format, D061); the user never chooses a program/workout. Heavy customization is entered later from Home (D073), never in onboarding.
+> **Scope (D079/D080/D081):** copy and taxonomies are accepted (D079); the conditional-frequency matrix and Program Family/Variant model are D081; post-onboarding editing of Goal/Hero-Heroine/Experience/Training-Format/Weekly-Frequency/Name lives in Profile with no progression reset (D080). Default-avatar art direction and future Goal-driven starting-form remain separate (Post-MVP). Program assignment is silent and deterministic (sex × fitness_level × training_format × weekly_frequency, D061/D081); the user never chooses a program/workout. Heavy customization is entered later from Home (D073), never in onboarding.
 
 ---
 
@@ -633,7 +652,7 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ## Decisions referenced
 
-**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
+**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
 
 ## Out of scope for this slice (later wireframe passes)
 
