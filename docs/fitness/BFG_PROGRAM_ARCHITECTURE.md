@@ -73,7 +73,18 @@ Beginner Home          Intermediate Gym
 - The user **never builds, chooses, or edits** a Program, its workouts, exercises, sets, or reps (Decision 040; Library is "not a user-facing catalog", Decision 041). The user supplies only the three logistical inputs — framed as logistical, not identity, questions (`BFG_BEGINNER_JOURNEY.md`).
 - Assignment **grants nothing**: being assigned a Program awards no XP, Level, Stage, or Streak. It only sets which workouts appear.
 - On first assignment, the Journey initializes per Decision 059 (pointer → Workout 1; Workout 1 Upcoming; Continue Journey → Workout 1).
-- The three assignment keys are supplied by onboarding (Decision 078): **Sex** on S2, **Fitness Level** and **Environment/Training Format** on S3. Assignment runs **silently and deterministically** once those keys exist (leaving S3) — no program-selection screen and no "building your path" screen. **Goal** (also collected at onboarding) does **not** drive assignment.
+- The assignment keys are supplied by onboarding (Decisions 078, 079, 081): **Hero/Heroine (Sex)** on S2; **Experience (Fitness Level)**, **Training Format**, and a **conditional Weekly Frequency** on S3. Assignment runs **silently and deterministically** once those keys exist (leaving S3) — no program-selection screen and no "building your path" screen. **Goal** and **Avatar Name** (also collected at onboarding) do **not** drive assignment.
+
+### 4.1 Weekly Frequency and the Program Family / Program Variant model (Decision 081)
+
+Decision 081 **refines** the §4 mapping by adding a fourth dimension and a family/variant layer. Assignment now reads **`(sex × fitness_level × training_format × weekly_frequency)` + the Home/Gym content model → active Program Family / Program Variant**.
+
+- **Program Family / Program Variant.** A **Program Family** is the trainer-authored content family selected by user attributes; a **Program Variant** exists when different weekly frequencies require a distinct authored structure. Both terms are **internal-only** — the user never sees them (nor "full body" / "split" / "assignment key"). The user sees only level, place, and frequency.
+- **Weekly Frequency** (`two_per_week` · `three_per_week` · `four_per_week`) is chosen **conditionally** on S3 — only after Experience and Training Format are selected, and only the allowed options for that combination appear (D079/D081). It is a Program-assignment input.
+- **Home content model.** Home may use a **shared, scalable 4-workout home family**; the selected frequency determines how many of the 4 workouts are active in the weekly cycle (Home supports 2/3/4). Home need not be split into separate authored programs per experience if the trainer judges the shared family safe and valid — keeping MVP content workload manageable.
+- **Gym content model.** Beginner + Gym: 2 or 3 / week, full-body logic. Intermediate + Gym: 2 or 3 / week, may require frequency-specific authored variants. Advanced + Gym: 3 or 4 / week, where the **3-day and 4-day splits are separate valid authored variants** — a 4-day split must **not** be truncated into a 3-day split where that breaks the program. The trainer controls authored content.
+- **Content-workload guard.** Prefer Program Families + scalable Home content over **24 fully independent monthly programs**, but do **not** fake scalability for gym splits where truncation would be unsafe or poor training design.
+- **Editing after onboarding (Decision 080).** Changing Sex / Experience / Training Format / Weekly Frequency triggers **Program Replacement / Variant recalculation** (§7) **without resetting** XP, Level, Stage, Streak, Workout History, Weight History, or Avatar Progression. On replacement the pointer resets to Workout 1 of the new Program/Variant (Decision 059); an in-progress workout is not cancelled (Decision 058). Changing **Goal** or **Avatar Name** never changes assignment.
 
 ---
 
