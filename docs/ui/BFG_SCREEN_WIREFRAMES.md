@@ -4,9 +4,9 @@ First official **Wireframe Layer** for BFG. This document specifies screen *comp
 
 > Source of truth: [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) (decisions win on any conflict) and [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §15–§20. Where this document and a decision disagree, the decision wins and this document must be corrected.
 
-Status: first slice. This pass covers **Entry / Auth Start, Auth Surface (Sign Up / Verify Email / Log In), Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail, the onboarding flow, and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
+Status: first slice. This pass covers **Entry / Auth Start, Auth Surface (Sign Up / Verify Email / Log In), Onboarding (S1–S4), Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
 
-Last updated: 2026-06-26 (Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
+Last updated: 2026-06-26 (MVP Onboarding Flow Structure D078 — Onboarding S1–S4 wireframes added; Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
 
 For every screen this document records, in order:
 
@@ -26,7 +26,8 @@ For every screen this document records, in order:
 - Card outline by state (D054): **Default** = blue · **Upcoming** = orange + marker · **In Progress** = green + marker. One state marker per card (D048); In Progress has list-wide priority over Upcoming (D057).
 - "Continue Journey" (the global resume action) lives on **Home**, never on Activity (D043). Home is specified in §8.
 - Session navigation is **swipe-only**, no Next/Previous buttons (D063).
-- The **Entry / Auth Start** screen (§0) is the **unauthenticated** first contact; all other screens here are post-auth (D074). The **Auth Surface** (§0.1) sits between Entry and Onboarding: **Entry → Auth Surface → Onboarding → Home** (D076, D077).
+- The **Entry / Auth Start** screen (§0) is the **unauthenticated** first contact; all other screens here are post-auth (D074). The **Auth Surface** (§0.1) and **Onboarding** (§0.2) sit between Entry and Home: **Entry → Auth Surface → Onboarding S1–S4 → Home** (D076, D077, D078).
+- **Onboarding is Presence-led dialogue (D078):** the Presence is on every onboarding screen and owns the question framing; the options are the user's structured replies — never a form wizard.
 
 ---
 
@@ -156,6 +157,91 @@ The Auth flow between Entry (§0) and Onboarding (D076, D077). **One Auth surfac
 
 > **Scope (D077):** verification lives **only** in the Verify Email auth state. **No verification, password-confirmation, legal-consent, payment, or subscription field appears on the Naming Ceremony or any onboarding screen** — the Naming Ceremony stays purely emotional. Home is reached only after verification, so there is **no standing Home/Profile verification banner on the happy path** (Profile surfaces verification only on failure / recovery). The blocking gate depends on a RU-reachable transactional email provider (infra/BFG_SUPABASE_STRATEGY §4); grace-degradation is an emergency contingency only, not the default.
 > **Forbidden here (D076, D077):** trial / subscription / pricing; marketing paragraphs / feature lists / testimonials; companion Voice line / chat; onboarding questions; dashboard metrics; bottom navigation; the Seed Form as central / interactive / tappable; aggressive live red validation; toast as primary feedback; account-existence-leaking errors; hype; exclamation marks; all-caps headings; casino-style motion; emoji; horizontal scroll; default-state vertical scroll (keyboard closed); a separate tablet/desktop layout with extra content. **No final copy is locked** — all text above is placeholder.
+
+---
+
+# 0.2 Onboarding — S1–S4 (Presence-led dialogue)
+
+Onboarding begins only after Verify Email succeeds (§0.1, D077) and ends at Home (§8). **Four screens + a silent program-assignment step** (D078). **Governing rule:** the **Presence is on every screen and owns the question framing** — it asks, the on-screen options are the user's **structured replies**. It must feel like *"the Presence is getting to know me,"* not a form wizard. Voice/text framing is restrained and rare (PRS §4, Companion Doctrine); **no chat panel, no free-form chat**. Mobile-first 360–430px (D075); calm motion (D075/§5). **No final copy — all text below is placeholder.**
+
+```
+Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no screen] → S4 → Home (§8)
+```
+
+**S1 — Seed Form (First Meeting)**
+```
+┌─────────────────────────────┐
+│        ╭───────╮            │  PRESENCE ZONE — living Seed Form (first meeting)
+│        │ ◌ Seed │           │  neutral/unformed · not default avatar · never Stage 10
+│        ╰───────╯            │
+│   «…first restrained line…» │  optional first Voice moment (PRS §4) — placeholder
+│   ┌─────────────────────┐   │
+│   │     [continue]       │   │  single forward action · no inputs
+│   └─────────────────────┘   │
+└─────────────────────────────┘
+```
+- **Goal:** the first true meeting with the Presence after verification. **Inputs:** none. **Presence:** living Seed Form, first appearance as Body, may speak once. **Destination:** → S2. **Forbidden:** any input/auth field; default avatar; Stage 10; chat panel.
+
+**S2 — Goal + Sex (Presence asks)**
+```
+┌─────────────────────────────┐
+│        ╭───────╮            │  PRESENCE ZONE — present, owns the framing (not decorative)
+│        │ ◌ Seed │           │  unchanged on this screen (formation shows next screen)
+│        ╰───────╯            │
+│   «…Goal question…»         │  Presence frames Goal FIRST — placeholder
+│   [ goal ] [ goal ] [ goal ]│  user's replies (single-select)
+│   «…Sex question…»          │  Presence frames Sex SECOND — placeholder
+│   [ муж ]  [ жен ]          │  user's replies (single-select)
+│   ┌─────────────────────┐   │
+│   │     [continue]       │   │
+│   └─────────────────────┘   │
+└─────────────────────────────┘
+```
+- **Goal:** collect Goal (first) and Sex (second). **Inputs:** Goal single-select, Sex single-select (required). **Sex** is a Program-assignment key (D061); **Goal is not** (framing/future use). **Presence:** present and framing; unchanged visually. **Destination:** → S3. **Forbidden:** biometrics; safety screening; program/workout choice; default avatar; Stage 10.
+
+**S3 — Fitness Level + Environment / Home-Gym (Presence asks)**
+```
+┌─────────────────────────────┐
+│        ╭───────╮            │  PRESENCE ZONE — first subtle FORMATION beat (from S2)
+│        │ ◌ ~~~ │           │  still not the final default avatar
+│        ╰───────╯            │
+│   «…Level question…»        │  Presence frames Fitness Level — placeholder
+│   [ нов ] [ сред ] [ опыт ] │  user's replies (single-select)
+│   «…Environment question…»  │  Presence frames Environment — placeholder
+│   [ Дом ]  [ Зал ]         │  Training Format (Home/Gym, D061) — single-select
+│   ┌─────────────────────┐   │
+│   │     [continue]       │   │
+│   └─────────────────────┘   │
+└─────────────────────────────┘
+   → [silent Program Assignment: Sex × Level × Format → Program (D061); no screen]
+```
+- **Goal:** collect Fitness Level + Environment (the remaining D061 keys). **Inputs:** both single-select (required). **Presence:** present, framing, first formation beat. **Destination:** silent Program Assignment (no screen, no "building your path") → S4. **Forbidden:** "choose your program/workout" UI; biometrics; safety screening; Stage 10; a visible assignment/loading screen.
+
+**S4 — Default Avatar + Naming Ceremony (required)**
+```
+┌─────────────────────────────┐
+│        ╭───────╮            │  PRESENCE ZONE — now the STAGE-1 DEFAULT AVATAR
+│        │  ◉◉◉  │           │  first appearance · Sex sets basic m/f direction only
+│        ╰───────╯            │  (no classes/cosmetics/editing — D078)
+│   «…naming line…»           │  optional restrained Voice — placeholder
+│   Имя  [ suggested name__ ] │  single name field (soft suggested default, editable)
+│   ┌─────────────────────┐   │
+│   │   [confirm → Home]   │   │  REQUIRED — not skippable; completes onboarding
+│   └─────────────────────┘   │
+└─────────────────────────────┘
+   confirm → onboarding complete → Home (§8); Continue Journey → Workout 1 (D059)
+```
+- **Goal:** reveal the Stage-1 Default Avatar and name it — the emotional completion. **Inputs:** avatar **name** (required; a soft suggested/default name may be offered, acceptable or editable; S4 must be completed). **Presence:** the Stage-1 Default Avatar (first appearance; never beyond Stage 1 — D010); writes to the single shared avatar visual state (D001, §9). **Destination:** confirm → onboarding complete flag set → Home (§8). **Forbidden:** email-verification/OTP, password confirmation, legal consent, payment, subscription, any auth/security/admin field (D077); heavy customization; any evolved/Stage-10 form; metrics; trial/pricing; marketing; shame; "skip/later" as the naming default.
+
+**1. Goal (section):** turn account creation into a calm first dialogue that collects the three Program keys (Sex, Fitness Level, Environment) and ends by giving the user their named Stage-1 avatar.
+
+**2. Composition top → bottom (every screen):** Presence zone (asks/frames) → the question(s) as Presence dialogue → structured options / one name field (the replies) → single primary CTA.
+
+**3. Primary visual accent:** the **Presence** on every screen (Seed Form → forming → Stage-1 avatar).
+
+**4. Routing:** Verify Email ✓ → S1 · onboarding complete (S4 done) → Home · returning verified user with unfinished onboarding → resume at the earliest unanswered screen · verified + complete → Home (D076, D077, D078).
+
+> **Scope (D078):** option taxonomies (Goal set, Level/Environment labels), default-avatar art direction, and final copy are separate content/art decisions. Program assignment is silent and deterministic (Sex × Fitness Level × Training Format, D061); the user never chooses a program/workout. Heavy customization is entered later from Home (D073), never in onboarding.
 
 ---
 
@@ -547,7 +633,7 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ## Decisions referenced
 
-**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
+**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
 
 ## Out of scope for this slice (later wireframe passes)
 

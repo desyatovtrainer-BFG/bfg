@@ -73,6 +73,7 @@ Beginner Home          Intermediate Gym
 - The user **never builds, chooses, or edits** a Program, its workouts, exercises, sets, or reps (Decision 040; Library is "not a user-facing catalog", Decision 041). The user supplies only the three logistical inputs — framed as logistical, not identity, questions (`BFG_BEGINNER_JOURNEY.md`).
 - Assignment **grants nothing**: being assigned a Program awards no XP, Level, Stage, or Streak. It only sets which workouts appear.
 - On first assignment, the Journey initializes per Decision 059 (pointer → Workout 1; Workout 1 Upcoming; Continue Journey → Workout 1).
+- The three assignment keys are supplied by onboarding (Decision 078): **Sex** on S2, **Fitness Level** and **Environment/Training Format** on S3. Assignment runs **silently and deterministically** once those keys exist (leaving S3) — no program-selection screen and no "building your path" screen. **Goal** (also collected at onboarding) does **not** drive assignment.
 
 ---
 

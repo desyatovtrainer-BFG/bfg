@@ -2562,6 +2562,141 @@ decisions.)
 
 ---
 
+# Decision 078
+
+Title:
+MVP Onboarding Flow Structure
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+Onboarding is the first meeting with the Presence, not a form wizard. It begins
+ONLY after email verification succeeds (D077) and ends by handing off to Home
+(D071). It is four screens + a silent program-assignment step:
+
+  Verify Email ✓ → S1 Seed Form → S2 Goal + Sex →
+  S3 Fitness Level + Environment/Home-Gym → [silent Program Assignment] →
+  S4 Default Avatar + Naming Ceremony → Home
+
+1. Presence-led dialogue (governing principle).
+   - The Presence is present on EVERY onboarding screen and OWNS the question
+     framing: the Presence asks/frames each question; the on-screen options are the
+     user's structured replies. Onboarding must feel like "the Presence is getting
+     to know me", never "the app is collecting form data" — a calm first dialogue,
+     not a questionnaire or form wizard. The Presence is never a decorative
+     background only (notably on S2/S3): the question reads as coming from it.
+   - Framing uses short, calm Voice/text lines governed by BFG_PRESENCE_RESPONSE_
+     SYSTEM.md §4 and companion/BFG_Companion_Doctrine.md (restrained, rare, calm,
+     no hype, no pressure). This is NOT free-form chat: no companion chat panel, no
+     Voice overuse; questions stay structured (selectable options / one name field).
+
+2. Screens (Presence present and owning the framing on each).
+   - S1 Seed Form (First Meeting): the living Presence Body appears for the first
+     time as the Seed Form; carries the first-ever Presence Voice moment
+     (BFG_PRESENCE_RESPONSE_SYSTEM.md §4); no inputs, one forward action. Still
+     neutral/unformed — not the default avatar, never Stage 10 (D010, D074).
+   - S2 Goal + Sex: the Presence frames Goal first (single-select), then Sex
+     (single-select), same screen. Sex is a Program-assignment key (D061); Goal is
+     not (item 4).
+   - S3 Fitness Level + Environment / Home-Gym: same screen; the Presence frames
+     both. Environment = Training Format (Home/Gym, D061). The Presence shows the
+     first subtle formation beat reflecting S2 answers — still not the final
+     default avatar.
+   - S4 Default Avatar + Naming Ceremony: the Presence is now the Stage-1 Default
+     Avatar; it receives its name from the user. The emotional completion of the
+     dialogue and the final screen before Home; purely emotional.
+
+3. Avatar formation (no separate screen).
+   - Formation is woven into the transitions: the seed is unchanged on S1–S2, shows
+     a subtle formation beat on S3 (reflecting S2 answers), and completes into the
+     Default Avatar (Stage 1) on S4 (reflecting S3 answers). "Changes appear on the
+     following screen after answers." No separate Avatar Formation screen and no
+     separate transformation screen.
+   - The default avatar first appears on S4 only, and never exceeds Stage 1 during
+     onboarding (D010). The name writes to the single shared avatar visual state
+     (D001, D073); heavy customization is NOT part of onboarding (entered later from
+     Home, D073).
+
+4. Program assignment (silent, no screen) — OVERRIDE.
+   - As soon as Sex × Fitness Level × Training Format are known (on leaving S3),
+     the Program is assigned server-side and deterministically per the Program
+     Architecture (D061). There is NO program-assignment screen and NO
+     "building your path" loading-as-meaning screen. The user never chooses a
+     program or workouts. By Home, the Program and the Workout-1 pointer (D059) are
+     ready.
+   - Goal does NOT drive MVP Program Assignment. Goal is collected for emotional
+     framing, future personalization, future Presence tone, and future quest/tone
+     use; MVP assignment remains strictly Sex × Fitness Level × Training Format
+     (D061).
+
+5. Sex → assignment and basic default-avatar direction (OVERRIDE).
+   - Sex is a Program-assignment key, and Sex may also determine the basic Stage-1
+     Default Avatar direction shown on S4 (a basic masculine/feminine default
+     direction). This is NOT heavy customization and must not introduce classes,
+     stereotypes, manual avatar editing, clothing/cosmetics, gameplay differences,
+     or social-identity mechanics. Final avatar art direction is a separate
+     art/content decision.
+
+6. Naming Ceremony is required (OVERRIDE) and its boundaries.
+   - Naming is NOT skippable. The avatar name is the final required personal action
+     before Home; "skip / later" is not the default model. To reduce friction the
+     UI MAY offer a soft suggested/default name the user can accept or edit, but S4
+     must still be completed. The onboarding-complete flag flips only after S4 is
+     completed.
+   - The Naming Ceremony may contain: the Stage-1 Default Avatar, a single name
+     field (with an optional suggested default), a calm confirm-to-Home action, and
+     an optional restrained Presence Voice line. It may NOT contain:
+     email-verification/OTP fields, password confirmation, legal consent, payment,
+     subscription, or any auth/security/admin field (D077); heavy avatar
+     customization; any evolved/Stage-10 form; metrics, dashboard, trial/pricing,
+     marketing, or shame copy.
+
+7. Routing.
+   - Verify Email success → S1. Onboarding complete (S4 completed) → Home.
+   - Returning verified user with unfinished onboarding → resume at the earliest
+     unanswered screen (onboarding persists a per-step progress marker; the complete
+     flag flips only after S4). Verified + complete → Home. (Other Auth branches
+     unchanged — D076, D077.)
+
+8. Out of MVP onboarding.
+   - No safety/health screening, no biometrics, no transformation screen, no manual
+     program/workout selection, no heavy customization, no payment/trial.
+
+9. Scope split.
+   - D078 fixes the STRUCTURE (Presence-led dialogue, screens, order, inputs,
+     formation mechanic, assignment timing, Sex→basic-avatar-direction, required
+     naming, routing). The option taxonomies (Goal set, Fitness-Level labels,
+     Environment labels), the default-avatar art direction, and all final copy are
+     content/art approvals scoped separately. D061 (Program Architecture) and D059
+     (Initial Journey State) are consumed, not redefined.
+
+10. Copy.
+   - Structure and principles only; no final copy is locked.
+
+Reason:
+A short, calm, low-input dialogue in which the Presence asks the questions and
+visibly turns the seed into the user's own Stage-1 avatar makes onboarding feel
+like meeting a presence rather than filling a form, while still collecting exactly
+the three keys the Program Architecture needs. Assigning the Program silently and
+ending on a required Naming Ceremony keeps the emotional arc intact and lands on
+its intended peak.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §23 (Onboarding); ui/BFG_SCREEN_WIREFRAMES.md (Onboarding section);
+BFG_MVP_SCOPE.md §1 / §2.1; companion/BFG_Companion_Doctrine.md §XI;
+BFG_PRESENCE_RESPONSE_SYSTEM.md §4; fitness/BFG_PROGRAM_ARCHITECTURE.md §4;
+Decisions 001, 010, 059, 061, 071, 073, 074, 076, 077. (Option taxonomies, avatar
+art, final copy: separate content/art decisions.)
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -2637,9 +2772,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
-| Not Implemented | 50 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077 |
+| Not Implemented | 51 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078 |
 
-Total decisions: 77.
+Total decisions: 78.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -2682,3 +2817,5 @@ Decision 074 (Entry / Auth Start Screen) was accepted 2026-06-26. It is the firs
 Decision 075 (Adaptive Cinematic Canvas Responsive Model) was accepted 2026-06-26. It is **app-wide** (every screen), not specific to any surface, and introduces no contradiction — it **refines `BFG_UI_RULES.md §2`**: the strict "tablet/desktop content capped to 480px centered" rule is replaced by "readable/interactive content is capped, but the atmospheric canvas (glow, rings, ambient space, visual stage, side fields) may expand," with **mobile-first 360–430px remaining the source of truth** and a four-tier ladder (Phone 360–430 / Large-phone–small-tablet 431–600 / Tablet 600–900 / Desktop 900+), and the app never becoming a desktop dashboard. It is consistent with the calm/cinematic non-negotiables (§1, §4, §5) and the single-primary-CTA discipline (D071, D073) — caps apply to CTA width, headline/subtitle line length, form controls, dense blocks, and text size. D075 is the responsive model that D074's Entry brief applies. Recorded in `BFG_UI_RULES.md §2` (rewrite), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (Conventions), and `docs/ui/BFG_ENTRY_AUTH_START_BRIEF.md`. **Partially Implemented** — Chrome already adapts somewhat, but the model is not standardized or verified across screens. Total decisions: **75**.
 
 Decisions 076 and 077 (Sign Up / Log In Auth Surface + Required Email Verification Before Onboarding) were accepted 2026-06-26 and registered together; they define the Auth flow that follows the Entry / Auth Start screen (D074): **Entry → Auth Surface → Onboarding → Home**. They introduce no contradiction. **D076** specifies a single Auth surface with **three states — Sign Up · Verify Email · Log In** — sharing one shell, reached as a real navigation step from Entry (not a modal), continuing the reduced non-interactive Voice-silent Seed Form (D074) and the Adaptive Cinematic Canvas (D075, form column capped while atmosphere may expand), with calm inline **generic non-enumerating** errors (no toast — §7/§13; BFG_SECURITY §3) and no trial/pricing (D006, D030). **D077** makes email verification a **hard-blocking** pre-onboarding gate using a **6-digit OTP** (not a magic link), with required **resend (cooldown)** and **change-email** fallbacks; it forbids any verification/legal/payment field on the Naming Ceremony or any onboarding screen, keeps **no standing Home/Profile verification banner on the happy path** (Home is reached only after verification, so D071 is unchanged), and records that future payments inherit the verified email with **no surprise verification gate at payment time**. The blocking model depends on a **RU-reachable transactional email provider** (infra/BFG_SUPABASE_STRATEGY §4) as a launch prerequisite; the **grace-degradation** fallback is an emergency contingency only, **not** the default flow. The password-reset flow and post-MVP payment-verification enforcement remain **separate future decisions**. Recorded in `BFG_UI_RULES.md §22` (new Auth section), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Auth section: Sign Up / Verify Email / Log In), `BFG_MVP_SCOPE.md` (§1/§2.1/§3.1/§5.3 — auth path now Sign Up → Verify Email → Onboarding → Home), `BFG_SECURITY.md §3` (light note), and `infra/BFG_SUPABASE_STRATEGY.md §4` (launch prerequisite). Both Not Implemented. Total decisions: **77**.
+
+Decision 078 (MVP Onboarding Flow Structure) was accepted 2026-06-26 and defines the onboarding flow that follows email verification (D077): **Verify Email ✓ → S1 Seed Form → S2 Goal + Sex → S3 Fitness Level + Environment/Home-Gym → [silent Program Assignment] → S4 Default Avatar + Naming Ceremony → Home**. It introduces no contradiction; it consumes D061 (Program Architecture) and D059 (Initial Journey State) and honors D010/D074 (no Stage 10 / no default avatar before S4), D001/D073 (single shared avatar state; heavy customization only from Home), and D077 (no verification/legal/payment field on the Naming Ceremony or any onboarding screen). Its **governing principle is Presence-led dialogue**: the Presence is present on **every** onboarding screen and **owns the question framing** (the options are the user's structured replies), via restrained Voice/text per the Presence Response System §4 and the Companion Doctrine — never free-form chat, no chat panel, no Voice overuse. Three accepted overrides: **(1)** the Naming Ceremony is **required** (not skippable; a soft suggested/default name may be offered but S4 must be completed, and the onboarding-complete flag flips only after S4); **(2)** **Goal does not drive MVP Program Assignment** (collected for framing/future use; assignment stays strictly Sex × Fitness Level × Training Format, D061); **(3)** **Sex drives Program Assignment and the basic Stage-1 default-avatar direction** (basic masculine/feminine direction only — no classes/stereotypes/manual editing/cosmetics/gameplay/social mechanics; final avatar art is a separate decision). Avatar **formation** is woven into transitions (changes appear on the following screen; the Stage-1 default avatar first appears on S4); program assignment is **silent** (no "building your path" screen). Recorded in `BFG_UI_RULES.md §23` (new Onboarding section), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Onboarding section S1–S4), `BFG_MVP_SCOPE.md` (§1/§2.1 onboarding screens named), and a light cross-reference in `fitness/BFG_PROGRAM_ARCHITECTURE.md §4`. Option taxonomies, avatar art direction, and final copy are scoped separately. Not Implemented. Total decisions: **78**.
