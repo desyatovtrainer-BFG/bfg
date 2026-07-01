@@ -3020,6 +3020,121 @@ BFG_MVP_SCOPE.md; BFG_PRODUCT_GAPS.md; Decisions 043, 059, 071, 073, 078, 079, 0
 
 ---
 
+# Decision 083
+
+Title:
+Avatar Direction Slots and Default Stage Forms
+
+Category:
+UX / Avatar Architecture
+
+Status:
+Accepted
+
+MVP / Post-MVP:
+MVP. D080 already allows Hero/Heroine to be changed later in Profile, so BFG must
+define what happens to the avatar visual state when that change happens — before
+Profile editability is implemented.
+
+Decision:
+Finalizes what happens to the avatar visual state when the user later changes
+Hero/Heroine (sex) in Profile (D080). **BFG does not migrate customization between the
+Hero and Heroine directions.** Changing Hero/Heroine changes the **active avatar
+direction only**. BFG keeps **separate visual slots per direction** — a **Hero visual
+slot** and a **Heroine visual slot** — and the active direction determines which slot is
+displayed. This is a visual-state persistence rule only; it does not change Program
+Assignment (D061/D081) or any progression system.
+
+1. Direction switch behavior (Profile Hero/Heroine change).
+   - BFG switches the **active avatar direction**.
+   - BFG does **not** transfer any customization from the previous direction to the new
+     direction.
+   - BFG renders the avatar using the **current global Stage**.
+   - If the new direction already has a **saved customization slot**, BFG restores that
+     direction's saved customization.
+   - If the new direction has **no saved slot**, BFG displays the **default avatar for
+     that direction at the user's current Stage**.
+   - This applies to the first switch and to all later switches. There is **never**
+     automatic customization migration between Hero and Heroine.
+
+2. No customization migration.
+   - The following are **never** migrated between directions: clothing; hair; beard;
+     moustache; accessories; body-bound visual settings; body shape / silhouette
+     settings; facial features; colors; accent choices; aura / glow customization; any
+     other avatar customization setting. If an element belongs to customization, it is
+     **direction-specific** unless a later accepted decision explicitly defines it as
+     global.
+   - D083 intentionally chooses the simplest rule: **no** compatibility mapping, **no**
+     equivalent-item matching, **no** beard-to-nothing conversion, **no** outfit/hair
+     translation, **no** color/accent carry-over, **no** partial migration.
+
+3. Preservation rule.
+   - Switching **away** from a direction does **not delete** that direction's saved
+     customization; it becomes inactive but preserved. Switching back **restores** the
+     relevant slot. No settings migrate between slots. Example: Hero, Stage 5, customized
+     Hero → switch to Heroine (first time) → active direction Heroine, Heroine **default**
+     avatar at Stage 5, Hero customization preserved but inactive; later switch back to
+     Hero → the saved customized Hero avatar is restored, at the current global Stage.
+
+4. Stage rule (global progression).
+   - Stage is **global user progression** and does **not** belong to Hero or Heroine;
+     changing direction must **not** reset Stage. Default avatars exist conceptually for
+     **each direction at each Stage** (Hero Default Stage 1…10; Heroine Default Stage
+     1…10). A Stage-7 user switching from Hero to Heroine for the first time sees
+     **Heroine Default Stage 7**, not Stage 1 — the avatar changes direction, the user's
+     evolution never moves backward.
+
+5. Saved customization and current Stage.
+   - A saved slot must **not** freeze the avatar at the Stage when the customization was
+     created. Saved customization is applied to the **current global Stage** form of that
+     direction (customize Hero at Stage 3 → later Stage 6 → switch away → switch back →
+     Hero slot restored on the **current Stage 6** Hero base, not the old Stage 3 base).
+     If a specific saved element is incompatible with the current Stage in a future
+     richer customization system, BFG may fall back to a default element for that
+     direction and Stage — but D083 does **not** define catalog compatibility rules; it
+     defines only the persistence and switching model.
+
+6. Avatar Name (global).
+   - Avatar Name remains **global**; BFG does **not** create separate names per direction.
+     Changing Hero/Heroine does **not** change the Avatar Name (editable later in Profile,
+     D080).
+
+7. Program Assignment relationship.
+   - Changing Hero/Heroine may change Program Assignment per D061/D081. D083 does **not**
+     change Program Assignment logic; it defines only avatar visual-state behavior after
+     the value changes. Program/training changes still obey the existing no-reset rules:
+     no reset of XP, Level, Stage, Streak, Workout History, Weight History, or Avatar Name.
+
+8. Unified Presence relationship (D001 preserved).
+   - There is still **one Presence**. The Hero and Heroine visual slots are **not** two
+     companions, two profiles, or two beings — they are two stored visual representations
+     of the same unified Presence, with **one active direction at a time**. Home and
+     Progress must always display the **active direction** and the **current global
+     Stage** (one shared avatar visual truth, D001/D073).
+
+What D083 does not decide:
+final avatar art style; Avatar Customization depth; clothing catalog size; cosmetics
+catalog size; paid cosmetics; currency spending; exact database schema; exact Profile UI
+copy; exact confirmation modal copy; whether a future preview precedes saving a
+Hero/Heroine change.
+
+Reason:
+Because D080 lets the user change Hero/Heroine after onboarding, the avatar visual state
+needs a defined, honest behavior on switch. Separate per-direction slots with a
+default-at-current-Stage fallback keep the model simple and truthful — no lossy
+cross-direction migration, no frozen-Stage avatars, and no backward evolution — while
+preserving the single unified Presence (D001) and all progression.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §15 / §20 / §23; BFG_MVP_SCOPE.md §2.1;
+docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8 / §9; BFG_PRODUCT_GAPS.md;
+Decisions 001, 010, 011, 061, 073, 079, 080, 081, 082.
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -3095,9 +3210,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
-| Not Implemented | 55 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081, 082 |
+| Not Implemented | 56 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081, 082, 083 |
 
-Total decisions: 82.
+Total decisions: 83.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -3146,3 +3261,5 @@ Decision 078 (MVP Onboarding Flow Structure) was accepted 2026-06-26 and defines
 Decisions 079, 080, and 081 were accepted 2026-06-26 and registered together; they build on D078 (onboarding structure) without redesigning the flow and introduce no contradiction. **D079** (MVP Onboarding Screen Copy and Answer Taxonomies) locks S1–S4 copy and the answer taxonomies/enums: **S1** has a tap-or-2–3s-inactivity reveal of "Давай сделаем первый шаг…" + [Продолжить]; **S2** Goal is **multi-select (≥1)** (`weight_loss` · `muscle_gain` · `endurance` · `general_fitness` · `body_recomposition`, not assignment-driving, editable later, future-only avatar starting-form signal) and Hero/Heroine single-select (`male`/`female`, labels «Герой»/«Героиня», drives assignment + basic avatar direction); **S3** Experience (`beginner`/`intermediate`/`advanced`) + Training Format (`home`/`gym`) + a **conditional** Weekly Frequency (`two_per_week`/`three_per_week`/`four_per_week`) shown only after the first two and refreshed/cleared on change; **S4** required Naming Ceremony (no skip). This **refines the D078 "single-select" Goal wording to multi-select** and adds the conditional-frequency question to S3 (D081). **D080** (Editable Onboarding Inputs After Onboarding) makes Goal, Sex, Experience, Training Format, Weekly Frequency, and Avatar Name editable later (preliminarily in Profile) with **no progression reset** (XP/Level/Stage/Streak/Workout History/Weight History/Avatar Progression preserved); Sex/Experience/Format/Frequency changes trigger Program Replacement/Variant recalculation (D061 §7, D081). **D081** (Conditional Weekly Frequency and Program Family Model) **refines D061**: it adds `weekly_frequency` as a fourth assignment dimension and a Program Family / Program Variant model (internal-only) — a shared scalable 4-workout **Home** family (frequency = how many of the 4 are active) vs frequency-specific authored **Gym** variants (beginner/intermediate gym 2–3/wk full-body; advanced gym 3–4/wk with separate 3-day and 4-day split variants, never truncated) — deliberately avoiding 24 independent monthly programs while not faking scalability for gym splits. Goal and Avatar Name remain outside Program Assignment. Recorded in `BFG_UI_RULES.md §23`, `ui/BFG_SCREEN_WIREFRAMES.md §0.2`, `BFG_MVP_SCOPE.md §1/§2.1`, and `fitness/BFG_PROGRAM_ARCHITECTURE.md §4` (+ Family/Variant + frequency). All three Not Implemented. Total decisions: **81**.
 
 Decision 082 (First Home After Onboarding and Avatar Name Placement) was accepted 2026-07-01 and finalizes what happens immediately after S4 (D079) and where the Avatar Name sits on Home. It introduces no contradiction — it changes **presentation and onboarding handoff only** and explicitly does not touch Program Assignment (D061/D081), the initial journey state (D059), or Continue Journey routing (D043). After S4 the user lands on the **full D071 Home** (no auto-transition to Workout 1, no forced workout launch): Continue Journey is available immediately but receives **no extra first-run glow/pulse/tooltip/modal/banner/onboarding hint** — its normal primary-CTA hierarchy is enough — and the user may **tap the Living Presence to enter Avatar Customization before the first workout** (D073) or explore other surfaces. The first Home shows the Stage-1 default avatar, the **Avatar Name**, and calm starting values (empty/zero framed as a beginning, not missing progress — D031/D040), with no redirect, modal, or forced prompt. It **refines D071's Stage Block** to include the **Avatar Name as its first identity line** (order: Living Presence → Avatar Name → Stage Title / Stage Number → Voice Slot → Continue Journey); the name belongs to the Presence identity area and must **not** appear in the header, in the Profile button, inside Continue Journey, as a stat card, or as a floating label — D082 locks **placement and hierarchy only**, not exact visual styling. For a brand-new user Continue Journey still resolves to Workout 1 (D059/D043). Recorded in `BFG_UI_RULES.md §15 / §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8`, and `BFG_MVP_SCOPE.md`; `fitness/BFG_PROGRAM_ARCHITECTURE.md` was reviewed and intentionally left unchanged (assignment logic is untouched). Not Implemented. Total decisions: **82**.
+
+Decision 083 (Avatar Direction Slots and Default Stage Forms) was accepted 2026-07-01 and is **MVP** (D080 already lets Hero/Heroine be changed later in Profile, so the avatar visual-state behavior on switch must be defined). It introduces no contradiction — it is a visual-state persistence rule that changes **no** Program Assignment logic (D061/D081), no routing (D043), and no progression system. **BFG does not migrate customization between Hero and Heroine**: changing Hero/Heroine changes the **active direction only**, and BFG keeps **separate per-direction visual slots** (Hero slot / Heroine slot). On switch, BFG renders at the **current global Stage** and either **restores the new direction's saved slot** or shows that direction's **default avatar at the current Stage** (Stage-7 user switching to Heroine for the first time sees **Heroine Default Stage 7**, never Stage 1); switching **away preserves** the prior slot (never deletes it), and a restored slot renders on the **current** Stage base, never frozen at the Stage it was created on. **No** clothing/hair/beard/moustache/accessory/body/facial/color/accent/aura setting migrates between directions (no compatibility mapping, no partial migration). **Avatar Name and Stage stay global**; the change resets **no** XP / Level / Stage / Streak / Workout History / Weight History / Avatar Name. D001 is preserved — one Presence, two stored visual representations, one active direction at a time; Home and Progress always show the active direction at the current global Stage (D001/D073). D083 does **not** decide final avatar art, customization depth, catalogs, paid cosmetics, currency, DB schema, or Profile/modal copy. Recorded in `BFG_UI_RULES.md §15 / §20 / §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8 / §9`, and `BFG_MVP_SCOPE.md §2.1`; `fitness/BFG_PROGRAM_ARCHITECTURE.md` was reviewed and intentionally left unchanged (assignment logic is untouched). Not Implemented. Total decisions: **83**.
