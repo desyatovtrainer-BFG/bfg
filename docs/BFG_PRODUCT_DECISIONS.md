@@ -2943,6 +2943,83 @@ ui/BFG_SCREEN_WIREFRAMES.md §0.2; Decisions 046, 058, 059, 061, 078, 079, 080.
 
 ---
 
+# Decision 082
+
+Title:
+First Home After Onboarding and Avatar Name Placement
+
+Category:
+UX
+
+Status:
+Accepted
+
+Decision:
+Finalizes what happens immediately after S4 (Naming Ceremony, D079) and where the
+Avatar Name appears on Home. It changes **presentation and onboarding handoff only**;
+it does NOT change routing logic, Program Assignment, or any progression system.
+
+1. First Home after onboarding (no auto-launch).
+   - After S4, the user lands on the **full Home screen** (the normal D071 structure).
+     There is **no automatic transition to Workout 1** and no forced workout launch.
+   - The user stays in control. From the first Home they may: stay and look at their
+     Stage-1 default avatar; **tap the Living Presence** to open Avatar Customization /
+     Appearance / Clothing (D073) — allowed **before** the first workout; open Activity /
+     Progress / Profile or other available surfaces; or press **Continue Journey** when
+     ready to start the first workout.
+   - Continue Journey is visible and available immediately on the first Home, but it
+     must **not** receive an extra first-run **glow, pulse, forced tooltip, modal,
+     banner, or onboarding hint** by default. Its normal primary-CTA hierarchy (D071)
+     is enough; the interface must not pressure the user into starting the first
+     workout. For a brand-new user, Continue Journey still resolves to **Workout 1** per
+     D059/D043 (routing unchanged).
+
+2. First Home initial state.
+   - Stage-1 default avatar shown; direction from Hero/Heroine (D079); default /
+     uncustomized unless future implementation supplies default cosmetics.
+   - **Avatar Name is shown on Home.**
+   - Level / XP / Weekly Activity / Streak show their **starting values calmly**; empty
+     or zero values are framed as a **beginning**, not as missing progress (D031/D040).
+   - No automatic redirect to Workout 1; no modal, tooltip, banner, or forced
+     walkthrough; no forced customization prompt; no forced training prompt.
+
+3. Avatar Name placement on Home.
+   - The Avatar Name belongs to the **Living Presence identity area**. The **Stage Block
+     is refined to include the Avatar Name as its first identity line**, followed by
+     Stage Title and Stage Number. Home identity block order:
+     **Living Presence → Avatar Name → Stage Title / Stage Number → Voice Slot →
+     Continue Journey.**
+   - The Avatar Name must **not** be placed in the minimal header, inside the Profile
+     button, inside Continue Journey, as a separate dashboard/stat card, or as a
+     floating decorative label unrelated to the Presence.
+   - D082 locks **placement and hierarchy only** — exact visual styling of the name is
+     not locked here. The name belongs to the Presence identity area, is adjacent to
+     Stage identity, is not account/profile UI, is not part of the CTA, and does not
+     create a new primary action.
+
+4. What D082 does not change.
+   - Program Assignment logic (D061/D081); D059 initial journey state; D043 Continue
+     Journey routing; D071 Home structure **except** refining the Stage Block to include
+     the Avatar Name; D073 customization entry; D079 S4 copy; D080 editability rules;
+     and XP, Level, Stage, Streak, Weekly Activity, or Weight History behavior.
+
+Reason:
+After the emotional peak of the Naming Ceremony, the user may want to explore the app
+or customize the avatar before the first workout. Landing on the full Home (rather than
+auto-launching Workout 1) and refusing to over-highlight the workout CTA keeps Home the
+emotional center rather than a training funnel. Placing the Avatar Name as the first
+identity line of the Stage Block ties the name to the Presence it belongs to, not to
+account or dashboard UI.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §15 / §23; docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8;
+BFG_MVP_SCOPE.md; BFG_PRODUCT_GAPS.md; Decisions 043, 059, 071, 073, 078, 079, 080.
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -3018,9 +3095,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
-| Not Implemented | 54 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081 |
+| Not Implemented | 55 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081, 082 |
 
-Total decisions: 81.
+Total decisions: 82.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -3067,3 +3144,5 @@ Decisions 076 and 077 (Sign Up / Log In Auth Surface + Required Email Verificati
 Decision 078 (MVP Onboarding Flow Structure) was accepted 2026-06-26 and defines the onboarding flow that follows email verification (D077): **Verify Email ✓ → S1 Seed Form → S2 Goal + Sex → S3 Fitness Level + Environment/Home-Gym → [silent Program Assignment] → S4 Default Avatar + Naming Ceremony → Home**. It introduces no contradiction; it consumes D061 (Program Architecture) and D059 (Initial Journey State) and honors D010/D074 (no Stage 10 / no default avatar before S4), D001/D073 (single shared avatar state; heavy customization only from Home), and D077 (no verification/legal/payment field on the Naming Ceremony or any onboarding screen). Its **governing principle is Presence-led dialogue**: the Presence is present on **every** onboarding screen and **owns the question framing** (the options are the user's structured replies), via restrained Voice/text per the Presence Response System §4 and the Companion Doctrine — never free-form chat, no chat panel, no Voice overuse. Three accepted overrides: **(1)** the Naming Ceremony is **required** (not skippable; a soft suggested/default name may be offered but S4 must be completed, and the onboarding-complete flag flips only after S4); **(2)** **Goal does not drive MVP Program Assignment** (collected for framing/future use; assignment stays strictly Sex × Fitness Level × Training Format, D061); **(3)** **Sex drives Program Assignment and the basic Stage-1 default-avatar direction** (basic masculine/feminine direction only — no classes/stereotypes/manual editing/cosmetics/gameplay/social mechanics; final avatar art is a separate decision). Avatar **formation** is woven into transitions (changes appear on the following screen; the Stage-1 default avatar first appears on S4); program assignment is **silent** (no "building your path" screen). Recorded in `BFG_UI_RULES.md §23` (new Onboarding section), `docs/ui/BFG_SCREEN_WIREFRAMES.md` (new Onboarding section S1–S4), `BFG_MVP_SCOPE.md` (§1/§2.1 onboarding screens named), and a light cross-reference in `fitness/BFG_PROGRAM_ARCHITECTURE.md §4`. Option taxonomies, avatar art direction, and final copy are scoped separately. Not Implemented. Total decisions: **78**.
 
 Decisions 079, 080, and 081 were accepted 2026-06-26 and registered together; they build on D078 (onboarding structure) without redesigning the flow and introduce no contradiction. **D079** (MVP Onboarding Screen Copy and Answer Taxonomies) locks S1–S4 copy and the answer taxonomies/enums: **S1** has a tap-or-2–3s-inactivity reveal of "Давай сделаем первый шаг…" + [Продолжить]; **S2** Goal is **multi-select (≥1)** (`weight_loss` · `muscle_gain` · `endurance` · `general_fitness` · `body_recomposition`, not assignment-driving, editable later, future-only avatar starting-form signal) and Hero/Heroine single-select (`male`/`female`, labels «Герой»/«Героиня», drives assignment + basic avatar direction); **S3** Experience (`beginner`/`intermediate`/`advanced`) + Training Format (`home`/`gym`) + a **conditional** Weekly Frequency (`two_per_week`/`three_per_week`/`four_per_week`) shown only after the first two and refreshed/cleared on change; **S4** required Naming Ceremony (no skip). This **refines the D078 "single-select" Goal wording to multi-select** and adds the conditional-frequency question to S3 (D081). **D080** (Editable Onboarding Inputs After Onboarding) makes Goal, Sex, Experience, Training Format, Weekly Frequency, and Avatar Name editable later (preliminarily in Profile) with **no progression reset** (XP/Level/Stage/Streak/Workout History/Weight History/Avatar Progression preserved); Sex/Experience/Format/Frequency changes trigger Program Replacement/Variant recalculation (D061 §7, D081). **D081** (Conditional Weekly Frequency and Program Family Model) **refines D061**: it adds `weekly_frequency` as a fourth assignment dimension and a Program Family / Program Variant model (internal-only) — a shared scalable 4-workout **Home** family (frequency = how many of the 4 are active) vs frequency-specific authored **Gym** variants (beginner/intermediate gym 2–3/wk full-body; advanced gym 3–4/wk with separate 3-day and 4-day split variants, never truncated) — deliberately avoiding 24 independent monthly programs while not faking scalability for gym splits. Goal and Avatar Name remain outside Program Assignment. Recorded in `BFG_UI_RULES.md §23`, `ui/BFG_SCREEN_WIREFRAMES.md §0.2`, `BFG_MVP_SCOPE.md §1/§2.1`, and `fitness/BFG_PROGRAM_ARCHITECTURE.md §4` (+ Family/Variant + frequency). All three Not Implemented. Total decisions: **81**.
+
+Decision 082 (First Home After Onboarding and Avatar Name Placement) was accepted 2026-07-01 and finalizes what happens immediately after S4 (D079) and where the Avatar Name sits on Home. It introduces no contradiction — it changes **presentation and onboarding handoff only** and explicitly does not touch Program Assignment (D061/D081), the initial journey state (D059), or Continue Journey routing (D043). After S4 the user lands on the **full D071 Home** (no auto-transition to Workout 1, no forced workout launch): Continue Journey is available immediately but receives **no extra first-run glow/pulse/tooltip/modal/banner/onboarding hint** — its normal primary-CTA hierarchy is enough — and the user may **tap the Living Presence to enter Avatar Customization before the first workout** (D073) or explore other surfaces. The first Home shows the Stage-1 default avatar, the **Avatar Name**, and calm starting values (empty/zero framed as a beginning, not missing progress — D031/D040), with no redirect, modal, or forced prompt. It **refines D071's Stage Block** to include the **Avatar Name as its first identity line** (order: Living Presence → Avatar Name → Stage Title / Stage Number → Voice Slot → Continue Journey); the name belongs to the Presence identity area and must **not** appear in the header, in the Profile button, inside Continue Journey, as a stat card, or as a floating label — D082 locks **placement and hierarchy only**, not exact visual styling. For a brand-new user Continue Journey still resolves to Workout 1 (D059/D043). Recorded in `BFG_UI_RULES.md §15 / §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8`, and `BFG_MVP_SCOPE.md`; `fitness/BFG_PROGRAM_ARCHITECTURE.md` was reviewed and intentionally left unchanged (assignment logic is untouched). Not Implemented. Total decisions: **82**.

@@ -248,9 +248,9 @@ Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no
 │   │     [Продолжить]     │   │  REQUIRED · no [Пропустить] · inactive until valid name
 │   └─────────────────────┘   │
 └─────────────────────────────┘
-   [Продолжить] → onboarding complete → Home (§8); Continue Journey → Workout 1 (D059)
+   [Продолжить] → onboarding complete → full Home (§8), NO auto-redirect to Workout 1 (D082); Continue Journey → Workout 1 (D059)
 ```
-- **Inputs:** avatar **name** (required; **no skip / no [Пропустить]**; [Продолжить] inactive until valid; a future suggested default is still confirmed). **Presence:** Stage-1 Default Avatar (first appearance; never beyond Stage 1 — D010); direction from Hero/Heroine; writes to the single shared avatar visual state (D001, §9). Name **editable later in Profile (D080)** and never affects assignment/progression. **Destination:** onboarding complete flag set → Home (§8). **Forbidden:** email-verification/OTP, password confirmation, legal consent, payment, subscription, any auth/security/admin field (D077); heavy customization; any evolved/Stage-10 form; metrics; trial/pricing; marketing; shame/body-negative copy; a [Пропустить].
+- **Inputs:** avatar **name** (required; **no skip / no [Пропустить]**; [Продолжить] inactive until valid; a future suggested default is still confirmed). **Presence:** Stage-1 Default Avatar (first appearance; never beyond Stage 1 — D010); direction from Hero/Heroine; writes to the single shared avatar visual state (D001, §9). Name **editable later in Profile (D080)** and never affects assignment/progression. **Destination (D082):** onboarding complete flag set → the **full Home (§8)** — **no automatic transition to Workout 1**, no forced workout launch, no first-run CTA highlight; the **Avatar Name appears on Home** as the first identity line of the Stage Block (§8), and the user may tap the Presence to customize before the first workout (D073). **Forbidden:** email-verification/OTP, password confirmation, legal consent, payment, subscription, any auth/security/admin field (D077); heavy customization; any evolved/Stage-10 form; metrics; trial/pricing; marketing; shame/body-negative copy; a [Пропустить]; an auto-redirect to Workout 1 or a forced-workout modal on the first Home (D082).
 
 **1. Goal (section):** a calm Presence-led first dialogue that collects the four Program keys (Hero/Heroine, Experience, Training Format, Weekly Frequency — D081) plus Goal (framing only), and ends by giving the user their named Stage-1 avatar.
 
@@ -559,6 +559,7 @@ The **emotional center** of BFG (D002, D007, D039, D071) — not a dashboard, ac
 │        ╰─┤Presence├─╯        │  open arcs: visible start/end + split,
 │          ╰───────╯          │  value label in the split, calm fill (§5/§13)
 │                             │
+│        Auron                │  Avatar Name — first identity line of the Stage Block (D082)
 │        SEEKER / STAGE 3     │  Stage Block — Title + Number (D071)
 │   "you came back."          │  Voice Slot (event-driven, rare; may be empty) (D036–038, D071)
 │                             │
@@ -572,7 +573,7 @@ The **emotional center** of BFG (D002, D007, D039, D071) — not a dashboard, ac
 
 **1. Goal:** ground the user in their Presence (where am I now) and offer the single way forward (continue the journey).
 
-**2. Composition top → bottom (D071):** Minimal Header (Profile button) → **Living Presence** (center, dominant) wrapped by **two open rings** (Inner = Level Progress, Outer = Weekly Activity Progress) → **Stage Block** (Title + Number) → **event-driven Voice Slot** (conditional) → **Continue Journey** CTA → BottomNav.
+**2. Composition top → bottom (D071, refined by D082):** Minimal Header (Profile button) → **Living Presence** (center, dominant) wrapped by **two open rings** (Inner = Level Progress, Outer = Weekly Activity Progress) → **Stage Block** (**Avatar Name** as first identity line, then Title + Number — D082) → **event-driven Voice Slot** (conditional) → **Continue Journey** CTA → BottomNav. The Avatar Name belongs to the Presence identity area — never in the header, the Profile button, the CTA, a stat card, or as a floating label (D082).
 
 **3. Primary visual accent:** the **Living Presence**. The rings are a supporting layer and must never out-weigh it (§15).
 
@@ -602,6 +603,8 @@ The **emotional center** of BFG (D002, D007, D039, D071) — not a dashboard, ac
 **Home must not show (D071):** workout list, quest list, raw XP table, achievement grid, detailed statistics, activity history, strength analytics, weight history, profile/account details, subscription details, multiple primary CTAs, a permanent companion chat panel, a notification bell (MVP), a third ring, a streak ring, a separate XP ring, a quest progress ring, red failure states, shame copy, hype copy, or casino-style reward animation.
 
 > Stage Evolution (§7, D069) temporarily takes over Home for the Evolution Animation; the standard composition above resumes after — it is a transient milestone, not a new fixture (§15).
+
+> **First Home after onboarding (D082):** arriving from S4 (§0.2) lands the user on this **same full Home** — **no auto-redirect to Workout 1**, no forced-workout modal, and **no first-run highlight** on Continue Journey (no glow, pulse, tooltip, banner). Initial state: Stage-1 default avatar, the **Avatar Name** shown in the Stage Block, and calm starting Level / XP / Weekly Activity / Streak values (empty/zero framed as a beginning, not missing progress — D031/D040). The user may **tap the Living Presence to customize before the first workout** (D073) or press Continue Journey (→ Workout 1, D059/D043) when ready. D082 changes presentation/handoff only — routing is unchanged.
 
 ---
 
@@ -652,7 +655,7 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ## Decisions referenced
 
-**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
+**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**, **D082 (First Home After Onboarding and Avatar Name Placement)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
 
 ## Out of scope for this slice (later wireframe passes)
 
