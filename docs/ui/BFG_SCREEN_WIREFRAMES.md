@@ -206,7 +206,7 @@ Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no
 ```
 - **Inputs:** Goal **multi-select (≥1)**; Hero/Heroine single-select (both required). **Hero/Heroine** drives Program Assignment + basic Stage-1 avatar direction (D061/D081); **Goal does NOT** drive assignment (framing / future personalization / future Post-MVP avatar starting-form). **Editable later in Profile (D080).** **Destination:** → S3.
 
-**S3 — Experience + Training Format + Conditional Weekly Frequency (D079, D081)**
+**S3 — Experience + Training Format + Weekly Frequency + Conditional Training Structure (D079, D081, D085)**
 ```
 ┌─────────────────────────────┐
 │        ╭───────╮            │  PRESENCE ZONE — first subtle FORMATION beat (from S2)
@@ -214,26 +214,30 @@ Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no
 │        ╰───────╯            │
 │  Мне нужно понять, какая    │  S3 intro copy (D079)
 │  нагрузка подойдёт… и где.  │
-│  Какой уровень тебе ближе?  │  Q1 Experience — single-select
+│  Какой уровень тебе ближе?  │  Q1 Experience — single-select (GATE, not a family)
 │  [Только начинаю]           │   beginner
 │  [Тренируюсь менее года]    │   intermediate
 │  [Регулярно больше года]    │   advanced
 │  Где будешь тренироваться?  │  Q2 Training Format — single-select
 │  [ Дома ]  [ В зале ]       │   home · gym
-│  ── frequency hidden until both above selected (D081) ──
+│  ── frequency hidden until both above selected ──
 │  Сколько раз в неделю       │  Q3 appears ONLY after Experience + Format
-│  тебе удобно тренироваться? │   shows only ALLOWED options (D081 matrix)
-│  [ 2 ] [ 3 ] [ 4 ]          │   two_/three_/four_per_week (allowed subset)
+│  тебе удобно тренироваться? │   shows only ALLOWED options for the Experience (D085)
+│  [ 2 ] [ 3 ] [ 4 ]          │   Beginner→[2][3] · Intermediate→[3] · Advanced→[3][4]
+│  ── structure hidden unless Gym AND Experience≠Beginner (D085) ──
+│  Какой формат тебе ближе?   │  Q4 Training Structure — ONLY Gym Int-3 / Adv-3 / Adv-4
+│  [ Фулбоди ]  [ Сплит ]     │   full_body · split (else auto Full Body, not shown)
 │  Информацию можно изменить  │  helper line (→ Профиль)
 │  позже в разделе «Профиль». │
 │   ┌─────────────────────┐   │
-│   │     [Продолжить]     │   │  active only when Level + Place + Frequency set
+│   │     [Продолжить]     │   │  active when Level+Place+Freq (+Structure if shown) set
 │   └─────────────────────┘   │
 └─────────────────────────────┘
-   → [silent Program Assignment: sex × fitness_level × training_format × weekly_frequency
-      + Home/Gym content model → Program Family / Variant (D081/D061); no screen]
+   → [silent Program Assignment: direction(sex) × training_format × training_structure ×
+      weekly_frequency → reduced 8-Program model (D085/D061); no screen]
 ```
-- **Conditional frequency (D081):** hidden until **both** Experience and Training Format are chosen — no question, hint, or placeholder before then; then only allowed options show; changing Experience/Format clears an invalid frequency and refreshes. **Allowed matrix:** Home → 2/3/4 (shared scalable 4-workout family); Gym beginner → 2/3; Gym intermediate → 2/3; Gym advanced → 3/4 (separate 3- and 4-day split variants). **Never expose** full body / split / family / variant / assignment key. **Editable later (D080).** **Destination:** silent assignment → S4. **Forbidden:** equipment checklist; biometrics/BMI/weight/height/injury; "choose your program/workout"; a visible assignment/loading screen.
+- **Conditional frequency (D085, supersedes D081 matrix):** hidden until **both** Experience and Training Format are chosen; then only the allowed options **for the chosen Experience** show (same for Home and Gym) — **Beginner → 2/3 · Intermediate → 3 · Advanced → 3/4**; if only one is allowed (Intermediate), show only that value (single selectable/preselected), never unavailable alternatives; changing Experience/Format clears an invalid frequency and refreshes.
+- **Conditional Training Structure (D085):** values `full_body`/`split`, labels **[Фулбоди]/[Сплит]** only; shown **only when Training Format = Gym AND Experience ≠ Beginner** (Gym Intermediate 3, Gym Advanced 3, Gym Advanced 4). Otherwise **hidden and auto-resolves to Full Body**. **2 days always → Full Body**; Split never for Home, never for Beginner. **Never expose** program family / variant / assignment key / internal IDs (Фулбоди/Сплит is user-facing, not internal). **Editable later (D080/D084).** **Destination:** silent assignment → S4. **Forbidden:** equipment checklist; biometrics/BMI/weight/height/injury; "choose your program/workout"; a visible assignment/loading screen; a Фулбоди/Сплит choice outside the eligible Gym cases.
 
 **S4 — Default Avatar + Naming Ceremony (required, D079)**
 ```
@@ -260,7 +264,7 @@ Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no
 
 **4. Routing:** Verify Email ✓ → S1 · onboarding complete (S4 done) → Home · returning verified user with unfinished onboarding → resume at the earliest unanswered screen · verified + complete → Home (D076, D077, D078).
 
-> **Scope (D079/D080/D081):** copy and taxonomies are accepted (D079); the conditional-frequency matrix and Program Family/Variant model are D081; post-onboarding editing of Goal/Hero-Heroine/Experience/Training-Format/Weekly-Frequency/Name lives in Profile with no progression reset (D080). Default-avatar art direction and future Goal-driven starting-form remain separate (Post-MVP). Program assignment is silent and deterministic (sex × fitness_level × training_format × weekly_frequency, D061/D081); the user never chooses a program/workout. Heavy customization is entered later from Home (D073), never in onboarding. **Avatar direction on later change (D083):** if the user later changes Hero/Heroine in Profile (D080) it switches the **active avatar direction** only — no customization migrates between the Hero and Heroine slots; the new direction renders its **saved slot** if present, otherwise its **default avatar at the current global Stage** (never Stage 1 for a mid-journey user); the other direction's slot is preserved; Avatar Name and Stage stay global; one Presence throughout (D001).
+> **Scope (D079/D080/D081/D084/D085):** copy and taxonomies are accepted (D079); the Weekly-Frequency matrix, the conditional Training Structure choice, and the reduced 8-Program family model are **D085 (superseding the D081 matrix/family model)**; post-onboarding editing of Goal/Hero-Heroine/Experience/Training-Format/Weekly-Frequency/Training-Structure/Name lives in Profile with no progression reset (D080), and its save/confirmation behavior is **D084** (Goal & Name save immediately; the program-changing fields use a calm confirmation modal; an In-Progress workout defers the new assignment until it finishes — D058/D061). Default-avatar art direction and future Goal-driven starting-form remain separate (Post-MVP); Goal may later affect Nutrition only, never training assignment. Program assignment is silent and deterministic (**direction(sex) × training_format × training_structure × weekly_frequency**, D085/D061; Experience only gates the allowed options); the user never chooses a program/workout. Heavy customization is entered later from Home (D073), never in onboarding. **Avatar direction on later change (D083):** if the user later changes Hero/Heroine in Profile (D080) it switches the **active avatar direction** only — no customization migrates between the Hero and Heroine slots; the new direction renders its **saved slot** if present, otherwise its **default avatar at the current global Stage** (never Stage 1 for a mid-journey user); the other direction's slot is preserved; Avatar Name and Stage stay global; one Presence throughout (D001).
 
 ---
 
@@ -658,7 +662,7 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ## Decisions referenced
 
-**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**, **D082 (First Home After Onboarding and Avatar Name Placement)**, **D083 (Avatar Direction Slots and Default Stage Forms)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21.
+**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**, **D082 (First Home After Onboarding and Avatar Name Placement)**, **D083 (Avatar Direction Slots and Default Stage Forms)**, **D084 (Profile Editability and Change Confirmation Model)**, **D085 (Training Structure Choice and Reduced Program Family Model)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21, §23.
 
 ## Out of scope for this slice (later wireframe passes)
 

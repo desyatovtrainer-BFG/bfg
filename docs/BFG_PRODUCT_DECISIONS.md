@@ -2873,6 +2873,15 @@ Status:
 Accepted
 
 Decision:
+**Superseded / refined by Decision 085 (2026-07-01):** D085 replaces this decision's
+weekly-frequency matrix (now Beginner 2/3, Intermediate 3, Advanced 3/4 — consistently
+for Home and Gym) and its Program Family / Program Variant model (now a reduced,
+Experience-gated model of exactly 8 coach-authored Programs / 30 Workout Templates, with
+Home always Full Body and Split only for eligible Gym users, plus a Training Structure
+choice). The conditional-frequency-on-S3 principle below still holds; where the frequency
+matrix or family model here conflicts with D085, **D085 wins**. This entry is retained
+for history and is not deleted.
+
 Refines D061 (Program Architecture) and extends D078 S3 by adding a conditional
 Weekly Frequency input and a Program Family / Program Variant model. The user only
 ever sees simple onboarding questions (level, place, frequency) — never the
@@ -3135,6 +3144,241 @@ Decisions 001, 010, 011, 061, 073, 079, 080, 081, 082.
 
 ---
 
+# Decision 084
+
+Title:
+Profile Editability and Change Confirmation Model
+
+Category:
+UX / Profile
+
+Status:
+Accepted
+
+MVP / Post-MVP:
+MVP. D080 already makes onboarding inputs editable later in Profile; D084 defines the
+user-facing save/confirmation behavior before Profile editability is implemented.
+
+Decision:
+Defines how the onboarding inputs are edited later in Profile and which changes require
+a confirmation modal. It changes **user-facing save/confirmation behavior only** — it
+does not change Program Assignment logic (D061/D081/D085), avatar direction behavior
+(D083), or any progression system.
+
+1. Editable inputs.
+   - All onboarding inputs are editable later in Profile: **Goal, Hero/Heroine,
+     Experience, Training Format, Weekly Frequency, Training Structure, Avatar Name.**
+     **Training Structure** is introduced by D085 and is editable **only when the current
+     selected data allows it** (Gym + non-Beginner; D085).
+
+2. Safe fields (save immediately, no confirmation).
+   - **Goal** and **Avatar Name** save immediately without a confirmation modal.
+   - **Goal** does not change training Program Assignment in MVP; it may later influence
+     **Nutrition** recommendations / meal guidance / nutrition tone / nutrition-facing
+     personalization (not training). **Avatar Name** stays **global** and changes no
+     Program Assignment, XP, Level, Stage, Streak, Workout History, Weight History, or
+     avatar visual slots (D083).
+
+3. Program-changing fields (require a confirmation modal, not a full screen).
+   - **Hero/Heroine, Experience, Training Format, Weekly Frequency, Training Structure**
+     may change Program Assignment and therefore require a **calm confirmation modal**
+     before saving.
+   - **Hero/Heroine confirmation modal** (detailed; must reflect D083 exactly — no
+     customization migration between Hero and Heroine, saved visual slot returns if it
+     exists, otherwise the default avatar of the chosen direction at the current global
+     Stage, Avatar Name and Stage stay global, progress/history not reset). Accepted copy:
+
+     ```text
+     Изменится направление аватара и подбор тренировок.
+
+     Кастомизация между Героем и Героиней не переносится.
+     Если для выбранного направления уже был сохранён внешний вид, он вернётся.
+     Если нет — появится базовый аватар текущей стадии.
+
+     Прогресс, уровень, история тренировок, рабочие веса и имя сохранятся.
+
+     [Сохранить изменения]
+     [Отмена]
+     ```
+
+   - **Program-change confirmation modal** (shorter; for Experience, Training Format,
+     Weekly Frequency, or Training Structure). Accepted copy:
+
+     ```text
+     Тренировки могут измениться.
+
+     Прогресс, уровень, история и аватар сохранятся.
+
+     [Сохранить изменения]
+     [Отмена]
+     ```
+
+4. Active workout behavior (preserves D058 / D061).
+   - If a workout is **In Progress** when the user confirms a program-changing edit: the
+     active workout is **not cancelled** and **not rewritten**; it continues against the
+     **snapshot that existed when it started**; the new Program Assignment applies **only
+     after** the active workout is completed. When a workout is In Progress, add to the
+     confirmation modal:
+
+     ```text
+     Текущая тренировка останется без изменений.
+     Новый подбор тренировок применится после её завершения.
+     ```
+
+5. After save.
+   - The user **remains in Profile** — no automatic navigation to Home or Activity, no
+     forced workout launch, no forced customization prompt. Profile shows a **calm inline
+     success state**. Suggested (not locked, not a separate screen) copy — safe change:
+     `Изменения сохранены.` · program-changing change: `Изменения сохранены. Тренировки
+     обновятся.` · workout In Progress: `Изменения сохранены. Новый подбор применится
+     после текущей тренировки.`
+
+What D084 does not decide:
+exact Profile screen layout; exact database schema; exact Server Action implementation;
+Avatar Customization catalog; Nutrition recommendation logic; payment/subscription
+settings; Profile visual design beyond confirmation behavior.
+
+Reason:
+Because D080 makes onboarding inputs editable, the product needs a defined, calm
+save/confirm model: trivial fields (Goal, Name) save silently, while anything that can
+change the assigned training or the avatar direction asks for a calm modal that states
+exactly what is preserved. Deferring the new assignment until an active workout finishes
+keeps the D058 single-active-workout boundary intact.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §23; docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2; BFG_MVP_SCOPE.md §2.1;
+BFG_PRODUCT_GAPS.md; fitness/BFG_PROGRAM_ARCHITECTURE.md §4 / §7;
+Decisions 058, 061, 080, 081, 083, 085.
+
+---
+
+# Decision 085
+
+Title:
+Training Structure Choice and Reduced Program Family Model
+
+Category:
+Fitness System / Onboarding UX
+
+Status:
+Accepted
+
+MVP / Post-MVP:
+MVP. Program Assignment and onboarding/Profile editability need a stable
+training-structure model before implementation.
+
+Decision:
+BFG uses a **reduced coach-authored Program Family model**. **Experience no longer
+multiplies separate Program Families**; Experience only **gates** the allowed Weekly
+Frequency and whether the Training Structure choice is available. **Goal does not affect
+training Program Assignment** (it may later affect Nutrition recommendations). **Home is
+always Full Body**; **Split is available only in Gym and never for Beginners.** D085
+**refines / supersedes** the D081 weekly-frequency matrix and Program Family model, and
+refines D061 assignment details where necessary. It changes **no** no-progression-reset
+rule and **no** active-workout-preservation rule.
+
+1. Weekly Frequency matrix (supersedes D081).
+   - **Beginner → 2 or 3 / week. Intermediate → 3 / week. Advanced → 3 or 4 / week.**
+     This matrix applies by Experience level and **consistently for Home and Gym**.
+
+2. Training Format rules.
+   - **Home:** always Full Body; no Full Body / Split choice is shown.
+   - **Gym:** Full Body or Split, depending on Experience and Weekly Frequency.
+
+3. Training Structure (`full_body` · `split`) availability.
+   - Home + any Experience + any allowed frequency → **Full Body automatically**, choice
+     not shown.
+   - Gym + Beginner + 2 → **Full Body automatically**, choice not shown.
+   - Gym + Beginner + 3 → **Full Body automatically**, choice not shown.
+   - Gym + Intermediate + 3 → **show choice [Фулбоди] / [Сплит]**.
+   - Gym + Advanced + 3 → **show choice [Фулбоди] / [Сплит]**.
+   - Gym + Advanced + 4 → **show choice [Фулбоди] / [Сплит]**.
+   - Hard rules: **2 training days always resolves to Full Body**; Split is **never** for
+     Home; Split is **never** for Beginner; Beginner **never** sees the Full Body / Split
+     choice; Intermediate has **only** 3 days; Advanced has **3 or 4** days.
+
+4. Onboarding S3 order: Experience → Training Format → Weekly Frequency → Training
+   Structure (only when available).
+   - Weekly Frequency options shown depend on Experience (Beginner [2][3] · Intermediate
+     [3] · Advanced [3][4]). If only one frequency is allowed, show only that value (may
+     be rendered as a single selectable/preselected option), never unavailable
+     alternatives.
+   - Training Structure is shown only when **Training Format = Gym AND Experience ≠
+     Beginner** — i.e. Gym Intermediate + 3, Gym Advanced + 3, Gym Advanced + 4. When not
+     available it **resolves automatically to Full Body**.
+   - Never expose internal terms (Program Family, Program Variant, assignment key,
+     scalable family, template subset, internal program IDs). User-facing labels are only
+     **[Фулбоди] / [Сплит]**; no technical explanation in onboarding.
+
+5. Profile behavior (with D084).
+   - Training Structure is editable later in Profile **only when the current selected
+     values allow it**. If the user changes Profile data so that Split is no longer
+     allowed, Training Structure **resolves automatically to Full Body** (e.g. Gym
+     Advanced 4 + Split → Experience → Beginner ⇒ Full Body; Gym Intermediate 3 + Split →
+     Format → Home ⇒ Full Body; Gym Advanced 4 + Split → Frequency → 3 ⇒ Split may remain
+     because Gym Advanced 3 allows Split). Changing Training Structure is a
+     **program-changing edit** and follows the D084 confirmation modal; if Training
+     Structure flips to Full Body because another field changed, it is part of that same
+     program-changing confirmation flow. **No hidden restoration of a previously selected
+     Split** — if a combination does not allow Split, the active value is Full Body.
+
+6. Reduced Program Family model — exactly **8 Programs / 30 Workout Templates**.
+   - `1. Home Full Body Hero — 4 workouts` · `2. Home Full Body Heroine — 4 workouts` ·
+     `3. Gym Full Body Hero — 4 workouts` · `4. Gym Full Body Heroine — 4 workouts` ·
+     `5. Gym 3-Day Split Hero — 3 workouts` · `6. Gym 3-Day Split Heroine — 3 workouts` ·
+     `7. Gym 4-Day Split Hero — 4 workouts` · `8. Gym 4-Day Split Heroine — 4 workouts`.
+     Baseline: **8 Programs, 30 Workout Templates** (4+4+4+4+3+3+4+4).
+
+7. Full Body scaling rule.
+   - Full Body Programs contain **4 workouts**; the user sees the **active subset** by
+     Weekly Frequency: 2/week → first 2 active; 3/week → first 3 active; 4/week → all 4
+     active. Applies to Home Full Body Hero/Heroine and Gym Full Body Hero/Heroine.
+     Beginner never sees 4 (only 2 or 3); Intermediate sees 3; Advanced sees 3 or 4.
+
+8. Split rule.
+   - Split Programs are **frequency-specific and not scalable by truncation**: the 3-day
+     Split is a **separate 3-workout Program**, the 4-day Split a **separate 4-workout
+     Program**. The **3-day Split is shared by Intermediate and Advanced**; the **4-day
+     Split is Advanced-only**. Do **not** derive the 3-day split by truncating the 4-day
+     split. Never show Split for Beginner or for Home.
+
+9. Program Assignment relationship (refines D061 / D081).
+   - Training Program Assignment uses **avatar direction (Hero/Heroine) × Training Format
+     × Training Structure × Weekly Frequency**. **Experience gates** which Weekly
+     Frequency and Training Structure options are allowed but **does not multiply**
+     separate Program Families in the reduced MVP model. **Goal** does not affect training
+     assignment. Assignment stays **silent and deterministic**; the user never sees
+     Program Family, Program Variant, assignment key, or internal program ID. Changing
+     assignment grants no XP and resets no progress; Program Replacement and the
+     active-workout snapshot behavior (D058/D061 §7) are unchanged.
+
+What D085 does not decide:
+exact exercise selection; exact workout content; exact split names; exact workout titles;
+exact database schema; exact admin/content editing UI; Nutrition recommendations; Avatar
+Customization; payment/subscription features; final Profile layout.
+
+Reason:
+The earlier D081 model (Experience-multiplied families + Home scalability + gym variants)
+implied a large authored surface and left the training-structure choice ambiguous. A
+reduced model — 8 coach-authored Programs, Experience as a gate rather than a multiplier,
+Home always Full Body, Split only for eligible Gym users, and Full Body Programs exposing
+a frequency-sized active subset — is deterministic, keeps the authored content workload
+small (30 templates), and gives a clean Training Structure choice exactly where training
+reality warrants it, without exposing any internal model to the user.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+fitness/BFG_PROGRAM_ARCHITECTURE.md §3 / §4 / §4.1 / §7; BFG_UI_RULES.md §23;
+docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2; BFG_MVP_SCOPE.md §2.1; BFG_PRODUCT_GAPS.md;
+Decisions 046, 058, 059, 061, 078, 079, 080, 081, 083, 084.
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -3210,9 +3454,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
-| Not Implemented | 56 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081, 082, 083 |
+| Not Implemented | 58 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081, 082, 083, 084, 085 |
 
-Total decisions: 83.
+Total decisions: 85.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -3263,3 +3507,5 @@ Decisions 079, 080, and 081 were accepted 2026-06-26 and registered together; th
 Decision 082 (First Home After Onboarding and Avatar Name Placement) was accepted 2026-07-01 and finalizes what happens immediately after S4 (D079) and where the Avatar Name sits on Home. It introduces no contradiction — it changes **presentation and onboarding handoff only** and explicitly does not touch Program Assignment (D061/D081), the initial journey state (D059), or Continue Journey routing (D043). After S4 the user lands on the **full D071 Home** (no auto-transition to Workout 1, no forced workout launch): Continue Journey is available immediately but receives **no extra first-run glow/pulse/tooltip/modal/banner/onboarding hint** — its normal primary-CTA hierarchy is enough — and the user may **tap the Living Presence to enter Avatar Customization before the first workout** (D073) or explore other surfaces. The first Home shows the Stage-1 default avatar, the **Avatar Name**, and calm starting values (empty/zero framed as a beginning, not missing progress — D031/D040), with no redirect, modal, or forced prompt. It **refines D071's Stage Block** to include the **Avatar Name as its first identity line** (order: Living Presence → Avatar Name → Stage Title / Stage Number → Voice Slot → Continue Journey); the name belongs to the Presence identity area and must **not** appear in the header, in the Profile button, inside Continue Journey, as a stat card, or as a floating label — D082 locks **placement and hierarchy only**, not exact visual styling. For a brand-new user Continue Journey still resolves to Workout 1 (D059/D043). Recorded in `BFG_UI_RULES.md §15 / §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8`, and `BFG_MVP_SCOPE.md`; `fitness/BFG_PROGRAM_ARCHITECTURE.md` was reviewed and intentionally left unchanged (assignment logic is untouched). Not Implemented. Total decisions: **82**.
 
 Decision 083 (Avatar Direction Slots and Default Stage Forms) was accepted 2026-07-01 and is **MVP** (D080 already lets Hero/Heroine be changed later in Profile, so the avatar visual-state behavior on switch must be defined). It introduces no contradiction — it is a visual-state persistence rule that changes **no** Program Assignment logic (D061/D081), no routing (D043), and no progression system. **BFG does not migrate customization between Hero and Heroine**: changing Hero/Heroine changes the **active direction only**, and BFG keeps **separate per-direction visual slots** (Hero slot / Heroine slot). On switch, BFG renders at the **current global Stage** and either **restores the new direction's saved slot** or shows that direction's **default avatar at the current Stage** (Stage-7 user switching to Heroine for the first time sees **Heroine Default Stage 7**, never Stage 1); switching **away preserves** the prior slot (never deletes it), and a restored slot renders on the **current** Stage base, never frozen at the Stage it was created on. **No** clothing/hair/beard/moustache/accessory/body/facial/color/accent/aura setting migrates between directions (no compatibility mapping, no partial migration). **Avatar Name and Stage stay global**; the change resets **no** XP / Level / Stage / Streak / Workout History / Weight History / Avatar Name. D001 is preserved — one Presence, two stored visual representations, one active direction at a time; Home and Progress always show the active direction at the current global Stage (D001/D073). D083 does **not** decide final avatar art, customization depth, catalogs, paid cosmetics, currency, DB schema, or Profile/modal copy. Recorded in `BFG_UI_RULES.md §15 / §20 / §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8 / §9`, and `BFG_MVP_SCOPE.md §2.1`; `fitness/BFG_PROGRAM_ARCHITECTURE.md` was reviewed and intentionally left unchanged (assignment logic is untouched). Not Implemented. Total decisions: **83**.
+
+Decisions 084 and 085 were accepted 2026-07-01 and registered together; both are **MVP** and **Not Implemented**, and both introduce no contradiction. **D084 (Profile Editability and Change Confirmation Model)** defines the user-facing save/confirm behavior for the D080 editable inputs: **Goal and Avatar Name save immediately** (Goal is training-assignment-neutral and may later feed **Nutrition** only; Avatar Name stays global, D083); **Hero/Heroine, Experience, Training Format, Weekly Frequency, and Training Structure** are program-changing and require a **calm confirmation modal** (a detailed D083-accurate Hero/Heroine modal; a shorter modal for the training fields), never a full screen. If a workout is **In Progress**, the modal states the active workout is untouched and the new assignment applies after it completes (**D058/D061 preserved**); after any save the user **stays in Profile** with a calm inline success line (no auto-nav, no forced launch/customization). Accepted Russian modal/success copy is recorded in the D084 entry. **D085 (Training Structure Choice and Reduced Program Family Model)** **refines/supersedes the D081 weekly-frequency matrix and Program Family model**: the new matrix is **Beginner 2/3 · Intermediate 3 · Advanced 3/4** (same for Home and Gym); **Experience no longer multiplies Program Families** — it only **gates** allowed frequency and whether the **Training Structure** (`full_body`/`split`) choice appears; **Home is always Full Body**, **Split is Gym-only and never for Beginner**, **2 days always resolves to Full Body**, and the choice shows only for **Gym Intermediate 3 / Gym Advanced 3 / Gym Advanced 4**. The reduced model is exactly **8 coach-authored Programs / 30 Workout Templates** (Home FB Hero/Heroine 4+4, Gym FB Hero/Heroine 4+4, Gym 3-Day Split Hero/Heroine 3+3, Gym 4-Day Split Hero/Heroine 4+4); **Full Body Programs expose a frequency-sized active subset** (2→first 2, 3→first 3, 4→all 4); **Split Programs are frequency-specific, never truncated** (3-day Split shared by Intermediate/Advanced, 4-day Split Advanced-only). Assignment now reads **direction × Training Format × Training Structure × Weekly Frequency**, stays silent/deterministic, grants no XP, and resets no progress. Recorded in `fitness/BFG_PROGRAM_ARCHITECTURE.md §3/§4/§4.1/§7`, `BFG_UI_RULES.md §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2`, and `BFG_MVP_SCOPE.md §2.1`; the D081 entry is retained with a supersession note (not deleted). Total decisions: **85**.

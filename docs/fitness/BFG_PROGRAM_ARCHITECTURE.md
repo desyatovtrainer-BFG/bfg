@@ -1,6 +1,6 @@
 # BFG — Program Architecture v1
 
-Status: **Accepted** (registry Decision 061, accepted 2026-06-22)
+Status: **Accepted** (registry Decision 061, accepted 2026-06-22; assignment model refined by Decision 081 and **superseded/refined by Decision 085**, accepted 2026-07-01; Profile editability/confirmation by Decision 084)
 Category: Fitness System
 
 This document specifies the accepted Program model. It records **what the entity is and why**, not database schema or code. When this document disagrees with `docs/BFG_PRODUCT_DECISIONS.md`, the registry wins and this document must be updated.
@@ -13,7 +13,7 @@ Companion documents:
 - `BFG_BEGINNER_JOURNEY.md` — Home vs Gym framed as a logistical onboarding question.
 - `docs/fitness/BFG_WORKOUT_MIGRATION_STATUS.md` — current implementation vs approved target architecture (this entity is Approved / Not Implemented).
 - `WORKOUT_CONTENT_GUIDE.md` §13 — authoring model for content authors.
-- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 040, 041, 046, 047, 051, 058, 059, 060, 061.
+- `docs/BFG_PRODUCT_DECISIONS.md` — Decisions 040, 041, 046, 047, 051, 058, 059, 060, 061, 081, 084, 085.
 
 ---
 
@@ -41,7 +41,9 @@ The constraint that shapes the whole design is the **isolation rule**: a Program
 
 > **A Program is a coach-authored, named, ordered set of Workout Templates, assigned to a user by Sex × Fitness Level × Training Format. It is the entity that determines which workouts a user is given — nothing more.**
 
-A Program is a **selector and sequence container**, not a course. It has no start, no end, no completion percentage, no graduation, and no rewards. It is the named bucket (e.g. "Beginner Gym") whose ordered template list feeds the Journey cycle (Decision 046).
+A Program is a **selector and sequence container**, not a course. It has no start, no end, no completion percentage, no graduation, and no rewards. It is the named bucket (e.g. "Gym 4-Day Split Hero") whose ordered template list feeds the Journey cycle (Decision 046).
+
+> **Assignment-key note (Decision 085).** The `Sex × Fitness Level × Training Format` phrasing above is the original D061 key; **D085 refines it** to **direction(Sex) × Training Format × Training Structure × Weekly Frequency**, with **Experience as a gate, not a selector** — see §4.1. The reduced MVP model is **8 coach-authored Programs / 30 Workout Templates**.
 
 ---
 
@@ -68,23 +70,40 @@ Beginner Home          Intermediate Gym
 
 ## 4. Assignment Rules
 
-- Assignment is a **deterministic mapping**: `(Sex, Fitness Level, Training Format) → Program`. One coordinate triple resolves to exactly one active Program.
-  - Example: `Male + Beginner + Gym → Beginner Gym`; `Female + Intermediate + Home → Intermediate Home`.
+- Assignment is a **deterministic mapping**. The base `(Sex, Fitness Level, Training Format) → Program` mapping is **refined by Decision 085** (§4.1) to **direction(Sex) × Training Format × Training Structure × Weekly Frequency → Program**, where **Experience only gates** the allowed frequency/structure options (it no longer selects a separate family). One resolved key set maps to exactly one active Program from the reduced 8-Program model (§4.1).
+  - Example (D085): `Hero + Gym + Split + 4/week → Gym 4-Day Split Hero`; `Heroine + Home + (Full Body) + 3/week → Home Full Body Heroine` (first 3 of 4 workouts active).
 - The user **never builds, chooses, or edits** a Program, its workouts, exercises, sets, or reps (Decision 040; Library is "not a user-facing catalog", Decision 041). The user supplies only the three logistical inputs — framed as logistical, not identity, questions (`BFG_BEGINNER_JOURNEY.md`).
 - Assignment **grants nothing**: being assigned a Program awards no XP, Level, Stage, or Streak. It only sets which workouts appear.
 - On first assignment, the Journey initializes per Decision 059 (pointer → Workout 1; Workout 1 Upcoming; Continue Journey → Workout 1).
-- The assignment keys are supplied by onboarding (Decisions 078, 079, 081): **Hero/Heroine (Sex)** on S2; **Experience (Fitness Level)**, **Training Format**, and a **conditional Weekly Frequency** on S3. Assignment runs **silently and deterministically** once those keys exist (leaving S3) — no program-selection screen and no "building your path" screen. **Goal** and **Avatar Name** (also collected at onboarding) do **not** drive assignment.
+- The assignment keys are supplied by onboarding (Decisions 078, 079, 085): **Hero/Heroine (Sex)** on S2; **Experience**, **Training Format**, a **conditional Weekly Frequency**, and a **conditional Training Structure** (Full Body / Split, shown only for eligible Gym + non-Beginner cases) on S3. Assignment runs **silently and deterministically** once those keys exist (leaving S3) — no program-selection screen and no "building your path" screen. **Experience gates** the allowed frequency/structure options but does not multiply families; **Goal** and **Avatar Name** (also collected at onboarding) do **not** drive assignment (Goal may later feed Nutrition only). See §4.1.
 
-### 4.1 Weekly Frequency and the Program Family / Program Variant model (Decision 081)
+### 4.1 Reduced Program Family model (Decision 085 — supersedes Decision 081)
 
-Decision 081 **refines** the §4 mapping by adding a fourth dimension and a family/variant layer. Assignment now reads **`(sex × fitness_level × training_format × weekly_frequency)` + the Home/Gym content model → active Program Family / Program Variant**.
+**Decision 085 supersedes the Decision 081 weekly-frequency matrix and Program Family / Program Variant model** described in earlier drafts. Where this section conflicts with the old D081 wording, **D085 wins**; §4's base `(Sex, Fitness Level, Training Format)` mapping is refined here to the D085 keys. The historical D081 model (Experience-multiplied families + a shared scalable Home family + gym variants) is retained only in the registry for history.
 
-- **Program Family / Program Variant.** A **Program Family** is the trainer-authored content family selected by user attributes; a **Program Variant** exists when different weekly frequencies require a distinct authored structure. Both terms are **internal-only** — the user never sees them (nor "full body" / "split" / "assignment key"). The user sees only level, place, and frequency.
-- **Weekly Frequency** (`two_per_week` · `three_per_week` · `four_per_week`) is chosen **conditionally** on S3 — only after Experience and Training Format are selected, and only the allowed options for that combination appear (D079/D081). It is a Program-assignment input.
-- **Home content model.** Home may use a **shared, scalable 4-workout home family**; the selected frequency determines how many of the 4 workouts are active in the weekly cycle (Home supports 2/3/4). Home need not be split into separate authored programs per experience if the trainer judges the shared family safe and valid — keeping MVP content workload manageable.
-- **Gym content model.** Beginner + Gym: 2 or 3 / week, full-body logic. Intermediate + Gym: 2 or 3 / week, may require frequency-specific authored variants. Advanced + Gym: 3 or 4 / week, where the **3-day and 4-day splits are separate valid authored variants** — a 4-day split must **not** be truncated into a 3-day split where that breaks the program. The trainer controls authored content.
-- **Content-workload guard.** Prefer Program Families + scalable Home content over **24 fully independent monthly programs**, but do **not** fake scalability for gym splits where truncation would be unsafe or poor training design.
-- **Editing after onboarding (Decision 080).** Changing Sex / Experience / Training Format / Weekly Frequency triggers **Program Replacement / Variant recalculation** (§7) **without resetting** XP, Level, Stage, Streak, Workout History, Weight History, or Avatar Progression. On replacement the pointer resets to Workout 1 of the new Program/Variant (Decision 059); an in-progress workout is not cancelled (Decision 058). Changing **Goal** or **Avatar Name** never changes assignment.
+**Assignment keys.** Training Program Assignment reads **avatar direction (Hero/Heroine, i.e. Sex) × Training Format × Training Structure × Weekly Frequency**. **Experience does not select a Program** — it only **gates** which Weekly Frequency and Training Structure options are allowed. **Goal** and **Avatar Name** never drive training assignment (Goal may later affect **Nutrition** only). Assignment stays silent and deterministic; the user never sees Program Family, Program Variant, assignment key, or internal program ID.
+
+**Weekly Frequency matrix (by Experience, same for Home and Gym):** Beginner → 2 or 3 / week · Intermediate → 3 / week · Advanced → 3 or 4 / week. `two_per_week` · `three_per_week` · `four_per_week`, chosen conditionally on S3 after Experience + Training Format (D079/D085); only the allowed options for the Experience appear.
+
+**Training Structure (`full_body` / `split`).** **Home is always Full Body** (no choice shown). **Split is Gym-only and never for Beginner.** The Full Body / Split choice is shown **only** for Gym + non-Beginner — **Gym Intermediate 3, Gym Advanced 3, Gym Advanced 4**; everywhere else it **auto-resolves to Full Body**. **2 training days always resolves to Full Body.**
+
+**Reduced authored model — exactly 8 Programs / 30 Workout Templates:**
+
+```text
+1. Home Full Body Hero      — 4 workouts
+2. Home Full Body Heroine    — 4 workouts
+3. Gym  Full Body Hero       — 4 workouts
+4. Gym  Full Body Heroine    — 4 workouts
+5. Gym  3-Day Split Hero     — 3 workouts
+6. Gym  3-Day Split Heroine  — 3 workouts
+7. Gym  4-Day Split Hero     — 4 workouts
+8. Gym  4-Day Split Heroine  — 4 workouts
+Baseline total: 8 Programs, 30 Workout Templates (4+4+4+4+3+3+4+4).
+```
+
+- **Full Body scaling (active subset).** Full Body Programs contain **4 workouts**; the user sees the **active subset** by Weekly Frequency — 2/week → first 2 active, 3/week → first 3 active, 4/week → all 4 active. Applies to Home Full Body Hero/Heroine and Gym Full Body Hero/Heroine. Beginner never sees 4 (only 2/3); Intermediate sees 3; Advanced sees 3 or 4. This is the count-agnostic cycle (Decision 046) reading an active sub-range, not a truncated Program.
+- **Split rule (frequency-specific, never truncated).** The **3-day Split** is a separate 3-workout Program; the **4-day Split** a separate 4-workout Program. The **3-day Split is shared by Intermediate and Advanced**; the **4-day Split is Advanced-only**. Do **not** derive the 3-day split by truncating the 4-day split.
+- **Editing after onboarding (Decisions 080, 084, 085).** Changing Sex / Experience / Training Format / Weekly Frequency / Training Structure triggers **Program Replacement / recalculation** (§7) **without resetting** XP, Level, Stage, Streak, Workout History, Weight History, or Avatar Progression. If a field change makes Split no longer allowed, Training Structure **auto-resolves to Full Body** (no hidden restoration of a previously selected Split). On replacement the pointer resets to Workout 1 of the new Program (Decision 059); an in-progress workout is not cancelled (Decision 058 — it completes against its start-time snapshot, then the new Program activates). Program-changing edits use the **D084 confirmation modal**; changing **Goal** or **Avatar Name** never changes assignment. A Hero/Heroine change also switches the avatar direction slot per **D083** (no customization migration; separate Hero/Heroine slots; default avatar of the active direction at the current global Stage) — that is an avatar-visual behavior, not a Program change.
 
 ---
 
@@ -92,7 +111,7 @@ Decision 081 **refines** the §4 mapping by adding a fourth dimension and a fami
 
 A Program **does not end** (Decision 046 — workouts cycle continuously). Its lifecycle:
 
-1. **Assigned** at onboarding from (Sex, Fitness Level, Training Format) — §4.
+1. **Assigned** at onboarding from the D085 keys — direction(Sex) × Training Format × Training Structure × Weekly Frequency, with Experience gating the options (§4 / §4.1).
 2. **Cycled** indefinitely via the Journey pointer (Decisions 046/051), initial state Workout 1 (Decision 059).
 3. **Updated** in place by the coach (~monthly): the content behind the slots changes; assignment and cycle continue — §6.
 4. **Replaced** when the user's assignment inputs change: a different Program becomes active — §7.
