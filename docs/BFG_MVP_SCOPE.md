@@ -37,7 +37,7 @@ That's the loop. Everything else is out of MVP.
 - Daily quests screen with idempotent claim.
 - Workouts catalog screen.
 - Workout session screen with per-exercise Kinescope video.
-- Profile screen with subscription state.
+- **Profile screen (Decision 086)** — the **administrative** surface titled **«Профиль»** (not «Настройки»; not app settings), reached via the small header Profile button (D006). Structure: **Аккаунт** (email, read-only) → **Тренировки** (Цель · Уровень · Место тренировок · Тренировок в неделю · Формат тренировок) → **Аватар** (Имя · Направление) → **Подписка** (read-only trial/subscription state) → standalone **«Выйти»** (logout-confirmation modal; no «Система» section). It edits the D080 inputs with D084 save/confirmation behavior and D085 Training-Structure gating (Формат тренировок editable only for eligible Gym users, else read-only auto-Full-Body), using a **single-modal edit flow** (one modal at a time; selection and D084 confirmation are states of the same modal; no stacked modals, no separate edit screens, no toast). Profile is **administrative, not emotional** — it does **not** open Avatar Customization (Home only, D073) and does **not** include app settings (theme/language/notifications/privacy), Progress/Home content, or XP/Level/Stage/Streak/history. See `BFG_UI_RULES.md §24` / `ui/BFG_SCREEN_WIREFRAMES.md §10`.
 - Avatar screen with current stage description. *(Body-role of the unified presence.)*
 - Companion screen (read-only reflective phrase). *(Voice-role of the unified presence.)*
 - Progression screen (XP bar, streak panel, evolution block).

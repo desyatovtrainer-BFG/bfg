@@ -3379,6 +3379,128 @@ Decisions 046, 058, 059, 061, 078, 079, 080, 081, 083, 084.
 
 ---
 
+# Decision 086
+
+Title:
+Profile Screen Structure and Single-Modal Edit Flow
+
+Category:
+UX / Profile
+
+Status:
+Accepted
+
+MVP / Post-MVP:
+MVP. Profile is already the MVP administrative surface (D006) with subscription state;
+D080 makes onboarding inputs editable there, D084 defines save/confirmation behavior, and
+D085 adds Training Structure and the reduced assignment model. D086 defines the actual
+Profile screen structure and edit-flow rules before implementation.
+
+Decision:
+Finalizes the MVP Profile screen structure and the UX flow for editing Profile fields
+(consuming D080/D083/D084/D085). It is a **screen/UX decision**, not a Program Architecture
+change; it introduces no new assignment logic and resets no progression.
+
+1. Title, subtitle, role.
+   - User-facing title is **«Профиль»** — **not** renamed to «Настройки» (this is not a
+     general app-settings screen: no theme/language/notifications/privacy). Subtitle:
+     **«Данные, которые помогают подобрать тренировки и сохранить твой путь.»**
+   - Profile is **administrative** (D006), reached via the small header Profile button, not
+     bottom navigation. It is **not** the emotional center, **not** a second Home, **not** a
+     Progress replacement, **not** an Avatar Customization entry (D073), and **not** app
+     settings. Home stays the emotional center; Progress stays the identity/history surface.
+
+2. Screen structure (top → bottom): **Header (Back · «Профиль» · subtitle) → Аккаунт →
+   Тренировки → Аватар → Подписка → «Выйти»**. There is **no «Система» section**; «Выйти» is
+   a **single standalone bottom action** after Подписка.
+   - **Аккаунт.** «Почта» (user email), **read-only** in MVP — no chevron, no modal, no
+     editing. No email-verification status on the happy path (already passed the D077 gate);
+     no user/Supabase ID, auth provider, registration date, technical status, or any
+     XP/Level/Stage/Streak/History. D086 does not decide email/password change, account
+     deletion, or recovery.
+   - **Тренировки.** Five rows: **Цель · Уровень · Место тренировок · Тренировок в неделю ·
+     Формат тренировок.**
+     - **Цель** — multi-select (≥1); **safe field**, saves immediately, no D084 modal; does
+       not affect training assignment (may later affect **Nutrition** only). Options: Снижение
+       веса · Наращивание мышечной массы · Улучшение выносливости · Общая физическая форма ·
+       Рекомпозиция тела.
+     - **Уровень** — single-select (`beginner`/`intermediate`/`advanced`); **program-changing**,
+       uses D084 confirmation; may change allowed Weekly Frequency and Training Structure
+       availability; resets no progress/history/avatar.
+     - **Место тренировок** — single-select (`home`/`gym`); **program-changing**, D084
+       confirmation; if changed to Home, Training Structure resolves to Full Body
+       automatically (Split is Gym-only, D085).
+     - **Тренировок в неделю** — single-select; options depend on Experience (D085: Beginner
+       2/3 · Intermediate 3 · Advanced 3/4); unavailable values not shown; **program-changing**,
+       D084 confirmation; if the new combination no longer allows Split, Training Structure
+       resolves to Full Body.
+     - **Формат тренировок** — labels **Фулбоди/Сплит** (`full_body`/`split`). The row is
+       **always shown** as the current structure. It is **editable (chevron)** only when D085
+       allows Split — **Gym + Intermediate + 3, Gym + Advanced + 3, Gym + Advanced + 4** — and
+       **read-only (no chevron)** otherwise (all Home; Gym Beginner 2/3; 2 days always → Full
+       Body). When editable it is **program-changing** and uses D084 confirmation.
+   - **Аватар.** Two rows: **Имя · Направление.**
+     - **Имя** — text input; required; **safe field**, saves immediately, no D084 modal; does
+       not affect assignment or any progression/visual slot; Avatar Name is **global**, not
+       per-direction (D083).
+     - **Направление** — single-select Герой/Героиня (`male`/`female`); **program-changing**,
+       uses the **detailed D084 Hero/Heroine confirmation**; switches the active avatar
+       direction per **D083** (no customization migration; saved slot returns if present, else
+       default avatar of the selected direction at the current global Stage; Stage and Avatar
+       Name stay global; no progress/history reset).
+     - **Avatar Customization exclusion.** Profile does **not** open Avatar Customization and
+       shows no clothing/hair/accessories/body/colors/cosmetics/currency/catalog and no
+       «Изменить внешний вид» button — customization is entered only from the Home Living
+       Presence (D073).
+   - **Подписка.** Read-only calm state (no chevron, no modal, no paywall, no fear copy, no
+     "progress will be lost" claim). MVP states e.g. «Пробный период активен / Осталось 24 дня»
+     or «Пробный период завершён / Прогресс сохранён»; future «Подписка активна». Payments stay
+     post-MVP.
+   - **«Выйти».** Standalone bottom action → **logout confirmation modal** (no immediate
+     logout). Accepted copy: «Выйти из аккаунта? / Твой прогресс сохранится. / Ты сможешь
+     вернуться, войдя снова. / [Выйти] [Отмена]». Logout does **not** delete the account or
+     reset progress/onboarding/avatar/subscription; after logout the user goes to the
+     unauthenticated Entry/Auth surface (D074).
+
+3. Single-modal edit flow (key rule).
+   - Profile uses **one modal / bottom-sheet flow per edit**; **never more than one Profile
+     modal open at once**; **no stacked modals**, **no separate edit screens in MVP**, **no
+     toast as primary feedback**. Safe fields (Цель, Имя): row → one modal → select/input →
+     save → close → **calm inline success on Profile**. Program-changing fields (Уровень,
+     Место, Тренировок в неделю, Формат тренировок, Направление): row → one modal → selection
+     state → **the same modal transitions to the D084 confirmation state** (detailed Hero/
+     Heroine variant for Направление) → optional saving state → close → calm inline success.
+   - **Cancel/back:** in the selection/input state, cancel/close/swipe-down closes with no
+     change; in the confirmation state, «Отмена» closes without saving and modal-back returns
+     to the selection state; «Сохранить изменения» applies the value. After save: close modal,
+     remain on Profile, show calm inline success.
+   - **Read-only rows** (account email; subscription; Training Structure when Split is not
+     allowed) have no chevron, no modal, no tap action, and no disabled-looking error state.
+
+Profile must not show:
+a large avatar portrait; XP; Level; Stage; Streak; the Weekly Activity ring; workout
+history; strength analytics; achievements; Progress-style identity blocks; a Home-style
+Living Presence; an Avatar Customization entry; app theme / notification / language /
+privacy settings; account deletion; email editing; password editing; payment management;
+technical auth status; Supabase IDs. (These may be future decisions; not part of D086.)
+
+Reason:
+Profile needed a concrete, calm structure that keeps it administrative — account, training
+inputs, avatar identity fields, subscription state, and logout — without drifting into
+Home's emotional role, Progress's identity/history role, or customization. Keeping the
+title «Профиль» (not «Настройки») matches its actual content, and a single-modal edit flow
+that folds the D084 confirmation into the same container keeps editing legible on mobile
+without stacked modals or extra screens.
+
+Implementation Status:
+Not Implemented.
+
+Related Documents:
+BFG_UI_RULES.md §24; docs/ui/BFG_SCREEN_WIREFRAMES.md §10; BFG_MVP_SCOPE.md §2.1;
+BFG_PRODUCT_GAPS.md; Decisions 005, 006, 073, 080, 083, 084, 085.
+
+---
+
 # Registry Notes
 
 ## Duplicates detected (4)
@@ -3454,9 +3576,9 @@ Resolved 2026-06-12: the economy rebalance (Decisions 010–020, 033) was implem
 |---|---|---|
 | Implemented | 17 | 001, 010, 011, 012, 013, 015, 017, 018, 019, 020, 021, 023, 029, 030, 031, 032, 033 |
 | Partially Implemented | 10 | 002, 007, 009, 016, 022, 035, 036, 037, 038, 075 |
-| Not Implemented | 58 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081, 082, 083, 084, 085 |
+| Not Implemented | 59 | 003–006, 008, 014, 024–028, 034, 039–074, 076, 077, 078, 079, 080, 081, 082, 083, 084, 085, 086 |
 
-Total decisions: 85.
+Total decisions: 86.
 Contradictions: 0 (two first-draft items reclassified; one Currency ambiguity resolved by Decision 034 — see above).
 Future Product Surface Notes: 2 (Nutrition, Multimedia).
 
@@ -3509,3 +3631,5 @@ Decision 082 (First Home After Onboarding and Avatar Name Placement) was accepte
 Decision 083 (Avatar Direction Slots and Default Stage Forms) was accepted 2026-07-01 and is **MVP** (D080 already lets Hero/Heroine be changed later in Profile, so the avatar visual-state behavior on switch must be defined). It introduces no contradiction — it is a visual-state persistence rule that changes **no** Program Assignment logic (D061/D081), no routing (D043), and no progression system. **BFG does not migrate customization between Hero and Heroine**: changing Hero/Heroine changes the **active direction only**, and BFG keeps **separate per-direction visual slots** (Hero slot / Heroine slot). On switch, BFG renders at the **current global Stage** and either **restores the new direction's saved slot** or shows that direction's **default avatar at the current Stage** (Stage-7 user switching to Heroine for the first time sees **Heroine Default Stage 7**, never Stage 1); switching **away preserves** the prior slot (never deletes it), and a restored slot renders on the **current** Stage base, never frozen at the Stage it was created on. **No** clothing/hair/beard/moustache/accessory/body/facial/color/accent/aura setting migrates between directions (no compatibility mapping, no partial migration). **Avatar Name and Stage stay global**; the change resets **no** XP / Level / Stage / Streak / Workout History / Weight History / Avatar Name. D001 is preserved — one Presence, two stored visual representations, one active direction at a time; Home and Progress always show the active direction at the current global Stage (D001/D073). D083 does **not** decide final avatar art, customization depth, catalogs, paid cosmetics, currency, DB schema, or Profile/modal copy. Recorded in `BFG_UI_RULES.md §15 / §20 / §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2 / §8 / §9`, and `BFG_MVP_SCOPE.md §2.1`; `fitness/BFG_PROGRAM_ARCHITECTURE.md` was reviewed and intentionally left unchanged (assignment logic is untouched). Not Implemented. Total decisions: **83**.
 
 Decisions 084 and 085 were accepted 2026-07-01 and registered together; both are **MVP** and **Not Implemented**, and both introduce no contradiction. **D084 (Profile Editability and Change Confirmation Model)** defines the user-facing save/confirm behavior for the D080 editable inputs: **Goal and Avatar Name save immediately** (Goal is training-assignment-neutral and may later feed **Nutrition** only; Avatar Name stays global, D083); **Hero/Heroine, Experience, Training Format, Weekly Frequency, and Training Structure** are program-changing and require a **calm confirmation modal** (a detailed D083-accurate Hero/Heroine modal; a shorter modal for the training fields), never a full screen. If a workout is **In Progress**, the modal states the active workout is untouched and the new assignment applies after it completes (**D058/D061 preserved**); after any save the user **stays in Profile** with a calm inline success line (no auto-nav, no forced launch/customization). Accepted Russian modal/success copy is recorded in the D084 entry. **D085 (Training Structure Choice and Reduced Program Family Model)** **refines/supersedes the D081 weekly-frequency matrix and Program Family model**: the new matrix is **Beginner 2/3 · Intermediate 3 · Advanced 3/4** (same for Home and Gym); **Experience no longer multiplies Program Families** — it only **gates** allowed frequency and whether the **Training Structure** (`full_body`/`split`) choice appears; **Home is always Full Body**, **Split is Gym-only and never for Beginner**, **2 days always resolves to Full Body**, and the choice shows only for **Gym Intermediate 3 / Gym Advanced 3 / Gym Advanced 4**. The reduced model is exactly **8 coach-authored Programs / 30 Workout Templates** (Home FB Hero/Heroine 4+4, Gym FB Hero/Heroine 4+4, Gym 3-Day Split Hero/Heroine 3+3, Gym 4-Day Split Hero/Heroine 4+4); **Full Body Programs expose a frequency-sized active subset** (2→first 2, 3→first 3, 4→all 4); **Split Programs are frequency-specific, never truncated** (3-day Split shared by Intermediate/Advanced, 4-day Split Advanced-only). Assignment now reads **direction × Training Format × Training Structure × Weekly Frequency**, stays silent/deterministic, grants no XP, and resets no progress. Recorded in `fitness/BFG_PROGRAM_ARCHITECTURE.md §3/§4/§4.1/§7`, `BFG_UI_RULES.md §23`, `docs/ui/BFG_SCREEN_WIREFRAMES.md §0.2`, and `BFG_MVP_SCOPE.md §2.1`; the D081 entry is retained with a supersession note (not deleted). Total decisions: **85**.
+
+Decision 086 (Profile Screen Structure and Single-Modal Edit Flow) was accepted 2026-07-01 and is **MVP** and **Not Implemented**. It introduces no contradiction — it is a **screen/UX** decision that finalizes the D006 administrative Profile surface and consumes D080/D083/D084/D085 without changing any assignment logic or progression. The user-facing title is **«Профиль»** (explicitly **not** «Настройки» — Profile is account/training/avatar-identity/subscription/logout, not app settings); structure is **Аккаунт → Тренировки → Аватар → Подписка → «Выйти»** (no «Система» section; «Выйти» a standalone bottom action with a logout-confirmation modal that deletes/resets nothing). **Аккаунт** email is read-only (no verification status on the happy path — D077). **Тренировки** carries Цель (safe, immediate, may later feed Nutrition only) plus the program-changing Уровень / Место / Тренировок-в-неделю / Формат-тренировок (D084 confirmation; D085 gating — Формат тренировок editable only for Gym Intermediate 3 / Gym Advanced 3 / Gym Advanced 4, read-only auto-Full-Body otherwise). **Аватар** carries Имя (safe, immediate, global name) and Направление (detailed D084 Hero/Heroine confirmation, D083 direction-slot behavior); Profile never opens Avatar Customization (that stays on Home, D073). **Подписка** is read-only calm state (payments post-MVP). The **single-modal edit flow** allows only one Profile modal at a time — selection and D084 confirmation are **states of the same modal**, no stacked modals, no separate edit screens, no toast; safe fields save immediately, all edits end with a calm inline success on Profile; read-only rows (email, subscription, non-eligible Training Structure) have no chevron. Recorded in `BFG_UI_RULES.md §24` (new Profile section), `docs/ui/BFG_SCREEN_WIREFRAMES.md §10` (new Profile wireframe), and `BFG_MVP_SCOPE.md §2.1`; `fitness/BFG_PROGRAM_ARCHITECTURE.md` was reviewed and intentionally left unchanged (D086 is screen UX, not Program Architecture). Total decisions: **86**.

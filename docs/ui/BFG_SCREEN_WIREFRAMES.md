@@ -4,9 +4,9 @@ First official **Wireframe Layer** for BFG. This document specifies screen *comp
 
 > Source of truth: [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) (decisions win on any conflict) and [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §15–§20. Where this document and a decision disagree, the decision wins and this document must be corrected.
 
-Status: first slice. This pass covers **Entry / Auth Start, Auth Surface (Sign Up / Verify Email / Log In), Onboarding (S1–S4), Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress**. Per-variant detail and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
+Status: first slice. This pass covers **Entry / Auth Start, Auth Surface (Sign Up / Verify Email / Log In), Onboarding (S1–S4), Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress, Profile**. Per-variant detail and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
 
-Last updated: 2026-06-26 (Onboarding copy/taxonomies D079 + editable inputs D080 + conditional frequency / Program Family D081 — Onboarding S1–S4 wireframes finalized; MVP Onboarding Flow Structure D078 — Onboarding S1–S4 wireframes added; Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
+Last updated: 2026-07-01 (Profile Screen Structure and Single-Modal Edit Flow D086 — Profile wireframe §10 added; Training Structure / reduced Program Family model D085 + Profile editability & confirmation D084 — S3 wireframe + onboarding scope updated; First Home After Onboarding D082 + Avatar Direction Slots D083 — Home/Progress/S4 annotations updated; Onboarding copy/taxonomies D079 + editable inputs D080 + conditional frequency / Program Family D081 — Onboarding S1–S4 wireframes finalized; MVP Onboarding Flow Structure D078 — Onboarding S1–S4 wireframes added; Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
 
 For every screen this document records, in order:
 
@@ -660,9 +660,85 @@ The **identity / history / progression surface** (D005, D008, D072). Progress an
 
 ---
 
+# 10. Profile (Profile Screen Structure and Single-Modal Edit Flow, D086)
+
+The **administrative** surface (D006), reached via the small header Profile button — **not** a bottom-nav tab, **not** the emotional center (Home, §8), **not** the identity/history surface (Progress, §9), **not** an Avatar Customization entry (Home only, D073). Title is **«Профиль»** — never «Настройки» (this is not app settings). Chevrons appear **only on editable rows**.
+
+```
+┌─────────────────────────────┐
+│  ‹                          │  Header — Back
+│  Профиль                    │  Title (D086) — NOT «Настройки»
+│  Данные, которые помогают   │  Subtitle (D086)
+│  подобрать тренировки…      │
+│                             │
+│  АККАУНТ                    │
+│  Почта                      │  read-only · no chevron (email)
+│  user@email.com             │
+│                             │
+│  ТРЕНИРОВКИ                 │
+│  Цель               …    ›  │  multi-select · SAFE (immediate, no modal)
+│  Снижение веса, общая форма │
+│  Уровень            …    ›  │  program-changing · D084 confirm
+│  Место тренировок   …    ›  │  program-changing · D084 confirm
+│  Тренировок в неделю …   ›  │  program-changing · D084 · options by D085
+│  Формат тренировок  Фулбоди │  chevron ONLY if Split allowed (D085), else read-only
+│                             │
+│  АВАТАР                     │
+│  Имя                …    ›  │  text · SAFE (immediate, no modal) · global name
+│  Направление  Герой      ›  │  program-changing · detailed D084 Hero/Heroine · D083
+│                             │
+│  ПОДПИСКА                   │
+│  Пробный период активен     │  read-only · no chevron · no paywall
+│  Осталось 24 дня            │
+│                             │
+│  ┌───────────────────────┐  │
+│  │        Выйти          │  │  standalone bottom action → logout confirm modal
+│  └───────────────────────┘  │  (no «Система» section)
+└─────────────────────────────┘
+```
+
+**1. Goal:** let the user view and adjust their account, training inputs, avatar identity fields, and subscription state — and log out — calmly, without becoming Home, Progress, or a customization/settings screen.
+
+**2. Composition top → bottom (D086):** Header (Back · «Профиль» · subtitle) → **Аккаунт** (Почта, read-only) → **Тренировки** (Цель · Уровень · Место тренировок · Тренировок в неделю · Формат тренировок) → **Аватар** (Имя · Направление) → **Подписка** (read-only state) → **«Выйти»** (standalone).
+
+**3. Chevrons / editability (D086):**
+- **Editable (chevron):** Цель, Уровень, Место тренировок, Тренировок в неделю, Имя, Направление; and **Формат тренировок only when D085 allows Split** (Gym + Intermediate 3 / Gym + Advanced 3 / Gym + Advanced 4).
+- **Read-only (no chevron):** Почта (email); Подписка; **Формат тренировок when Split is not allowed** (all Home; Gym Beginner 2/3; 2 days → Full Body). No modal, no tap action, no disabled-error look.
+
+**4. Safe vs program-changing (D084):**
+- **Safe (save immediately, no confirmation):** Цель (multi-select ≥1; may later feed Nutrition only — never training assignment) and Имя (required text; global; no assignment/progression/slot effect — D083).
+- **Program-changing (D084 confirmation):** Уровень, Место тренировок, Тренировок в неделю, Формат тренировок (when editable), Направление. Changing Уровень/Место/Frequency may change Training Structure availability; if Split becomes disallowed, Формат тренировок auto-resolves to **Фулбоди** (D085).
+
+**5. Single-modal edit flow (D086 key rule):** one modal / bottom-sheet per edit, **never two Profile modals at once, no stacked modals, no separate edit screens, no toast**. Selection and the D084 confirmation are **states of the same modal container**:
+```
+editable row → open ONE modal
+   → selection / input state
+   → (program-changing) same modal transitions to the D084 confirmation state
+        · detailed Hero/Heroine variant for Направление (D083)
+        · In-Progress-workout deferral line when applicable (D058/D061)
+   → Сохранить изменения → close → calm inline success on Profile
+Cancel/back: selection state → close, no change · confirmation state → «Отмена» (no save)
+             or modal-back → selection state. After save: stay on Profile, inline success.
+```
+
+**6. Logout (D086):** «Выйти» → confirmation modal (no immediate logout):
+```
+Выйти из аккаунта?
+
+Твой прогресс сохранится.
+Ты сможешь вернуться, войдя снова.
+
+[Выйти]   [Отмена]
+```
+Logout deletes/resets nothing (account, progress, onboarding, avatar, subscription untouched) → unauthenticated Entry/Auth surface (§0/§0.1, D074).
+
+**Profile must not show (D086):** a large avatar portrait; XP; Level; Stage; Streak; the Weekly Activity ring; workout history; strength analytics; achievements; Progress-style identity blocks; a Home-style Living Presence; an Avatar Customization entry (clothing/hair/accessories/body/colors/cosmetics/currency/catalog or «Изменить внешний вид»); app theme / notification / language / privacy settings; account deletion; email or password editing; payment management; technical auth status; Supabase IDs.
+
+---
+
 ## Decisions referenced
 
-**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**, **D082 (First Home After Onboarding and Avatar Name Placement)**, **D083 (Avatar Direction Slots and Default Stage Forms)**, **D084 (Profile Editability and Change Confirmation Model)**, **D085 (Training Structure Choice and Reduced Program Family Model)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21, §23.
+**D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**, **D082 (First Home After Onboarding and Avatar Name Placement)**, **D083 (Avatar Direction Slots and Default Stage Forms)**, **D084 (Profile Editability and Change Confirmation Model)**, **D085 (Training Structure Choice and Reduced Program Family Model)**, **D086 (Profile Screen Structure and Single-Modal Edit Flow)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21, §23, §24.
 
 ## Out of scope for this slice (later wireframe passes)
 
