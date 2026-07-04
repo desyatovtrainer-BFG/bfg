@@ -6,81 +6,73 @@ import {
   getAvatarFormLabel,
   getLevelProgress,
 } from "@/lib/progression";
-import {
-  buildDailyQuestList,
-  DAILY_QUEST_GUEST_SEED,
-  DAILY_QUEST_SELECTION_SIZE,
-  getTodayCompletedQuestIds,
-  selectDailyQuestIds,
-  todayISO,
-} from "@/lib/quests";
 import { createSupabaseServerClient } from "@/lib/supabase";
-import { DashboardScreen } from "../../components/dashboard/dashboard-screen";
+import { HomeScreen } from "../../components/home/home-screen";
 
 export const metadata: Metadata = {
-  title: "Главная — BFG",
-  description: "Твой прогресс, квесты и быстрые действия в Big Fitness Game.",
+  title: "Home — BFG",
+  description: "Твоё Presence и продолжение пути в Big Fitness Game.",
 };
 
 /**
- * Серверная сборка дашборда.
+ * Серверная сборка Home (D071 — визуальная оболочка, слайс 3A).
  *
- * Тянем минимум: суммарный XP/streak из `profiles`, закрытые сегодня
- * квесты из `daily_quest_completions`. Уровень, прогресс и стадию аватара
- * считаем чистыми helper-ами прогрессии (`getLevelProgress`,
- * `getAvatarEvolutionForLevel`) — это и источник истины awardXp,
- * и значит дашборд всегда совпадает с тем, что увидит игрок после
- * левел-апа на других экранах.
+ * Данные: суммарный XP/стрик-контекст из `profiles` (для реплики Голоса),
+ * уровень/стадия — чистыми helper-ами прогрессии (те же, что в awardXp),
+ * активность недели — два read-only count-запроса по таблицам завершений
+ * (только завершённые действия считаются, D071).
  *
- * Аватар отдельно из БД не читаем: его поля — производная от уровня
- * (см. lib/progression/avatar-evolution.ts), и держать их на двух
- * экранах в синхроне дешевле через helper, чем через лишний select.
+ * ВРЕМЕННАЯ ПРОВОДКА (сознательно, до следующих слайсов):
+ *   - знаменатель недельной активности = 24 (21 квест-слот 3×7, D017,
+ *     + условный 3-тренировочный цикл): активной Program-модели ещё нет
+ *     (D061/D085 — слайс Activity/Onboarding);
+ *   - направление аватара = "hero": Герой/Героиня появляется в онбординге
+ *     (D079/D083), пока показываем имеющийся временный ассет;
+ *   - имя аватара = null → fallback «Твой спутник»: наречение — S4 (D079);
+ *   - реплика Голоса — существующий детерминированный buildCompanionMessage;
+ *     перевод на событийную модель (PRS §11.7) — отдельная работа.
  */
+
+/**
+ * Временный знаменатель недельной активности: 21 (3 квеста × 7 дней, D017)
+ * + 3 (условная длина цикла программы до появления D061/D085-модели).
+ */
+const TEMP_WEEKLY_CAPACITY = 24;
+
+/** Временное направление Presence до онбординга (D079/D083). */
+const TEMP_DIRECTION = "hero" as const;
+
 export default async function DashboardPage() {
   const user = await getCurrentUser();
 
   // Layout-гард уже отрезает анонимов; этот fallback — страховка
-  // на случай гонки сессии. UI рисуем «нулевыми» дефолтами, без падения.
+  // на случай гонки сессии. Рисуем спокойные «нулевые» дефолты.
   if (!user) {
     const evolution = getAvatarEvolutionForLevel(1);
-    // Display-only подборка по guest-seed (D017): детерминированна по дню,
-    // клейм всё равно требует сессию. 50 XP — стоимость уровня по D013.
-    const guestSelectedIds = selectDailyQuestIds(DAILY_QUEST_GUEST_SEED, todayISO());
-    const fallbackMsg = buildCompanionMessage({
-      userId: "anon",
-      level: 1,
-      xpInLevel: 0,
-      xpForNextLevel: 50,
-      streak: 0,
-      lastActiveOn: null,
-    });
     return (
-      <DashboardScreen
-        userName="Воин"
+      <HomeScreen
         level={1}
-        xpInLevel={0}
-        xpForNextLevel={50}
-        progressPercent={0}
-        streak={0}
+        levelProgress={0}
+        weeklyDone={0}
+        weeklyCapacity={TEMP_WEEKLY_CAPACITY}
         evolutionStage={evolution.stage}
         evolutionFormLabel={getAvatarFormLabel(evolution.form)}
-        questsCompletedToday={0}
-        questsTotal={DAILY_QUEST_SELECTION_SIZE}
-        quests={buildDailyQuestList(guestSelectedIds, [])}
-        companionPrimary={fallbackMsg.primary}
+        avatarName={null}
+        voiceLine={null}
+        direction="neutral"
       />
     );
   }
 
   const supabase = await createSupabaseServerClient();
 
-  const [profileRes, completedIds] = await Promise.all([
+  const [profileRes, weeklyDoneRaw] = await Promise.all([
     supabase
       .from("profiles")
       .select("xp, streak, last_active_on")
       .eq("id", user.id)
       .maybeSingle(),
-    getTodayCompletedQuestIds(supabase, user.id),
+    readWeeklyActivityCount(supabase, user.id),
   ]);
 
   if (profileRes.error) {
@@ -104,34 +96,63 @@ export default async function DashboardPage() {
     lastActiveOn,
   });
 
-  // Дневная подборка (D017) + закрытые сегодня. Счётчик «N из 3» считаем
-  // по отрисованному списку, а не по сырым completedIds: legacy-завершения
-  // вне подборки не должны давать «4 из 3».
-  const selectedIds = selectDailyQuestIds(user.id, todayISO());
-  const quests = buildDailyQuestList(selectedIds, completedIds);
-  const questsCompletedToday = quests.filter((q) => q.state === "reward_claimed").length;
+  // Кап переполнения (D071): цикл может повториться внутри недели —
+  // показываем не больше знаменателя (например, «24/24 АКТ.»).
+  const weeklyDone = Math.min(weeklyDoneRaw, TEMP_WEEKLY_CAPACITY);
 
   return (
-    <DashboardScreen
-      userName={pickUserName(user.email)}
+    <HomeScreen
       level={lp.level}
-      xpInLevel={lp.xpIntoLevel}
-      xpForNextLevel={lp.xpForNextLevel}
-      progressPercent={Math.round(lp.progress * 100)}
-      streak={streak}
+      levelProgress={lp.progress}
+      weeklyDone={weeklyDone}
+      weeklyCapacity={TEMP_WEEKLY_CAPACITY}
       evolutionStage={evolution.stage}
       evolutionFormLabel={getAvatarFormLabel(evolution.form)}
-      questsCompletedToday={questsCompletedToday}
-      questsTotal={DAILY_QUEST_SELECTION_SIZE}
-      quests={quests}
-      companionPrimary={companionMsg.primary}
+      avatarName={null}
+      voiceLine={companionMsg.primary}
+      direction={TEMP_DIRECTION}
     />
   );
 }
 
-/** Берём локальную часть e-mail как имя; если нет — нейтральное «Воин». */
-function pickUserName(email: string | null | undefined): string {
-  const local = email?.split("@")[0]?.trim();
-  if (!local) return "Воин";
-  return local.charAt(0).toUpperCase() + local.slice(1);
+/**
+ * Завершённые действия текущей UTC-недели: 1 закрытый квест = 1 активность,
+ * 1 завершённая тренировка = 1 активность; считаются только завершённые
+ * действия (D071). Read-only count-запросы, RLS «свои строки» действует.
+ */
+async function readWeeklyActivityCount(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+): Promise<number> {
+  const weekStart = mondayUtcISO();
+
+  const [questsRes, workoutsRes] = await Promise.all([
+    supabase
+      .from("daily_quest_completions")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("completed_on", weekStart),
+    supabase
+      .from("workout_completions")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("completed_on", weekStart),
+  ]);
+
+  if (questsRes.error) {
+    console.error("[DashboardPage] weekly quest count", questsRes.error);
+  }
+  if (workoutsRes.error) {
+    console.error("[DashboardPage] weekly workout count", workoutsRes.error);
+  }
+
+  return (questsRes.count ?? 0) + (workoutsRes.count ?? 0);
+}
+
+/** Понедельник текущей UTC-недели, YYYY-MM-DD (недельная граница D071 — UTC). */
+function mondayUtcISO(): string {
+  const d = new Date();
+  const daysSinceMonday = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - daysSinceMonday);
+  return d.toISOString().slice(0, 10);
 }
