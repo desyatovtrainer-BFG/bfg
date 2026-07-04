@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { DailyQuest, QuestState } from "@/lib/quests";
 import { GameButton } from "../ui/game-button";
 import { GameCard } from "../ui/game-card";
+import { ProfileHeaderButton } from "../ui/profile-header-button";
 
 const container = {
   hidden: { opacity: 0 },
@@ -142,7 +143,10 @@ export function DashboardScreen({
               Big Fitness Game · твоя вселенная прогресса
             </p>
           </div>
-          <GameCard glow="cyan" className="shrink-0 px-3 py-2.5 text-center">
+          <div className="flex shrink-0 items-start gap-2">
+            {/* Профиль — маленькая кнопка в шапке, не вкладка навигации (D006/D071). */}
+            <ProfileHeaderButton />
+            <GameCard glow="cyan" className="shrink-0 px-3 py-2.5 text-center">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 [font-family:var(--font-onest)]">
               Серия
             </p>
@@ -153,7 +157,8 @@ export function DashboardScreen({
               {streak}
             </p>
             <p className="text-[10px] text-zinc-500">{streakWord} подряд</p>
-          </GameCard>
+            </GameCard>
+          </div>
         </motion.header>
 
         {/* Hero */}
@@ -282,14 +287,9 @@ export function DashboardScreen({
             <GameButton href="/workouts" variant="primary" className="w-full py-3.5 text-base">
               Начать тренировку
             </GameButton>
-            <div className="grid grid-cols-2 gap-3">
-              <GameButton href="/avatar" variant="secondary" className="w-full py-3 text-sm">
-                Аватар
-              </GameButton>
-              <GameButton href="/companion" variant="secondary" className="w-full py-3 text-sm">
-                Компаньон
-              </GameButton>
-            </div>
+            {/* Кнопки «Аватар» и «Компаньон» убраны: маршруты упразднены
+                принятой навигацией (D005 — аватар в Прогрессе; компаньон —
+                Голос Presence на поверхностях, не раздел). */}
           </div>
         </motion.section>
       </motion.div>

@@ -3,12 +3,28 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+/**
+ * Нижняя навигация BFG — принятая структура D003:
+ * ровно пять вкладок, Home по центру.
+ *
+ *   Тренировки · Питание · Home · Прогресс · Мультимедиа
+ *
+ * Сознательно НЕ вкладки (D004/D005/D006):
+ *   - Квесты — живут внутри области Тренировок/Activity;
+ *   - Аватар — поглощён Прогрессом;
+ *   - Компаньон — это Голос Presence на поверхностях, не раздел;
+ *   - Профиль — административный, доступ через маленькую кнопку в шапке.
+ *
+ * Питание и Мультимедиа — принятые будущие направления; сейчас ведут
+ * на placeholder-экраны (это принято D003, Registry Notes).
+ */
+
 const items = [
-  { href: "/dashboard", label: "Главная", icon: HomeIcon },
   { href: "/workouts", label: "Тренировки", icon: DumbbellIcon },
-  { href: "/avatar", label: "Аватар", icon: UserIcon },
+  { href: "/nutrition", label: "Питание", icon: NutritionIcon },
+  { href: "/dashboard", label: "Home", icon: HomeIcon },
   { href: "/progress", label: "Прогресс", icon: ChartIcon },
-  { href: "/profile", label: "Профиль", icon: ProfileIcon },
+  { href: "/multimedia", label: "Мультимедиа", icon: MediaIcon },
 ] as const;
 
 export function BottomNav() {
@@ -70,12 +86,18 @@ function DumbbellIcon({ active }: { active: boolean }) {
   );
 }
 
-function UserIcon({ active }: { active: boolean }) {
+function NutritionIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className={active ? "text-sky-400" : "text-current"}>
-      <circle cx="12" cy="9" r="3.2" stroke="currentColor" strokeWidth="1.6" />
+      {/* Яблоко: спокойный контур, без деталей. */}
       <path
-        d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6"
+        d="M12 8.5c-1.2-1.1-2.8-1.5-4.2-.9C5.6 8.5 4.6 11 5.3 13.7c.7 2.8 2.6 5.3 4.5 5.8.8.2 1.5 0 2.2-.4.7.4 1.4.6 2.2.4 1.9-.5 3.8-3 4.5-5.8.7-2.7-.3-5.2-2.5-6.1-1.4-.6-3-.2-4.2.9z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 8.5c0-2 1-3.4 2.6-4"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"
@@ -93,16 +115,11 @@ function ChartIcon({ active }: { active: boolean }) {
   );
 }
 
-function ProfileIcon({ active }: { active: boolean }) {
+function MediaIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className={active ? "text-sky-400" : "text-current"}>
-      <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="1.6" />
-      <path
-        d="M6.5 20.5c.8-2.8 3.2-4.5 5.5-4.5s4.7 1.7 5.5 4.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+      <rect x="4" y="6" width="16" height="13" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M10.5 10.2v4.6l4-2.3-4-2.3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
     </svg>
   );
 }

@@ -42,8 +42,9 @@ export type PresenceDirection = "hero" | "heroine" | "neutral";
  * например: neutral: "/avatars/presence-neutral.png".
  */
 const PRESENCE_ASSETS: Record<PresenceDirection, string | null> = {
-  neutral: null,
-  hero: null,
+  neutral: "/avatars/presence-neutral.png",
+  hero: "/avatars/presence-hero.png",
+  // Референс Героини ещё не приложен — направление падает на neutral.
   heroine: null,
 };
 
