@@ -1,130 +1,69 @@
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/get-user";
 import {
+  getAvatarEvolutionForLevel,
   getAvatarFormLabel,
-  getAvatarStageFlavor,
-  getEvolutionProgress,
   getLevelProgress,
 } from "@/lib/progression";
 import { createSupabaseServerClient } from "@/lib/supabase";
-import { ProgressionHub } from "../../components/progression/progression-hub";
+import { ProgressScreen } from "../../components/progress/progress-screen";
 
 export const metadata: Metadata = {
-  title: "Прогресс и эволюция — BFG",
-  description:
-    "Опыт, уровни, ежедневные награды, серия и эволюция аватара в Big Fitness Game.",
+  title: "Прогресс — BFG",
+  description: "Кем ты стал и что накопилось на пути — спокойный архив Big Fitness Game.",
 };
 
 /**
- * Серверная сборка экрана прогрессии.
+ * Серверная сборка Прогресса (D072 — визуальная оболочка, слайс 4A).
  *
- * Источник правды — `profiles.xp`/`profiles.streak`. Уровень, прогресс и
- * стадия эволюции считаются чистыми helper-ами прогрессии: те же, что
- * использует `awardXp`. Это гарантирует, что после левел-апа здесь
- * показано ровно то же, что на дашборде и в реакции компаньона.
+ * Данные: один read-only select `profiles.xp/streak`; уровень и стадия —
+ * теми же чистыми helper-ами, что использует awardXp и Home, поэтому
+ * все экраны показывают одно и то же состояние.
  *
- * Все «эмоциональные» подписи здесь — статические Russian-fallback'и
- * по состоянию (новичок / серия / на пороге уровня). Без компаньона и
- * LLM: экран должен рисоваться без сети, как и весь MVP.
+ * ВРЕМЕННАЯ ПРОВОДКА (как на Home, слайс 3A): направление аватара —
+ * "hero" до онбординга (D079/D083); портрет обязан визуально совпадать
+ * с Home-Presence, поэтому константа зеркалит TEMP_DIRECTION дашборда.
+ * История/Статистика/Достижения — placeholder-входы без логики.
  */
+
+/** Временное направление Presence — зеркалит Home (см. dashboard/page.tsx). */
+const TEMP_DIRECTION = "hero" as const;
+
 export default async function ProgressPage() {
   const user = await getCurrentUser();
 
-  // Layout-гард уже отрезает анонимов; этот fallback — страховка
-  // на случай гонки сессии. UI рисуем «нулевыми» дефолтами, без падения.
-  const totalXp = user ? await readTotalXp(user.id) : 0;
-  const streak = user ? await readStreak(user.id) : 0;
+  // Layout-гард уже отрезает анонимов; fallback — страховка на случай
+  // гонки сессии: спокойные «нулевые» значения, без падения.
+  let totalXp = 0;
+  let streak = 0;
+
+  if (user) {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("xp, streak")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (error) {
+      console.error("[ProgressPage] read profile", error);
+    }
+    totalXp = Number(data?.xp ?? 0);
+    streak = Number(data?.streak ?? 0);
+  }
 
   const lp = getLevelProgress(totalXp);
-  const evo = getEvolutionProgress(lp.level);
-
-  const currentFormLabel = getAvatarFormLabel(evo.current.form);
-  const nextFormLabel = evo.next ? getAvatarFormLabel(evo.next.form) : currentFormLabel;
-  const evolutionFlavor = getAvatarStageFlavor(evo.current.stage);
+  const evolution = getAvatarEvolutionForLevel(lp.level);
 
   return (
-    <ProgressionHub
+    <ProgressScreen
       level={lp.level}
-      title={currentFormLabel}
-      xpInLevel={lp.xpIntoLevel}
+      xpIntoLevel={lp.xpIntoLevel}
       xpForNextLevel={lp.xpForNextLevel}
-      streakDays={streak}
-      evolution={{
-        currentFormLabel,
-        nextFormLabel,
-        progressPercent: evo.progressPercent,
-        flavorText: evolutionFlavor,
-      }}
-      motivationalStatus={buildMotivationalStatus(lp.level, streak)}
-      statusTag={buildStatusTag(streak, lp.progress)}
-      streakNote={buildStreakNote(streak)}
-      streakMotivation={buildStreakMotivation(streak)}
+      levelProgress={lp.progress}
+      streak={streak}
+      evolutionStage={evolution.stage}
+      evolutionFormLabel={getAvatarFormLabel(evolution.form)}
+      direction={user ? TEMP_DIRECTION : "neutral"}
     />
   );
-}
-
-async function readTotalXp(userId: string): Promise<number> {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("xp")
-    .eq("id", userId)
-    .maybeSingle();
-  if (error) {
-    console.error("[ProgressPage] read xp", error);
-    return 0;
-  }
-  return Number(data?.xp ?? 0);
-}
-
-async function readStreak(userId: string): Promise<number> {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("streak")
-    .eq("id", userId)
-    .maybeSingle();
-  if (error) {
-    console.error("[ProgressPage] read streak", error);
-    return 0;
-  }
-  return Number(data?.streak ?? 0);
-}
-
-/** Короткий русский статус под уровнем. Без шейминга, без восклицаний. */
-function buildMotivationalStatus(level: number, streak: number): string {
-  if (level === 1 && streak === 0) {
-    return "Путь только начинается. Один шаг — и вселенная заметит.";
-  }
-  if (streak >= 7) {
-    return "Серия держится дольше недели. Ты создаёшь себя движением.";
-  }
-  if (streak >= 2) {
-    return "Ритм поймал тебя. Сегодня — ещё один слой эволюции.";
-  }
-  return "Каждое действие — голос вселенной BFG: «ты можешь ещё».";
-}
-
-function buildStatusTag(streak: number, progress: number): string {
-  if (progress >= 0.8) return "Уровень почти твой";
-  if (streak >= 7) return "В сердце серии";
-  if (streak >= 2) return "На волне прогресса";
-  return "В резонансе с целью";
-}
-
-function buildStreakNote(streak: number): string {
-  if (streak === 0) {
-    return "Серия ещё не запущена. Сделай шаг сегодня — пламя начнёт гореть.";
-  }
-  return "Сегодняшний вход уже засчитан. Пропуск дня не обнуляет путь — серия мягко начнётся заново.";
-}
-
-function buildStreakMotivation(streak: number): string {
-  if (streak === 0) {
-    return "Возвращайся завтра — и пламя загорится. Ты создаёшь привычку побеждать.";
-  }
-  if (streak >= 7) {
-    return "Семь и больше. Ты живёшь это, а не «делаешь».";
-  }
-  return "Возвращайся завтра — и пламя снова взметнется выше.";
 }
