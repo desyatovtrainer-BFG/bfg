@@ -8,7 +8,7 @@
  */
 
 import { motion, useReducedMotion } from "framer-motion";
-import { formatWorkoutDuration, type Workout } from "@/lib/workouts";
+import type { Workout } from "@/lib/workouts";
 import { GameButton } from "../ui/game-button";
 
 // BottomNav подавлен на /workouts/[id] — резервируем только home-indicator
@@ -43,8 +43,10 @@ export function FinishSlide({
         style={{ paddingBottom: BOTTOM_SAFE }}
       >
         <div>
+          {/* D066: «Тренировка завершена» + кнопка завершения — без метрик
+              (длительность убрана) и без контента компаньона. */}
           <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-500 [font-family:var(--font-onest)]">
-            {formatWorkoutDuration(workout.durationMin)} · путь близится
+            Тренировка завершена
           </p>
           <h2 className="mt-4 text-3xl font-bold leading-tight text-white [font-family:var(--font-unbounded)] sm:text-4xl">
             {workout.title}

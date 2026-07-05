@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { WorkoutSessionScreen } from "@/app/components/workouts/workout-session-screen";
+import { WorkoutFlow } from "@/app/components/workouts/workout-flow";
 import {
   getExerciseVideoEmbedUrl,
   getWorkoutById,
@@ -46,8 +46,10 @@ export default async function WorkoutSessionPage({ params }: SessionPageProps) {
     embedUrl: getExerciseVideoEmbedUrl(exercise),
   }));
 
+  // Слайс 7A: маршрут открывается Экраном старта (D062); сессия-слайдер
+  // запускается кнопкой «Начать тренировку» (граница старта, D049).
   return (
-    <WorkoutSessionScreen
+    <WorkoutFlow
       workout={workout}
       exercises={exercisesWithEmbed}
     />
