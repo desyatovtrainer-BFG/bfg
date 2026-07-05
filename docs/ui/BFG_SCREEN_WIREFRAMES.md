@@ -274,7 +274,7 @@ Functional browsing surface; the emotional center is Home (D055, D039). Fixed fr
 
 ```
 ┌─────────────────────────────┐
-│  Activity                   │  Header: "Activity" only (D055)
+│  Activity                   │  Header: "Activity" only (D055) · RU: «Активность» (2026-07-05 naming note)
 ├─────────────────────────────┤
 │  WORKOUTS                   │  Section 1 — always above (D042)
 │  ┌───────────────────────┐  │  vertical list, program order,

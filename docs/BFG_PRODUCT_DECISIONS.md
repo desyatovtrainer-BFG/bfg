@@ -82,6 +82,8 @@ Accepted
 Decision:
 Bottom navigation contains exactly five tabs: Workouts, Nutrition, Home, Progress, Multimedia. Home is the center tab. Nutrition and Multimedia are accepted future navigation destinations: their presence in the bottom navigation is an accepted product decision, while their detailed feature scope remains roadmap-driven. MVP may ship them with placeholder / disabled / coming-soon handling if implementation is deferred — the navigation direction itself is accepted.
 
+Update note (2026-07-05, naming clarification): the accepted user-facing Russian label of the Workouts/Activity tab is **«Активность»** (not «Тренировки»). The route may remain `/workouts` during the MVP rebuild as an implementation detail. Naming/UX only — no change to the five-tab structure above or to workout/quest logic, XP, streak, progression, or Program Assignment.
+
 Reason:
 Five stable destinations; presence-centered home; consolidates today's seven scattered routes; reserves room for future expansion areas without a later navigation redesign.
 
@@ -1451,6 +1453,8 @@ Activity is a functional navigation surface; Home remains the emotional center (
 - **Workout card content:** Workout Number, Workout Title, and Exercise Count — and nothing else (no categories, analytics, duration, previous results, or weight). This **extends Decision 045** by adding the Workout Number (program-order index) to the title and exercise count. Card states follow Decisions 048 and 054.
 - **Daily Quests section:** a visible "Daily Quests" header, always below the workouts.
 - **Quest state model:** a daily quest is **Completed or Not Completed only** — no partial progress, percentages, progress bars, or counters (e.g. "3/5 л", "8000/10000 шагов"), and no intermediate completion states. Done or Not Done.
+
+Update note (2026-07-05, naming clarification): accepted user-facing Russian copy — screen title **«Активность»** (the "Activity"-only header rule above, rendered in Russian); section headers **«Тренировки»** (Workouts) and **«Ежедневные квесты»** (Daily Quests). The bottom-nav tab label is «Активность» (see the D003 update note). Naming/UX only; the composition rules above are unchanged.
 
 Reason:
 A plain, functional Activity surface keeps the emotional weight on Home (Decision 039) and the calm, no-metric philosophy intact: a fixed vertical list in program order is legible and count-agnostic (Decision 046), and a binary quest state avoids the progress-bar / loss-aversion framing the no-shame rule forbids (Decision 031).
