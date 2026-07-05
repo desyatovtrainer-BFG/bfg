@@ -20,7 +20,7 @@ import { usePathname } from "next/navigation";
  */
 
 const items = [
-  { href: "/workouts", label: "Тренировки", icon: DumbbellIcon },
+  { href: "/workouts", label: "Активность", icon: DumbbellIcon },
   { href: "/nutrition", label: "Питание", icon: NutritionIcon },
   { href: "/dashboard", label: "Home", icon: HomeIcon },
   { href: "/progress", label: "Прогресс", icon: ChartIcon },
