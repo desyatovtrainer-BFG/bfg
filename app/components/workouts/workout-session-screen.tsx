@@ -33,7 +33,7 @@ import { ExerciseSlide } from "./exercise-slide";
 import { FinishSlide } from "./finish-slide";
 import { TopBar } from "./session-top-bar";
 import { DesktopArrows } from "./desktop-arrows";
-import { FeedbackOverlay, type FeedbackState } from "./feedback-overlay";
+import { RewardModal, type FeedbackState } from "./reward-modal";
 
 type ExerciseWithEmbed = {
   exercise: WorkoutExercise;
@@ -228,11 +228,9 @@ export function WorkoutSessionScreen({
         onNext={() => goTo(Math.min(totalSlides - 1, activeIndex + 1))}
       />
 
-      <AnimatePresence>
-        {feedback ? (
-          <FeedbackOverlay key="feedback" feedback={feedback} />
-        ) : null}
-      </AnimatePresence>
+      {/* 8A: поверхность награды — Reward Modal (D067); AppModal несёт
+          собственный AnimatePresence. */}
+      <RewardModal feedback={feedback} />
 
       <AnimatePresence>
         {showHint ? (
