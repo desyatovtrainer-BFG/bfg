@@ -36,6 +36,8 @@ export type ActivityWorkoutItem = {
   exerciseCount: number;
   /** true — следующая тренировка цикла (D046/D051/D059). */
   isUpcoming: boolean;
+  /** true — активная сессия (D058); приоритет над «Следующая» (D057). */
+  isInProgress: boolean;
 };
 
 export type ActivityScreenProps = {
@@ -88,7 +90,14 @@ export function ActivityScreen({ workouts, quests }: ActivityScreenProps) {
  * (D054). Открывает существующий экран сессии.
  */
 function ActivityWorkoutCard({ item }: { item: ActivityWorkoutItem }) {
-  const { workout, number, exerciseCount, isUpcoming } = item;
+  const { workout, number, exerciseCount, isUpcoming, isInProgress } = item;
+
+  // D048/D054: максимум один маркер состояния; контур — цветом, не размером.
+  const outline = isInProgress
+    ? "border-emerald-400/50 hover:border-emerald-400/65"
+    : isUpcoming
+      ? "border-amber-400/45 hover:border-amber-400/60"
+      : "hover:border-white/[0.14]";
 
   return (
     <Link
@@ -96,13 +105,7 @@ function ActivityWorkoutCard({ item }: { item: ActivityWorkoutItem }) {
       className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
       aria-label={`Открыть тренировку ${number}: ${workout.title}`}
     >
-      <GameCard
-        className={`p-4 transition-colors ${
-          isUpcoming
-            ? "border-amber-400/45 hover:border-amber-400/60"
-            : "hover:border-white/[0.14]"
-        }`}
-      >
+      <GameCard className={`p-4 transition-colors ${outline}`}>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-500 [font-family:var(--font-onest)]">
@@ -117,7 +120,11 @@ function ActivityWorkoutCard({ item }: { item: ActivityWorkoutItem }) {
                 : "Состав уточняется"}
             </p>
           </div>
-          {isUpcoming ? (
+          {isInProgress ? (
+            <span className="shrink-0 rounded-full border border-emerald-400/40 bg-emerald-400/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-200 [font-family:var(--font-onest)]">
+              В процессе
+            </span>
+          ) : isUpcoming ? (
             <span className="shrink-0 rounded-full border border-amber-400/40 bg-amber-400/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-200 [font-family:var(--font-onest)]">
               Следующая
             </span>

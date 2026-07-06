@@ -23,8 +23,8 @@ import {
   useState,
   useTransition,
 } from "react";
+import { finishActiveWorkoutAction } from "@/lib/workout-sessions";
 import {
-  completeWorkoutAction,
   detectSupersets,
   type Workout,
   type WorkoutExercise,
@@ -83,7 +83,9 @@ export function WorkoutSessionScreen({
   const handleComplete = () => {
     setError(null);
     startTransition(async () => {
-      const res = await completeWorkoutAction(workout.id);
+      // 7B: обёртка = существующее завершение (XP/стрик без изменений)
+      // + закрытие активной сессии (граница D050).
+      const res = await finishActiveWorkoutAction(workout.id);
       if (res.error || !res.data) {
         setError(res.error ?? "Что-то пошло не так.");
         return;

@@ -7,6 +7,7 @@ import {
   todayISO,
 } from "@/lib/quests";
 import { createSupabaseServerClient } from "@/lib/supabase";
+import { getActiveWorkoutSession } from "@/lib/workout-sessions";
 import { listActiveWorkouts } from "@/lib/workouts";
 import {
   ActivityScreen,
@@ -38,12 +39,14 @@ export default async function ActivityPage() {
   const user = await getCurrentUser();
   const supabase = await createSupabaseServerClient();
 
-  const [workouts, exerciseCounts, lastCompletedId, completedQuestIds] = await Promise.all([
-    listActiveWorkouts(supabase),
-    readExerciseCounts(supabase),
-    user ? readLastCompletedWorkoutId(supabase, user.id) : Promise.resolve(null),
-    user ? getTodayCompletedQuestIds(supabase, user.id) : Promise.resolve([]),
-  ]);
+  const [workouts, exerciseCounts, lastCompletedId, completedQuestIds, activeSession] =
+    await Promise.all([
+      listActiveWorkouts(supabase),
+      readExerciseCounts(supabase),
+      user ? readLastCompletedWorkoutId(supabase, user.id) : Promise.resolve(null),
+      user ? getTodayCompletedQuestIds(supabase, user.id) : Promise.resolve([]),
+      user ? getActiveWorkoutSession(supabase, user.id) : Promise.resolve(null),
+    ]);
 
   // Указатель цикла (D051): следующая — после фактически завершённой,
   // по порядку программы, с переходом по кругу (D046). Ноль завершений
@@ -53,11 +56,16 @@ export default async function ActivityPage() {
     : -1;
   const upcomingIdx = workouts.length > 0 ? (lastIdx + 1) % workouts.length : -1;
 
+  // D057: «В процессе» имеет абсолютный приоритет — пока есть активная
+  // сессия, маркер «Следующая» не показывается нигде.
+  const activeWorkoutId = activeSession?.workoutId ?? null;
+
   const items: ActivityWorkoutItem[] = workouts.map((workout, i) => ({
     workout,
     number: i + 1,
     exerciseCount: exerciseCounts.get(workout.id) ?? 0,
-    isUpcoming: i === upcomingIdx,
+    isUpcoming: activeWorkoutId === null && i === upcomingIdx,
+    isInProgress: workout.id === activeWorkoutId,
   }));
 
   // Дневная подборка — display-only без сессии; клейм всё равно серверный.
