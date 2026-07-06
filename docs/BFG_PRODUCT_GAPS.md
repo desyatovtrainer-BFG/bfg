@@ -242,8 +242,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — part of the workout-session build (D050)
 
 ### D067 — Workout Reward Modal (finalized 2026-06-23)
-- Current status: Not Implemented
-- Current implementation: no post-completion result feedback
+- Current status: Implemented on `feat/approved-app-rebuild` (2026-07-05, rebuild slice 8A/8B) — modal over dimmed background, only-changed values Stage → Level → XP, Return-To-Activity button / stage-growth auto-advance to Home (5–7s, tap to speed up); the D069 Evolution Animation on Home is still Not Implemented. The old full-screen FeedbackOverlay is retired and deleted.
+- Current implementation: `app/components/workouts/reward-modal.tsx` on the rebuild branch (pre-rebuild main had no post-completion result feedback surface of this shape)
 - Missing work: a **modal over a dimmed background** (not a screen/banner/toast) showing only changes, Stage → Level → XP (largest first); **no Stage growth →** a Return To Activity button; **Stage growth →** no button, 5–7s auto-advance to Home, tap to speed up (never skip the Evolution Animation, D069); rare companion reaction for meaningful milestones only (D036/D037)
 - Recommended priority: P1 — part of the workout-session build (D035, D066, D069)
 

@@ -6,7 +6,7 @@
  * Управляет состоянием: активный слайд, результат завершения, pending/error.
  * Вся логика слайдера (snap-scroll + IntersectionObserver) живёт здесь.
  * Рендер полностью делегирован узкоспециализированным компонентам:
- *   ExerciseSlide · FinishSlide · TopBar · DesktopArrows · FeedbackOverlay
+ *   ExerciseSlide · FinishSlide · TopBar · DesktopArrows · RewardModal (D067)
  *
  * Сознательно НЕ показываем здесь:
  *   - таблицу шагов, тэги категории/сложности, статистику;
