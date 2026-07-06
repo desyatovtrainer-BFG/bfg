@@ -42,8 +42,15 @@ const TEMP_WEEKLY_CAPACITY = 24;
 /** Временное направление Presence до онбординга (D079/D083). */
 const TEMP_DIRECTION = "hero" as const;
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  /** ?evolution=1 — одноразовый сигнал прибытия эволюции (D067→D069). */
+  searchParams: Promise<{ evolution?: string }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const user = await getCurrentUser();
+  const sp = await searchParams;
+  const evolutionArrival = sp?.evolution === "1";
 
   // Layout-гард уже отрезает анонимов; этот fallback — страховка
   // на случай гонки сессии. Рисуем спокойные «нулевые» дефолты.
@@ -111,6 +118,7 @@ export default async function DashboardPage() {
       avatarName={null}
       voiceLine={companionMsg.primary}
       direction={TEMP_DIRECTION}
+      evolutionArrival={evolutionArrival}
     />
   );
 }

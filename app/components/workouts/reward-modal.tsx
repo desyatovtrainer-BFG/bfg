@@ -44,7 +44,7 @@ export function RewardModal({ feedback }: { feedback: FeedbackState | null }) {
   useEffect(() => {
     if (!feedback || !evolved) return;
     const t = setTimeout(() => {
-      router.push("/dashboard");
+      router.push("/dashboard?evolution=1");
     }, EVOLUTION_AUTO_ADVANCE_MS);
     return () => clearTimeout(t);
   }, [feedback, evolved, router]);
@@ -130,7 +130,7 @@ export function RewardModal({ feedback }: { feedback: FeedbackState | null }) {
       <AppModal open onClose={() => undefined} dismissible={false} ariaLabel="Эволюция стадии">
         <button
           type="button"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/dashboard?evolution=1")}
           className="block w-full cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300/60"
           aria-label="Перейти на главную"
         >

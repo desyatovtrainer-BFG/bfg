@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { CinematicCanvas } from "../ui/cinematic-canvas";
 import { GameButton } from "../ui/game-button";
+import { EvolutionArrival } from "./evolution-arrival";
 import { OpenRing } from "../ui/open-ring";
 import { PresenceFigure, type PresenceDirection } from "../ui/presence-figure";
 import { ProfileHeaderButton } from "../ui/profile-header-button";
@@ -45,6 +46,11 @@ export type HomeScreenProps = {
   /** Реплика Голоса; null/пустая строка → слот молчит (это нормально, D071). */
   voiceLine: string | null;
   direction: PresenceDirection;
+  /**
+   * Одноразовый сигнал прибытия эволюции (?evolution=1 от Reward Modal,
+   * D067/D069). true → поверх Home показывается EvolutionArrival.
+   */
+  evolutionArrival?: boolean;
 };
 
 export function HomeScreen({
@@ -57,6 +63,7 @@ export function HomeScreen({
   avatarName,
   voiceLine,
   direction,
+  evolutionArrival = false,
 }: HomeScreenProps) {
   const reduced = useReducedMotion() === true;
   const name = avatarName?.trim() || "Твой спутник";
@@ -130,6 +137,15 @@ export function HomeScreen({
           Продолжить путь
         </GameButton>
       </div>
+
+      {/* Одноразовое прибытие эволюции (D069): Home — сцена стадии. */}
+      {evolutionArrival ? (
+        <EvolutionArrival
+          direction={direction}
+          stageLabel={evolutionFormLabel}
+          stageNumber={evolutionStage}
+        />
+      ) : null}
     </CinematicCanvas>
   );
 }
