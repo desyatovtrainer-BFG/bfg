@@ -17,7 +17,7 @@ export default async function LoginPage() {
   return (
     <AuthShell
       title="С возвращением"
-      subtitle="Войди, чтобы продолжить эволюцию."
+      subtitle="Войди, чтобы продолжить путь."
       footer={
         <>
           Ещё нет аккаунта?{" "}

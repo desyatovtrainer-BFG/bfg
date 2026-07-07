@@ -67,7 +67,7 @@ export function SignupForm() {
       </GameButton>
 
       <p className="text-center text-xs text-zinc-500 [font-family:var(--font-onest)]">
-        Если включено подтверждение почты — открой письмо от Supabase и подтверди адрес.
+        Если включено подтверждение почты — открой письмо и подтверди адрес.
       </p>
     </form>
   );

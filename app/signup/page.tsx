@@ -16,8 +16,8 @@ export default async function SignupPage() {
 
   return (
     <AuthShell
-      title="Стань игроком BFG"
-      subtitle="Один аккаунт — и твоя личная эволюция начинается."
+      title="Создай профиль"
+      subtitle="Аккаунт сохранит твой путь и прогресс."
       footer={
         <>
           Уже есть аккаунт?{" "}
