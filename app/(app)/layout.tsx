@@ -33,6 +33,22 @@ export default async function AppShellLayout({
     console.error("[AppShellLayout] ensureBfgProfile failed", ensureError);
   }
 
+  // Гейт онбординга (D078): незавершённый онбординг → /onboarding,
+  // каким бы путём пользователь ни попал в app (логин, глубокая ссылка,
+  // старая вкладка). /onboarding живёт вне (app) — рекурсии нет.
+  // Существующие аккаунты защищены backfill'ом миграции 0012.
+  const { data: onboardingRow, error: onboardingError } = await supabase
+    .from("profiles")
+    .select("onboarding_completed_at")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (onboardingError) {
+    // Не блокируем рендер при сбое чтения — как и с ensureBfgProfile.
+    console.error("[AppShellLayout] read onboarding flag", onboardingError);
+  } else if (onboardingRow && !onboardingRow.onboarding_completed_at) {
+    redirect("/onboarding");
+  }
+
   return (
     <div className="relative min-h-dvh bg-black text-zinc-100">
       {children}

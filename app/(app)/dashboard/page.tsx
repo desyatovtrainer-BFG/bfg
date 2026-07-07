@@ -93,12 +93,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     );
   }
 
-  const [profileRes, weeklyDoneRaw, pointer] = await Promise.all([
+  const [profileRes, avatarRes, weeklyDoneRaw, pointer] = await Promise.all([
     supabase
       .from("profiles")
-      .select("xp, streak, last_active_on")
+      .select("xp, streak, last_active_on, sex")
       .eq("id", user.id)
       .maybeSingle(),
+    supabase.from("avatars").select("name").eq("id", user.id).maybeSingle(),
     readWeeklyActivityCount(supabase, user.id),
     resolveJourneyPointer(supabase, user.id, workouts),
   ]);
@@ -106,12 +107,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   if (profileRes.error) {
     console.error("[DashboardPage] read profile", profileRes.error);
   }
+  if (avatarRes.error) {
+    console.error("[DashboardPage] read avatar", avatarRes.error);
+  }
 
   const totalXp = Number(profileRes.data?.xp ?? 0);
   const streak = Number(profileRes.data?.streak ?? 0);
   const lastActiveOn = profileRes.data?.last_active_on
     ? String(profileRes.data.last_active_on).slice(0, 10)
     : null;
+
+  // Реальные имя и направление из онбординга (D079/D082/D083);
+  // fallback на временную проводку для аккаунтов без ответов (backfill).
+  const avatarName = avatarRes.data?.name ? String(avatarRes.data.name) : null;
+  const sex = profileRes.data?.sex ? String(profileRes.data.sex) : null;
+  const direction =
+    sex === "male" ? ("hero" as const) : sex === "female" ? ("heroine" as const) : TEMP_DIRECTION;
   const lp = getLevelProgress(totalXp);
   const evolution = getAvatarEvolutionForLevel(lp.level);
 
@@ -155,9 +166,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       weeklyCapacity={weeklyCapacity}
       evolutionStage={evolution.stage}
       evolutionFormLabel={getAvatarFormLabel(evolution.form)}
-      avatarName={null}
+      avatarName={avatarName}
       voiceLine={voiceLine}
-      direction={TEMP_DIRECTION}
+      direction={direction}
       evolutionArrival={evolutionArrival}
       ctaHref={ctaHref}
       ctaLabel={ctaLabel}

@@ -22,7 +22,9 @@ export function SignupForm() {
         setError(result.error);
         return;
       }
-      router.replace("/dashboard");
+      // Новый аккаунт → онбординг (D078). Гейт в (app)-layout всё равно
+      // перенаправит незавершённых — это прямой короткий путь.
+      router.replace("/onboarding");
       router.refresh();
     });
   }
