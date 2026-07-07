@@ -36,19 +36,28 @@ export default async function ProgressPage() {
   // гонки сессии: спокойные «нулевые» значения, без падения.
   let totalXp = 0;
   let streak = 0;
+  let historyCount = 0;
 
   if (user) {
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("xp, streak")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (error) {
-      console.error("[ProgressPage] read profile", error);
+    const [profileRes, historyRes] = await Promise.all([
+      supabase.from("profiles").select("xp, streak").eq("id", user.id).maybeSingle(),
+      // Лёгкая сводка Хроники (D072 Additional/History): общее число
+      // завершённых тренировок. Read-only count, без системы истории.
+      supabase
+        .from("workout_completions")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id),
+    ]);
+    if (profileRes.error) {
+      console.error("[ProgressPage] read profile", profileRes.error);
     }
-    totalXp = Number(data?.xp ?? 0);
-    streak = Number(data?.streak ?? 0);
+    if (historyRes.error) {
+      console.error("[ProgressPage] count completions", historyRes.error);
+    }
+    totalXp = Number(profileRes.data?.xp ?? 0);
+    streak = Number(profileRes.data?.streak ?? 0);
+    historyCount = historyRes.count ?? 0;
   }
 
   const lp = getLevelProgress(totalXp);
@@ -64,6 +73,7 @@ export default async function ProgressPage() {
       evolutionStage={evolution.stage}
       evolutionFormLabel={getAvatarFormLabel(evolution.form)}
       direction={user ? TEMP_DIRECTION : "neutral"}
+      historyCount={historyCount}
     />
   );
 }

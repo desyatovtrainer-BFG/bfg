@@ -34,6 +34,8 @@ export type ProfileScreenProps = {
   avatarName: string | null;
   /** Направление; null → временный «Герой» (зеркалит Home, до D079). */
   directionLabel: string | null;
+  /** Куда ведёт «Назад» — санитизированный источник (экран, открывший Профиль). */
+  backHref?: string;
 };
 
 export function ProfileScreen({
@@ -41,13 +43,14 @@ export function ProfileScreen({
   subscription,
   avatarName,
   directionLabel,
+  backHref = "/dashboard",
 }: ProfileScreenProps) {
   return (
     <CinematicCanvas className="min-h-dvh" contentClassName="flex min-h-dvh flex-col pb-28">
       <ScreenHeader
         title="Профиль"
         subtitle="Данные, которые помогают подобрать тренировки и сохранить твой путь."
-        backHref="/dashboard"
+        backHref={backHref}
       />
 
       {/* ── Аккаунт ─────────────────────────────────────────────── */}

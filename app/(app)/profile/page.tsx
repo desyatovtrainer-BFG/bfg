@@ -17,9 +17,15 @@ export const metadata: Metadata = {
  * персистентность и D084-редактирование подключаются после слайса
  * Онбординга. Никаких новых таблиц/миграций в этом слайсе.
  */
-export default async function ProfilePage() {
+type ProfilePageProps = {
+  /** ?returnTo=/progress — внутренний путь экрана-источника для «Назад». */
+  searchParams: Promise<{ returnTo?: string }>;
+};
+
+export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const user = await getCurrentUser();
   const subscription = await getCurrentSubscription();
+  const sp = await searchParams;
 
   return (
     <ProfileScreen
@@ -27,6 +33,20 @@ export default async function ProfilePage() {
       subscription={subscription}
       avatarName={null}
       directionLabel={null}
+      backHref={sanitizeReturnTo(sp?.returnTo)}
     />
   );
+}
+
+/**
+ * Санитизация returnTo против open-redirect: допускаем только внутренние
+ * пути приложения ("/..."), отклоняя внешние/протокольные/протокол-
+ * относительные ("//host") и с backslash-трюками. Иначе — /dashboard.
+ */
+function sanitizeReturnTo(raw: string | undefined): string {
+  if (!raw) return "/dashboard";
+  if (!raw.startsWith("/")) return "/dashboard";
+  if (raw.startsWith("//")) return "/dashboard";
+  if (raw.includes("\\") || raw.includes(":")) return "/dashboard";
+  return raw;
 }

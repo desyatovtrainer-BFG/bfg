@@ -82,7 +82,11 @@ export function HomeScreen({
       className="min-h-dvh"
       contentClassName="flex min-h-dvh flex-col pb-28"
     >
-      <ScreenHeader title="Home" titleHidden profileSlot={<ProfileHeaderButton />} />
+      <ScreenHeader
+        title="Home"
+        titleHidden
+        profileSlot={<ProfileHeaderButton returnTo="/dashboard" />}
+      />
 
       <motion.div
         className="flex flex-1 flex-col items-center justify-center gap-6 py-4"

@@ -5,28 +5,27 @@ import { ProfileHeaderButton } from "../ui/profile-header-button";
 import { ScreenHeader } from "../ui/screen-header";
 
 /**
- * ProgressScreen — визуальная оболочка принятого Прогресса (D072,
- * финализирует D008/D005). Ретроспектива: «кем я стал, как развиваюсь,
- * что накопилось». Home — живое настоящее; Прогресс — спокойный архив.
+ * ProgressScreen — принятая структура Прогресса (D072, финализирует
+ * D008/D005; уточнено слайсом 12). Ретроспектива: «кем я стал, как
+ * развиваюсь, что накопилось». Home — живое настоящее; Прогресс —
+ * спокойный архив, и он не должен становиться вторым Home.
  *
- * Композиция сверху вниз (wireframes §9):
- *   Минимальная шапка (заголовок + кнопка Профиля, D006)
- *   → ПЕРВИЧНЫЙ блок идентичности: СТАТИЧНЫЙ портрет (не дышит, не
- *     кликается, НЕ открывает кастомизацию — вход только с Home, D073),
- *     стадия как позиция пути («Стадия N из 10»), слот Легенды
- *     с плейсхолдером «Путь ещё формируется» (D027 — системная, позже)
- *   → ВТОРИЧНЫЙ блок прогрессии: Уровень · Опыт · Серия · Стадия —
- *     спокойное накопление, без давления (D021/D031)
- *   → ДОПОЛНИТЕЛЬНЫЙ блок архива: История · Статистика · Достижения —
- *     тихие входные точки (в этом слайсе — placeholder-карточки без логики)
- *   → нижняя навигация (слой (app)).
+ * Три блока (wireframes §9):
+ *   ПЕРВИЧНЫЙ — идентичность: СТАТИЧНЫЙ портрет (не дышит, не кликается,
+ *     НЕ открывает кастомизацию — вход только с Home, D073), стадия как
+ *     позиция пути («Стадия N из 10» — не квота), слот Легенды
+ *     с плейсхолдером «Путь ещё формируется» (D027 — системная, позже);
+ *   ВТОРИЧНЫЙ — траектория: Уровень · Опыт (к следующему) · Серия ·
+ *     Стадия — спокойное накопление; серия — непрерывность, не валюта
+ *     и не давление (D021/D031);
+ *   ДОПОЛНИТЕЛЬНЫЙ — архив: История (лёгкая реальная сводка — счётчик
+ *     завершённых тренировок) · Статистика (появится по мере пути; без
+ *     давления «залогируй вес», D040) · Достижения (тихая полка, D026 —
+ *     Constellations пост-MVP). Входные точки, не стены аналитики.
  *
- * Прогресс сознательно НЕ (D072): второй Home, живое/кликабельное
- * Presence, CTA «Продолжить путь», списки тренировок/квестов, закрытые
- * кольца, проценты-давление, красные состояния, хайп.
- *
- * Портрет и Home рендерят ОДИН источник (PresenceFigure) — паритет
- * Home↔Progress по построению (D001/D073/D083).
+ * Границы: D070-память НЕ реализована (значения показываются честно,
+ * без catch-up-анимации); портрет и Home рендерят один источник
+ * (PresenceFigure) — паритет по построению (D001/D073/D083).
  */
 
 export type ProgressScreenProps = {
@@ -39,6 +38,8 @@ export type ProgressScreenProps = {
   evolutionStage: number;
   evolutionFormLabel: string;
   direction: PresenceDirection;
+  /** Лёгкая сводка Хроники: всего завершённых тренировок (read-only). */
+  historyCount: number;
 };
 
 const TOTAL_STAGES = 10;
@@ -52,21 +53,26 @@ export function ProgressScreen({
   evolutionStage,
   evolutionFormLabel,
   direction,
+  historyCount,
 }: ProgressScreenProps) {
   const xpPct = Math.round(Math.min(1, Math.max(0, levelProgress)) * 100);
 
   return (
     <CinematicCanvas className="min-h-dvh" contentClassName="flex min-h-dvh flex-col pb-28">
-      <ScreenHeader title="Прогресс" profileSlot={<ProfileHeaderButton />} />
+      <ScreenHeader title="Прогресс" profileSlot={<ProfileHeaderButton returnTo="/progress" />} />
 
-      {/* ── Первичный блок: идентичность ─────────────────────────── */}
+      {/* ── ПЕРВИЧНЫЙ блок: идентичность (D072) ───────────────────── */}
       <section className="mt-4 flex flex-col items-center text-center">
         {/* Статичный портрет: без дыхания, без тапа, без перехода —
-            идентичность-якорь, не второй живой центр (D072). */}
+            идентичность-якорь, не второй живой центр (D072/D073). */}
         <PresenceFigure direction={direction} size="md" animated={false} alt="Твой портрет" />
 
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-zinc-400 [font-family:var(--font-onest)]">
-          {evolutionFormLabel} · Стадия {evolutionStage} из {TOTAL_STAGES}
+          {evolutionFormLabel}
+        </p>
+        {/* Позиция пути, не квота (D072/D031). */}
+        <p className="mt-1.5 text-sm text-zinc-300 [font-family:var(--font-onest)]">
+          Стадия {evolutionStage} из {TOTAL_STAGES}
         </p>
 
         {/* Слот Легенды: pre-Legend плейсхолдер — зарождающаяся
@@ -76,8 +82,11 @@ export function ProgressScreen({
         </p>
       </section>
 
-      {/* ── Вторичный блок: траектория ────────────────────────────── */}
+      {/* ── ВТОРИЧНЫЙ блок: траектория (D072) ─────────────────────── */}
       <section className="mt-8">
+        <h2 className="mb-2.5 px-1 text-xs font-semibold uppercase tracking-[0.28em] text-zinc-500 [font-family:var(--font-onest)]">
+          Путь
+        </h2>
         <GameCard className="grid grid-cols-2 gap-x-3 gap-y-5 p-5">
           <Stat label="Уровень" value={String(level)} />
           <Stat label="Стадия" value={`${evolutionStage} из ${TOTAL_STAGES}`} />
@@ -91,7 +100,8 @@ export function ProgressScreen({
             value={`${xpIntoLevel} / ${xpForNextLevel}`}
             sub="до следующего уровня"
           />
-          {/* Тонкая спокойная полоса опыта — накопление, не вердикт. */}
+          {/* Тонкая спокойная полоса опыта — накопление, не вердикт.
+              Без catch-up-анимации: D070-память ещё не реализована. */}
           <div className="col-span-2">
             <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
               <div
@@ -103,14 +113,28 @@ export function ProgressScreen({
         </GameCard>
       </section>
 
-      {/* ── Дополнительный блок: архив (входные точки) ────────────── */}
-      <section className="mt-8 space-y-3">
-        <ArchiveRow title="История" note="Хроника тренировок и вех пути." />
-        <ArchiveRow title="Статистика" note="Тихие числа — по мере пути." />
-        <ArchiveRow title="Достижения" note="Полка того, что уже случилось." />
-        <p className="pt-1 text-center text-xs text-zinc-600 [font-family:var(--font-onest)]">
-          Разделы архива появятся позже.
-        </p>
+      {/* ── ДОПОЛНИТЕЛЬНЫЙ блок: архив (D072) ─────────────────────── */}
+      <section className="mt-8">
+        <h2 className="mb-2.5 px-1 text-xs font-semibold uppercase tracking-[0.28em] text-zinc-500 [font-family:var(--font-onest)]">
+          Архив
+        </h2>
+        <div className="space-y-3">
+          <ArchiveRow
+            title="История"
+            note={
+              historyCount > 0
+                ? `${historyCount} ${pluralRu(historyCount, "тренировка", "тренировки", "тренировок")} в хронике`
+                : "Хроника начнётся с первой тренировки."
+            }
+          />
+          {/* Статистика: opt-in, без давления «залогируй вес» (D040). */}
+          <ArchiveRow title="Статистика" note="Тихие числа — по мере пути." />
+          {/* Достижения: тихий потенциал, не гонка (D026/D072). */}
+          <ArchiveRow title="Достижения" note="Полка того, что уже случилось." />
+          <p className="pt-1 text-center text-xs text-zinc-600 [font-family:var(--font-onest)]">
+            Разделы архива откроются позже.
+          </p>
+        </div>
       </section>
     </CinematicCanvas>
   );
@@ -131,9 +155,9 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
 }
 
 /**
- * Входная точка архива — в этом слайсе placeholder без действия:
- * обычный блок без chevron и без «выключенного» вида (принцип D086
- * для read-only строк) — отсутствие раздела не подаётся как недостаток.
+ * Входная точка архива — placeholder без действия: обычный блок без
+ * chevron и без «выключенного» вида — отсутствие раздела не подаётся
+ * как недостаток (D031; принцип read-only строк D086).
  */
 function ArchiveRow({ title, note }: { title: string; note: string }) {
   return (

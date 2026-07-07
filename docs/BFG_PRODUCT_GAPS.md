@@ -56,8 +56,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — required for the two-register reward rhythm to be felt
 
 ### D008 — Progress screen block hierarchy (with pre-Legend placeholder) — finalized/refined by D072
-- Current status: Not Implemented
-- Current implementation: `/progress` shows XP bar, streak panel, evolution block in legacy order
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (rebuild slices 4A/12) — the legacy XP-bar/streak/evolution order is replaced by the D072 three-block hierarchy (Primary identity / Secondary progression / Additional archive) with the pre-Legend placeholder; same caveats as the D072 entry (D070 memory, real archive systems, Legend system pending)
+- Current implementation: see D072 entry (built per the D072 refinement, as this decision directs)
 - Missing work: restructure into Primary (static identity portrait / Evolution / Legend with "Path is still forming" placeholder), Secondary (Level / XP / Streak / Stage position), Additional (History / Statistics / Achievements). **Now finalized and refined by D072** (Final Progress Product Structure): "Presence" on Progress is standardized as a **static, non-interactive identity portrait** (not a large render, not Home's living center), Achievements live inside the Additional block (MVP earned shelf → Post-MVP Constellations, D026), and the D070 Progress-memory participants are XP / Level / Stage — see the D072 entry below
 - Recommended priority: P1 — depends on navigation merge (D005); build per D072 / BFG_UI_RULES §20
 
@@ -74,8 +74,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — navigation unit
 
 ### D005 — Progress merges Avatar + Progress + Profile — structure resolved by D072/D073
-- Current status: Not Implemented
-- Current implementation: three separate routes (`/avatar`, `/progress`, `/profile`)
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (rebuild slices 2A/4A/12) — `/avatar` redirects to `/progress` and its identity content is absorbed by the D072 static portrait; Profile is the administrative header-button surface (D006/D086 shell). **Not claiming the full merge:** Profile editing (D080/D084/D086), avatar customization entry depth (D073), and the old avatar screen's cosmetics preview have no final home yet
+- Current implementation: redirect + D072 Progress structure on the rebuild branch
 - Missing work: single Progress surface absorbing all three — **structure now resolved by D072** (static identity portrait absorbs the old `/avatar` surface; Profile reached via the small header button, D006) **and D073** (the absorbed Avatar surface's customization now enters from the Home Living Presence, not from Progress)
 - Recommended priority: P1 — navigation unit; prerequisite for D008/D072
 
@@ -271,8 +271,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — finalizes the MVP Home surface; should be implemented together with the D039/D043/D070 Home unit (and overlaps the M1 living-Presence and evolution work)
 
 ### D072 — Final Progress Product Structure
-- Current status: Not Implemented
-- Current implementation: legacy `/progress` (XP bar, streak panel, evolution block in legacy order); no three-block hierarchy, no static portrait, no Legend slot, no History/Statistics/Achievements blocks, no D070 Progress memory
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (2026-07-05, rebuild slices 4A/12) — three-block hierarchy built: Primary (static non-interactive portrait via the shared PresenceFigure — no tap, no animation, never opens customization; stage as journey position «Стадия N из 10»; pre-Legend placeholder «Легенда: путь ещё формируется»), Secondary (real Level / XP-to-next / Серия / Stage from existing helpers, calm), Additional (История with a real lightweight completed-workout count · Статистика · Достижения as calm placeholder entries). Pending: **D070 Progress memory**; the **shared customized avatar state** (D073 — portrait currently renders the temporary direction image, real customization state doesn't exist); real History/Statistics/Achievements systems; Legend system (D027); final stage names/art
+- Current implementation: `app/components/progress/progress-screen.tsx` + `app/(app)/progress/page.tsx` on the rebuild branch
 - Missing work: build per BFG_UI_RULES §20 — Minimal Header (title + Profile button, D006); **Primary** static **identity portrait** (non-interactive, no animation, no tap, never opens customization) that **always reflects the current customized avatar state** (D001/D073) and updates silently; Stage/Evolution as journey position ("3 из 10"); Legend slot + "Path is still forming" placeholder (D027); **Secondary** Level / XP / Streak / Stage position (calm, no streak pressure — D021/D031); **Additional** History (chronicle, D056) / Statistics (opt-in, post-first-weight, D040) / Achievements (MVP earned shelf → Post-MVP Constellations, D026) as entry points; **D070 Progress memory** for XP / Level / Stage (independent of Home). Forbidden: see D072 / BFG_UI_RULES §20 (no second Home, no dashboard, no interactive avatar, no shame/closed-ring/verdict/comparison/completion-% patterns)
 - Recommended priority: P1 — part of the D003–D008 navigation/Progress unit; the portrait's read-side sync depends on the D073 shared avatar visual state
 
