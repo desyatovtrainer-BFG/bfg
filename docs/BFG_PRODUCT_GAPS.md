@@ -110,14 +110,14 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — defines the MVP Activity surface; pairs with the D003–D006 navigation unit and D004
 
 ### D043 — Continue Journey Routing
-- Current status: Not Implemented
-- Current implementation: no "Continue Journey" CTA exists (D039 Not Implemented); no journey/sequence routing
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (2026-07-05, rebuild slice 10) — Home CTA resolves via `lib/journey`: active session → «Вернуться к тренировке» (D058), else next-in-cycle from the actually completed workout (D051; brand-new → Workout 1, D059), opening the Workout Start Screen directly (never Activity). **Temporary flat-workout bridge: the "program" is the ordered active catalog; Program Assignment (D061/D085) is not implemented.**
+- Current implementation: `lib/journey/resolve.ts` + `app/(app)/dashboard/page.tsx` on the rebuild branch
 - Missing work: route "Continue Journey" to the next assigned workout (Home = resume surface, Activity = browsing surface); journey/sequence model now specified by D046
 - Recommended priority: P1 — overlaps the D039 Home build
 
 ### D046 — Workout Journey Architecture (MVP)
-- Current status: Not Implemented
-- Current implementation: no program/sequence/cycle model; no Continue Journey routing
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (2026-07-05, rebuild slice 10) — the count-agnostic repeating cycle and the Continue Journey resume order (unfinished first, else next in cycle) run over a **temporary flat-workout bridge** (ordered active catalog as the "program"); the Program entity itself (D061/D085) is not implemented
+- Current implementation: `lib/journey/resolve.ts` (shared by Home and Activity)
 - Missing work: count-agnostic program model, generic repeating workout cycle, and the Continue Journey resume order (unfinished workout first, else next in cycle); supplies the journey model D042/D043 depend on
 - Recommended priority: P1 — prerequisite for the D043 routing and the D042 Activity surface
 
@@ -146,8 +146,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — part of the workout-session build and the journey pointer (D046, D051)
 
 ### D051 — Journey Pointer Logic
-- Current status: Not Implemented
-- Current implementation: no journey cycle/pointer (D046 Not Implemented)
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (rebuild slice 10, pointer-source fix 2026-07-05) — the pointer advances from the workout **actually completed**, sourced from the latest **completed `workout_sessions` row** (`finished_at` desc — moves even when a repeat completion is XP-idempotent), with a `workout_completions` fallback for pre-0011 data; even out of recommended order; **temporary flat-workout bridge, Program Assignment not implemented**
+- Current implementation: `lib/journey/resolve.ts`
 - Missing work: advance the cycle pointer from the workout actually completed, even when the recommended order is broken
 - Recommended priority: P1 — part of the journey cycle (D046)
 
@@ -206,8 +206,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — part of the Activity surface (D042)
 
 ### D059 — Initial Journey State
-- Current status: Not Implemented
-- Current implementation: no journey pointer, program/cycle model, or Continue Journey routing exists (D043, D046 Not Implemented)
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (rebuild slice 10) — zero completions + nothing In Progress → pointer initializes to Workout 1: Activity shows Workout 1 as «Следующая» and Home Continue Journey resolves to it; **temporary flat-workout bridge, Program Assignment not implemented**
+- Current implementation: `lib/journey/resolve.ts` (+ Activity/Home consumers)
 - Missing work: initialize the journey pointer to Workout 1 when no workout has ever been completed and none is In Progress — Activity shows Workout 1 as Upcoming (orange outline + marker, D054/D057) and Continue Journey resolves to Workout 1 (D043); after the first completion the D046 cycle becomes authoritative (pointer advances per D051). Adds no expiration / cancellation / reset / session recovery — started workouts follow D058
 - Recommended priority: P1 — first-render correctness for the Activity surface and Home resume (pairs with D046, D043)
 
@@ -266,8 +266,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — depends on the Home composition (D039, finalized by D071) and Progress hierarchy (D008); part of the reward-feedback experience (D067, D069)
 
 ### D071 — Final Home Product Structure
-- Current status: Not Implemented
-- Current implementation: the current dashboard/Home does not yet have the final D071 structure — static stage-colored avatar + companion phrase, no minimal header/Profile button, no living Presence treatment, no rings, no Stage Block, no Voice Slot, no "Continue Journey" CTA, no weekly-activity counting
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (2026-07-05, rebuild slices 3A/9A/10) — minimal header with Profile button only (no bell); Presence figure (temporary static image, tap → «Внешний вид», D073); **two open rings with real data** (Inner = level progress via `getLevelProgress`; Outer = weekly UTC activity from completed workouts + completed daily quests, capped overflow; **denominator = 21 + catalog-length bridge clamped to 2–5 — real value needs the Program model**); Stage Block with Avatar Name line («Твой спутник» fallback until onboarding naming); **event-driven Voice Slot** (server-computed: active-workout line / first-step line / silence — no per-load phrase); Continue Journey resolver (see D043). Pending: living rich Presence/art (D007/D009), final stage names, D070 ring memory, real Program-based denominator, onboarding-supplied name/direction
+- Current implementation: `app/components/home/home-screen.tsx` + `app/(app)/dashboard/page.tsx` on the rebuild branch
 - Missing work: **Minimal Header with the Profile button only** (D006; no notification bell in MVP); **Living Presence as the dominant center**; **exactly two open progress rings** (open arcs — visible start/end + split, value label in the split, calm fill §5/§13); **Inner Ring = Level Progress** (e.g. "12 УР.", no weekly reset); **Outer Ring = Weekly Activity Progress** (e.g. "12/24 АКТ.") where **one completed workout = one activity** and **one completed daily quest = one activity** (only completed actions count), **weekly UTC reset**, **denominator = 21 daily-quest activities (3×7, D017) + the active Program cycle length (2–5, D061)** → 23–26 (the **Program cycle length, not "workouts per week"** — count-agnostic per D046/D061), **capped overflow display** (e.g. "24/24 АКТ."); **Stage Block** (Stage Title + Stage Number); **event-driven, non-permanent Voice Slot** under the Stage Block (D036–038, idle Home may be silent); **"Continue Journey" primary CTA** (D043 routing). **Forbidden on Home:** no notification bell in MVP, no third ring / streak ring / separate XP ring / quest progress ring, no dashboard stats, no workout list, no quest list, no detailed analytics, no shame/hype copy, no casino-style animation
 - Recommended priority: P1 — finalizes the MVP Home surface; should be implemented together with the D039/D043/D070 Home unit (and overlaps the M1 living-Presence and evolution work)
 

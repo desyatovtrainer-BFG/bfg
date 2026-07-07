@@ -1,4 +1,8 @@
-export { getActiveWorkoutSession } from "./queries";
+export {
+  getActiveWorkoutSession,
+  getLatestCompletedWorkoutSession,
+  type LatestCompletedWorkoutSession,
+} from "./queries";
 export {
   finishActiveWorkoutAction,
   startWorkoutAction,

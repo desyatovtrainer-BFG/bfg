@@ -6,8 +6,8 @@ import {
   selectDailyQuestIds,
   todayISO,
 } from "@/lib/quests";
+import { emptyJourneyPointer, resolveJourneyPointer } from "@/lib/journey";
 import { createSupabaseServerClient } from "@/lib/supabase";
-import { getActiveWorkoutSession } from "@/lib/workout-sessions";
 import { listActiveWorkouts } from "@/lib/workouts";
 import {
   ActivityScreen,
@@ -39,33 +39,27 @@ export default async function ActivityPage() {
   const user = await getCurrentUser();
   const supabase = await createSupabaseServerClient();
 
-  const [workouts, exerciseCounts, lastCompletedId, completedQuestIds, activeSession] =
-    await Promise.all([
-      listActiveWorkouts(supabase),
-      readExerciseCounts(supabase),
-      user ? readLastCompletedWorkoutId(supabase, user.id) : Promise.resolve(null),
-      user ? getTodayCompletedQuestIds(supabase, user.id) : Promise.resolve([]),
-      user ? getActiveWorkoutSession(supabase, user.id) : Promise.resolve(null),
-    ]);
+  const workouts = await listActiveWorkouts(supabase);
 
-  // Указатель цикла (D051): следующая — после фактически завершённой,
-  // по порядку программы, с переходом по кругу (D046). Ноль завершений
-  // или завершённая вне активного каталога → Тренировка 1 (D059).
-  const lastIdx = lastCompletedId
-    ? workouts.findIndex((w) => w.id === lastCompletedId)
-    : -1;
-  const upcomingIdx = workouts.length > 0 ? (lastIdx + 1) % workouts.length : -1;
+  // Единый journey-указатель (lib/journey) — та же логика, что у
+  // Continue Journey на Home (D043/D046/D051/D059): Home и Activity
+  // всегда сходятся в одном «где я в цикле».
+  const [exerciseCounts, completedQuestIds, pointer] = await Promise.all([
+    readExerciseCounts(supabase),
+    user ? getTodayCompletedQuestIds(supabase, user.id) : Promise.resolve([]),
+    user
+      ? resolveJourneyPointer(supabase, user.id, workouts)
+      : Promise.resolve(emptyJourneyPointer(workouts)),
+  ]);
 
   // D057: «В процессе» имеет абсолютный приоритет — пока есть активная
   // сессия, маркер «Следующая» не показывается нигде.
-  const activeWorkoutId = activeSession?.workoutId ?? null;
-
   const items: ActivityWorkoutItem[] = workouts.map((workout, i) => ({
     workout,
     number: i + 1,
     exerciseCount: exerciseCounts.get(workout.id) ?? 0,
-    isUpcoming: activeWorkoutId === null && i === upcomingIdx,
-    isInProgress: workout.id === activeWorkoutId,
+    isUpcoming: pointer.activeWorkoutId === null && i === pointer.nextIndex,
+    isInProgress: workout.id === pointer.activeWorkoutId,
   }));
 
   // Дневная подборка — display-only без сессии; клейм всё равно серверный.
@@ -95,21 +89,3 @@ async function readExerciseCounts(
   return counts;
 }
 
-/** Последняя фактически завершённая тренировка (для указателя D051). */
-async function readLastCompletedWorkoutId(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  userId: string,
-): Promise<string | null> {
-  const { data, error } = await supabase
-    .from("workout_completions")
-    .select("workout_id, created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) {
-    console.error("[ActivityPage] read last completion", error);
-    return null;
-  }
-  return data ? String(data.workout_id) : null;
-}

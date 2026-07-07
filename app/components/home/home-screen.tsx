@@ -51,6 +51,13 @@ export type HomeScreenProps = {
    * D067/D069). true → поверх Home показывается EvolutionArrival.
    */
   evolutionArrival?: boolean;
+  /**
+   * Continue Journey (D043) — цель и подпись вычисляет серверный резолвер
+   * (lib/journey): активная сессия → «Вернуться к тренировке», иначе —
+   * следующая по циклу «Продолжить путь».
+   */
+  ctaHref: string;
+  ctaLabel: string;
 };
 
 export function HomeScreen({
@@ -64,6 +71,8 @@ export function HomeScreen({
   voiceLine,
   direction,
   evolutionArrival = false,
+  ctaHref,
+  ctaLabel,
 }: HomeScreenProps) {
   const reduced = useReducedMotion() === true;
   const name = avatarName?.trim() || "Твой спутник";
@@ -133,8 +142,8 @@ export function HomeScreen({
 
       {/* Единственный primary CTA (D071/D043). Без first-run подсветки (D082). */}
       <div className="mx-auto w-full max-w-[420px]">
-        <GameButton href="/workouts" variant="primary" className="min-h-[3.25rem] w-full py-3.5 text-base">
-          Продолжить путь
+        <GameButton href={ctaHref} variant="primary" className="min-h-[3.25rem] w-full py-3.5 text-base">
+          {ctaLabel}
         </GameButton>
       </div>
 
