@@ -152,9 +152,8 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — part of the journey cycle (D046)
 
 ### D052 — Workout Start Awareness Model
-- Current status: Not Implemented
-- Current implementation: no workout interface exists
-- Missing work: persistent "not started" reminder throughout the pre-start workout interface (incl. during videos), content never blocked
+- Current status: **Implemented** on `feat/approved-app-rebuild` (2026-07-05, rebuild slice 11 + UX fix) — the Start Screen is slide 0 of the pre-start carousel: swiping leads directly into exercise/video slides with no gate button (viewing never creates a session — D049 boundary protected); a persistent calm «Тренировка ещё не начата» chip stays on all preview exercise/video slides and never blocks content; no Finish surface exists before start (D050), and starting from any preview position opens the active session at the first exercise; active-elsewhere preview stays swipeable with «Вернуться к тренировке» (D058/D047). Note: D053 weight-field gating holds **vacuously** — the optional weight UI (D044) is not built yet, so nothing exists to hide; the D060 DB Step model also remains a flat-catalog bridge
+- Current implementation: `workout-flow.tsx` (preview carousel with StartSlide + session remount by key) + `workout-session-screen.tsx` (`mode="preview"`) on the rebuild branch
 - Recommended priority: P1 — part of the workout-interface build (D049); UI rule in BFG_UI_RULES.md §17
 
 ### D053 — Weight Logging Availability

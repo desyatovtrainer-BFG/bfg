@@ -44,12 +44,34 @@ type ExerciseWithEmbed = {
 type WorkoutSessionScreenProps = {
   workout: Workout;
   exercises: ExerciseWithEmbed[];
+  /**
+   * Режим слайдера (D052, UX-фикс слайса 11):
+   *   "active" (default) — начатая сессия: [Упр.1…N, FinishSlide],
+   *     завершение, Reward Modal;
+   *   "preview" — просмотр ДО старта (D049: просмотр ≠ старт):
+   *     [StartSlide, Упр.1…N] — Экран старта сам является слайдом 0,
+   *     свайп сразу ведёт в упражнения; FinishSlide НЕТ (D050),
+   *     на слайдах упражнений — постоянное «не начата»-напоминание.
+   *
+   * ВАЖНО: при смене режима родитель обязан пересоздать компонент
+   * (key="preview" / key="session"), чтобы activeIndex сбросился и
+   * активная сессия всегда начиналась с первого упражнения.
+   */
+  mode?: "preview" | "active";
+  /** Preview: контент слайда 0 — Экран старта (D062). */
+  startSlide?: React.ReactNode;
+  /** Preview: показывать чип «не начата» (false, когда ЭТА тренировка активна). */
+  previewChip?: boolean;
 };
 
 export function WorkoutSessionScreen({
   workout,
   exercises,
+  mode = "active",
+  startSlide,
+  previewChip = true,
 }: WorkoutSessionScreenProps) {
+  const isPreview = mode === "preview";
   const [activeIndex, setActiveIndex] = useState(0);
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,17 +89,22 @@ export function WorkoutSessionScreen({
   const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const hasExercises = exercises.length > 0;
-  const finishIndex = exercises.length;
+  // Структура слайдов по режимам:
+  //   preview: [StartSlide, Упр.1…N]  → упражнение j на слайде j+1, Finish нет;
+  //   active:  [Упр.1…N, FinishSlide] → как раньше.
+  const slideOffset = isPreview ? 1 : 0;
   const totalSlides = exercises.length + 1;
+  const finishIndex = isPreview ? -1 : exercises.length;
 
   // Superset detection: pure, O(n), stable across re-renders (exercises is a
   // server-supplied prop that never mutates during a session).
   const supersetMap = detectSupersets(exercises.map((e) => e.exercise));
   // Indices of the first slide in each valid superset pair — passed to TopBar
   // and used to gate the paired-dot rendering. Empty array = normal workout.
+  // TopBar ждёт индексы СЛАЙДОВ — в preview сдвинуты на стартовый слайд.
   const supersetPairStarts: number[] = [];
   for (const [idx, info] of supersetMap) {
-    if (info.position === "first") supersetPairStarts.push(idx);
+    if (info.position === "first") supersetPairStarts.push(idx + slideOffset);
   }
 
   const handleComplete = () => {
@@ -154,8 +181,12 @@ export function WorkoutSessionScreen({
       setShowHint(false);
     }
 
-    // After first swipe, on FinishSlide, or with only one exercise: nothing to do.
-    if (hasSwipedRef.current || activeIndex >= finishIndex || finishIndex <= 1) {
+    // After first swipe, on the last swipe target, or when there is nowhere
+    // to swipe: nothing to do. In preview the hint on slide 0 (Start Screen)
+    // is deliberate — it communicates swipe availability (D052 UX fix).
+    const hintStopIndex = isPreview ? totalSlides - 1 : finishIndex;
+    const hintUnavailable = isPreview ? totalSlides <= 1 : finishIndex <= 1;
+    if (hasSwipedRef.current || activeIndex >= hintStopIndex || hintUnavailable) {
       return clearHintTimers;
     }
 
@@ -166,10 +197,12 @@ export function WorkoutSessionScreen({
     }, 5750);
 
     return clearHintTimers;
-  }, [activeIndex, finishIndex]);
+  }, [activeIndex, finishIndex, isPreview, totalSlides]);
 
-  // Контент пуст — рисуем спокойную заглушку без слайдера.
-  if (!hasExercises) {
+  // Контент пуст: в active-режиме — спокойная заглушка; в preview
+  // карусель остаётся из одного стартового слайда (кнопка старта там
+  // и так заблокирована при пустом составе).
+  if (!hasExercises && !isPreview) {
     return <EmptyState workout={workout} />;
   }
 
@@ -179,12 +212,25 @@ export function WorkoutSessionScreen({
         ref={scrollerRef}
         className="hide-scrollbar flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth overscroll-x-contain [scroll-behavior:smooth]"
       >
+        {/* Preview: Экран старта — слайд 0; свайп сразу ведёт в упражнения. */}
+        {isPreview ? (
+          <div
+            data-index={0}
+            ref={(el) => {
+              slideRefs.current[0] = el;
+            }}
+            className="relative h-full w-screen shrink-0 snap-center snap-always"
+          >
+            {startSlide}
+          </div>
+        ) : null}
+
         {exercises.map(({ exercise, embedUrl }, idx) => (
           <div
             key={exercise.id}
-            data-index={idx}
+            data-index={idx + slideOffset}
             ref={(el) => {
-              slideRefs.current[idx] = el;
+              slideRefs.current[idx + slideOffset] = el;
             }}
             className="relative h-full w-screen shrink-0 snap-center snap-always"
           >
@@ -192,28 +238,43 @@ export function WorkoutSessionScreen({
               exercise={exercise}
               embedUrl={embedUrl}
               indexLabel={formatIndex(idx, exercises.length)}
-              isNearActive={Math.abs(idx - activeIndex) <= 1}
+              isNearActive={Math.abs(idx + slideOffset - activeIndex) <= 1}
               isFinal={idx === exercises.length - 1}
               supersetPosition={supersetMap.get(idx)?.position ?? null}
             />
           </div>
         ))}
 
-        <div
-          data-index={finishIndex}
-          ref={(el) => {
-            slideRefs.current[finishIndex] = el;
-          }}
-          className="relative h-full w-screen shrink-0 snap-center snap-always"
-        >
-          <FinishSlide
-            workout={workout}
-            isPending={isPending}
-            error={error}
-            onComplete={handleComplete}
-          />
-        </div>
+        {/* FinishSlide существует только в начатой сессии: до старта
+            завершение невозможно (D050), в preview его просто нет. */}
+        {!isPreview ? (
+          <div
+            data-index={finishIndex}
+            ref={(el) => {
+              slideRefs.current[finishIndex] = el;
+            }}
+            className="relative h-full w-screen shrink-0 snap-center snap-always"
+          >
+            <FinishSlide
+              workout={workout}
+              isPending={isPending}
+              error={error}
+              onComplete={handleComplete}
+            />
+          </div>
+        ) : null}
       </div>
+
+      {/* D052: постоянное спокойное напоминание «не начата» на слайдах
+          упражнений/видео превью (на самом Экране старта не нужно).
+          Presentation-only: контент не блокирует (pointer-events-none). */}
+      {isPreview && previewChip && activeIndex >= slideOffset ? (
+        <div className="pointer-events-none absolute inset-x-0 top-[max(3.5rem,calc(env(safe-area-inset-top)+2.75rem))] z-10 flex justify-center">
+          <span className="rounded-full border border-white/12 bg-black/55 px-3 py-1.5 text-[11px] font-medium text-zinc-300 backdrop-blur [font-family:var(--font-onest)]">
+            Тренировка ещё не начата
+          </span>
+        </div>
+      ) : null}
 
       <TopBar
         activeIndex={activeIndex}
