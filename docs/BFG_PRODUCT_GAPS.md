@@ -254,9 +254,9 @@ Important, not blocking: the app functions today, but these are accepted product
 - Recommended priority: P1 — part of the Activity card + workout-session build (D045, D055, D060)
 
 ### D069 — Evolution Reveal Flow (finalized 2026-06-23)
-- Current status: Not Implemented
-- Current implementation: no reward-flow routing; stage change updates avatar color only (D035 Partially Implemented)
-- Missing work: route any Stage Evolution to Home for the Evolution Animation regardless of trigger; normal workout completion → Reward Modal → Return To Activity, normal quest completion remains on Activity; Stage Evolution overrides the destination with **absolute priority**; the transformation is **unskippable** (a tap may speed the transition to Home but never skip the animation)
+- Current status: **Partially Implemented** on `feat/approved-app-rebuild` (2026-07-05, rebuild slice 9A) — the **boundary / Home arrival behavior** is built: the stage-growth Reward Modal (D067) routes to `/dashboard?evolution=1` (auto-advance 5–7s, tap speeds up), Home consumes the one-time signal and shows a calm Evolution Arrival layer around the Presence; dismissing it clears the query back to `/dashboard` (no replay on refresh). Normal workout completion still returns to Activity; XP/progression/completion/session logic unchanged. Status note only — no product decision changed, no new decision number, no schema change.
+- Current implementation: `app/components/home/evolution-arrival.tsx` + the D067 Reward Modal stage-growth path (`reward-modal.tsx`) on the rebuild branch; arrival copy is temporary implementation copy
+- Missing work (pending): the **full rich evolution transformation animation** on Home (the unskippable-transformation rule applies to it once built — a tap may speed the transition to Home but never skip the animation); final stage-specific reveal polish; stage-banded avatar art/assets; the **quest-triggered** evolution path (Quest Complete → Reward Display → Home) once quest rewards surface on Activity; D070 deferred progress memory remains pending
 - Recommended priority: P1 — overlaps the M1 evolution moment (D035) and the Home build (D039)
 
 ### D070 — Deferred Progress Visualization
