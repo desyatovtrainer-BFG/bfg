@@ -2,7 +2,7 @@
 
 An implementation brief for the unauthenticated first-contact screen. This is a **brief**, not a decision registry: the load-bearing decisions live in [`BFG_PRODUCT_DECISIONS.md`](../BFG_PRODUCT_DECISIONS.md) — **Decision 074** (Entry / Auth Start Screen) and **Decision 075** (Adaptive Cinematic Canvas Responsive Model). Where this brief and a decision disagree, the decision wins and this brief must be corrected.
 
-> Source of truth: D074, D075, [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §1–§2 / §21, [`ui/BFG_SCREEN_WIREFRAMES.md`](./BFG_SCREEN_WIREFRAMES.md) §0.
+> Source of truth: D074, D075, [`BFG_UI_RULES.md`](../BFG_UI_RULES.md) §1–§2 / §21, [`ui/BFG_SCREEN_WIREFRAMES.md`](./BFG_SCREEN_WIREFRAMES.md) §0. (Onboarding-S1 boundary: D079, `BFG_UI_RULES.md §23`, wireframes §0.2.)
 > Copy in this brief is **placeholder only** — D074 approves structure, interaction rules, and copy principles, not final copy.
 
 ---
@@ -12,7 +12,7 @@ An implementation brief for the unauthenticated first-contact screen. This is a 
 The unauthenticated first-contact screen. Calm, dark, cinematic — not a raw login form, not a marketing landing page. One job: **lead into Sign Up**, with a quiet Log In path for returning users.
 
 - **In scope:** the Entry screen UI, its responsive behavior, the Seed Form treatment, the decorative tap-hint, the single primary CTA + Log In link.
-- **Out of scope:** the Sign Up form internals, onboarding (including the onboarding Seed Form role — governed separately by future onboarding decisions, none accepted yet), any trial/pricing UI, avatar customization.
+- **Out of scope:** the Sign Up form internals, onboarding (the onboarding Seed Form role is governed by **D079** and `BFG_UI_RULES.md §23` / `BFG_SCREEN_WIREFRAMES.md §0.2` — this brief covers Entry only), any trial/pricing UI, avatar customization.
 - **"Done" looks like:** the screen renders per the composition and responsive tiers below, passes the acceptance criteria (§9), uses placeholder copy only, and contains nothing on the forbidden list (§8).
 
 ---
@@ -87,7 +87,7 @@ BFG is **mobile-first, not mobile-only**. The 360–430px phone layout is the **
 - **Seed Form tap = decorative path hint only** (context-scoped to this screen; **not** a navigation affordance, **not** a second CTA). The tap **must not** navigate, open auth/onboarding/customization, show Voice/companion text, or show any modal/tooltip/text hint. Permitted response: softly stir/pulse/brighten the Seed Form, and/or send a subtle glow/path toward the primary CTA, and/or softly highlight the CTA — **a short, calm moment within the existing motion budget (§5/§13 — up to ~600ms)**, degrading to a static emphasis under `prefers-reduced-motion`.
 - **Secondary Log In link** → Log In (returning users), low-emphasis.
 
-> Onboarding boundary: the onboarding Seed Form has its own functional role, governed separately by future onboarding decisions (none accepted yet). A later onboarding Seed Form must not become a repeated tap target. This brief and D074 neither define nor override it.
+> Onboarding boundary (updated 2026-07-11): the onboarding Seed Form has its own functional role, governed by **D079** (`BFG_UI_RULES.md §23`, `BFG_SCREEN_WIREFRAMES.md §0.2`) — the onboarding **S1** Seed Form is functional and **advances directly to S2**, while the Entry Seed Form here remains **decorative and non-navigational**; S2–S4 Presence is non-interactive. This brief and D074 neither define nor override D079.
 
 ---
 

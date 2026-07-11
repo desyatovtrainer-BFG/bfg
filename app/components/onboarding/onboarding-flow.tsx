@@ -29,8 +29,8 @@ import { PresenceFigure } from "../ui/presence-figure";
  * структурированные ответы пользователя. Это первый диалог, не форма
  * (D078). Без чата, без хайпа, без стыда, без эмодзи (§11/§23).
  *
- *   S1 — первая встреча: Seed Form без текста; тап или 2–3с тишины
- *        открывают первую реплику + [Продолжить];
+ *   S1 — первая встреча: Seed Form без текста; прямой тап ведёт на S2,
+ *        а после 2–3с тишины появляется реплика + [Продолжить];
  *   S2 — Цель (мульти ≥1) + Герой/Героиня;
  *   S3 — Уровень + Место + условная Частота (матрица D085) + условный
  *        Фулбоди/Сплит (ТОЛЬКО Зал+не-новичок; остальным вопрос не
@@ -81,13 +81,16 @@ export function OnboardingFlow({ initial }: { initial: OnboardingState }) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // S1: реплика появляется по тапу или после 2–3с тишины (D079).
+  // S1: тап по Seed Form — прямой переход к S2 (то же логическое
+  // действие, что и «Продолжить»); реплика с CTA появляется только
+  // после ~2.5с тишины. Уход с S1 чистит таймер (cleanup эффекта) —
+  // «догнавший» тап-перед-срабатыванием безопасен, дублей перехода нет.
   const [s1Revealed, setS1Revealed] = useState(false);
   useEffect(() => {
-    if (screen !== "s1") return;
+    if (screen !== "s1" || s1Revealed) return;
     const t = setTimeout(() => setS1Revealed(true), 2500);
     return () => clearTimeout(t);
-  }, [screen]);
+  }, [screen, s1Revealed]);
 
   // S2
   const [goals, setGoals] = useState<Goal[]>(initial.goals);
@@ -167,20 +170,31 @@ export function OnboardingFlow({ initial }: { initial: OnboardingState }) {
       className="min-h-dvh"
       contentClassName="flex min-h-dvh flex-col items-center pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]"
     >
-      {/* Presence — на каждом экране (D078): seed до S4, направление на S4. */}
-      <button
-        type="button"
-        aria-label={screen === "s1" ? "Seed Form" : undefined}
-        onClick={screen === "s1" ? () => setS1Revealed(true) : undefined}
-        className={`mt-2 shrink-0 rounded-3xl ${screen === "s1" ? "cursor-pointer" : "cursor-default"} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-400/50`}
-        tabIndex={screen === "s1" ? 0 : -1}
-      >
-        <PresenceFigure
-          direction={screen === "s4" ? directionFromSex(sex) : "neutral"}
-          size={screen === "s2" || screen === "s3" ? "sm" : "md"}
-          alt="Presence"
-        />
-      </button>
+      {/* Presence — на каждом экране (D078). ТОЛЬКО на S1 Seed Form —
+          прямое действие перехода к S2 (D079); на S2–S4 Presence неинтерактивен. */}
+      {screen === "s1" ? (
+        // Тап по Seed Form — прямой шаг вперёд к S2 (тот же переход, что
+        // у «Продолжить»). Кнопка с УВЕЛИЧЕННОЙ зоной нажатия (p-6):
+        // воспринимаемая форма больше узкого бокса фигуры из-за свечения —
+        // тап по ореолу тоже засчитывается. Маршрут не меняется, данные
+        // не пишутся — внутренний переход экрана онбординга.
+        <button
+          type="button"
+          aria-label="Seed Form — перейти к следующему шагу"
+          onClick={() => setScreen("s2")}
+          className="relative z-[2] mt-2 shrink-0 cursor-pointer rounded-3xl p-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400/50"
+        >
+          <PresenceFigure direction="neutral" size="md" alt="Seed Form" />
+        </button>
+      ) : (
+        <div className="mt-2 shrink-0 p-6">
+          <PresenceFigure
+            direction={screen === "s4" ? directionFromSex(sex) : "neutral"}
+            size={screen === "s2" || screen === "s3" ? "sm" : "md"}
+            alt="Presence"
+          />
+        </div>
+      )}
 
       <div className="mt-5 flex w-full max-w-[420px] flex-1 flex-col">
         {screen === "s1" ? (

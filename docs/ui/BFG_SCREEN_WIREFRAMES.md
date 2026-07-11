@@ -6,7 +6,7 @@ First official **Wireframe Layer** for BFG. This document specifies screen *comp
 
 Status: first slice. This pass covers **Entry / Auth Start, Auth Surface (Sign Up / Verify Email / Log In), Onboarding (S1–S4), Activity, Workout Start Screen, Single Exercise Step, Superset Step, Workout Finish Screen, Reward Modal, Evolution Flow, Home, Progress, Profile**. Per-variant detail and the Avatar Customization surface (D073) are deferred to a later wireframe pass.
 
-Last updated: 2026-07-01 (Profile Screen Structure and Single-Modal Edit Flow D086 — Profile wireframe §10 added; Training Structure / reduced Program Family model D085 + Profile editability & confirmation D084 — S3 wireframe + onboarding scope updated; First Home After Onboarding D082 + Avatar Direction Slots D083 — Home/Progress/S4 annotations updated; Onboarding copy/taxonomies D079 + editable inputs D080 + conditional frequency / Program Family D081 — Onboarding S1–S4 wireframes finalized; MVP Onboarding Flow Structure D078 — Onboarding S1–S4 wireframes added; Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
+Last updated: 2026-07-11 (D079 finalized S1 interaction — direct Seed Form tap → S2, inactivity reveal as fallback; D074/D079 Entry-vs-Onboarding Seed Form boundary clarified in §0). Prior: 2026-07-01 (Profile Screen Structure and Single-Modal Edit Flow D086 — Profile wireframe §10 added; Training Structure / reduced Program Family model D085 + Profile editability & confirmation D084 — S3 wireframe + onboarding scope updated; First Home After Onboarding D082 + Avatar Direction Slots D083 — Home/Progress/S4 annotations updated; Onboarding copy/taxonomies D079 + editable inputs D080 + conditional frequency / Program Family D081 — Onboarding S1–S4 wireframes finalized; MVP Onboarding Flow Structure D078 — Onboarding S1–S4 wireframes added; Auth Surface D076 + Required Email Verification D077 — Auth wireframes added; Entry / Auth Start Screen D074 — Entry wireframe added; Final Progress Product Structure D072 + Avatar Customization Entry D073 — Progress wireframe added, Home tap annotation added).
 
 For every screen this document records, in order:
 
@@ -72,7 +72,7 @@ The **unauthenticated** first-contact screen (D074). Calm, dark, cinematic — n
 - Seed Form tap → **no destination** (decorative hint only; stays on the Entry screen).
 - Log In link → **Log In** (returning users).
 
-> **Scope (D074):** §0 governs the Entry / Auth Start screen only. The **onboarding** Seed Form interaction is **outside D074 scope** and is specified separately by future onboarding decisions (none accepted yet); a later onboarding Seed Form must not become a repeated tap target. **No final copy** is approved — headline / subtitle / CTA text above are placeholders; D074 approves structure, interaction rules, and copy principles only.
+> **Scope (D074, boundary updated 2026-07-11):** §0 governs the Entry / Auth Start screen only. The **onboarding** Seed Form interaction is **outside D074 scope** and is governed by **D079 / §0.2**: the Entry tap remains a **decorative hint with no destination**, while the onboarding **S1** tap **advances to S2**; S2–S4 Presence remains non-interactive. **No final copy** is approved — headline / subtitle / CTA text above are placeholders; D074 approves structure, interaction rules, and copy principles only.
 > **Forbidden here (D074):** Stage 10 / any evolved or final avatar; a gendered/customized/finished avatar; the Seed Form as a navigation affordance or a second CTA; a second primary CTA; a companion Voice line / chat; trial / subscription / pricing (MVP); feature lists / marketing bullets / testimonials / paragraphs; "победы" / win / competition copy; hype; exclamation marks; all-caps motivational headline; casino-style motion; any scroll; emoji.
 
 ---
@@ -168,20 +168,20 @@ Onboarding begins only after Verify Email succeeds (§0.1, D077) and ends at Hom
 Verify Email ✓ (§0.1) → S1 → S2 → S3 → [silent Program Assignment, no screen] → S4 → Home (§8)
 ```
 
-**S1 — Seed Form / First Meeting (D079)** — initial state has **no text and no CTA**; after a **tap on the Seed Form OR 2–3 s inactivity**, the line + [Продолжить] appear.
+**S1 — Seed Form / First Meeting (D079, finalized 2026-07-11)** — initial state has **no text and no CTA**; a **direct tap on the Seed Form advances straight to S2**; after **2–3 s of inactivity** the line + [Продолжить] appear as the calm fallback.
 ```
 ┌─────────────────────────────┐
 │        ╭───────╮            │  PRESENCE ZONE — living Seed Form (first meeting)
 │        │ ◌ Seed │           │  neutral/unformed · not default avatar · never Stage 10
-│        ╰───────╯            │  (before trigger: no text, no CTA)
-│   Давай сделаем первый шаг. │  appears after tap / 2–3 s inactivity
+│        ╰───────╯            │  TAP → S2 immediately (initial: no text, no CTA)
+│   Давай сделаем первый шаг. │  appears after 2–3 s inactivity (calm fallback)
 │   Я помогу тебе начать.     │
 │   ┌─────────────────────┐   │
-│   │     [Продолжить]     │   │  single forward action · no answer choice
+│   │     [Продолжить]     │   │  → S2 · same forward action as the Seed Form tap
 │   └─────────────────────┘   │
 └─────────────────────────────┘
 ```
-- **Goal:** first meeting with the Presence. **Inputs:** none (reply = pressing [Продолжить]). **Trigger:** tap Seed Form OR 2–3 s inactivity reveals text + CTA. **Destination:** → S2. **Forbidden:** any input/auth field; default avatar; Stage 10; chat panel.
+- **Goal:** first meeting with the Presence. **Inputs:** none. **Direct action:** tap the Seed Form → **S2 immediately** (no reveal first; internal screen transition only, never a route). **Inactivity fallback:** after 2–3 s → dialogue + [Продолжить]; pressing [Продолжить] → S2; a Seed Form tap after the reveal still → S2. **Destination:** → S2. Only S1 Presence is interactive — S2–S4 Presence is non-interactive (the Entry Seed Form stays decorative — D074). **Forbidden:** any input/auth field; default avatar; Stage 10; chat panel.
 
 **S2 — Goal + Hero/Heroine (D079)**
 ```
