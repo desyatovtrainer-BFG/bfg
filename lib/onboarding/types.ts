@@ -30,6 +30,13 @@ export type WeeklyFrequency = (typeof WEEKLY_FREQUENCIES)[number];
 export const TRAINING_STRUCTURES = ["full_body", "split"] as const;
 export type TrainingStructure = (typeof TRAINING_STRUCTURES)[number];
 
+/**
+ * Предел длины имени аватара (S4-наречение, D079). Единый лимит для
+ * онбординга и редактирования в Профиле (D080/D086): 1–40 символов
+ * после trim.
+ */
+export const AVATAR_NAME_MAX_LENGTH = 40;
+
 /** Матрица допустимых частот по уровню (D085; одинаково для дома и зала). */
 export const ALLOWED_FREQUENCIES: Record<FitnessLevel, readonly WeeklyFrequency[]> = {
   beginner: [2, 3],

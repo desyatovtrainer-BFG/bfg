@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/get-user";
+import { getOnboardingState } from "@/lib/onboarding";
 import { getCurrentSubscription } from "@/lib/subscription";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { ProfileScreen } from "../../components/profile/profile-screen";
 
 export const metadata: Metadata = {
@@ -8,14 +10,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * Серверная сборка Профиля (D086 — структура, слайс 5A).
+ * Серверная сборка Профиля (D086, слайс 16 — реальные данные онбординга).
  *
- * Данные: почта из текущей сессии, состояние подписки — существующим
- * helper-ом getCurrentSubscription. Поля онбординга (цель/уровень/место/
- * частота/формат, имя/направление аватара — D079/D080) в схеме ещё не
- * существуют → строки рендерятся спокойными плейсхолдерами; их
- * персистентность и D084-редактирование подключаются после слайса
- * Онбординга. Никаких новых таблиц/миграций в этом слайсе.
+ * Данные: почта из текущей сессии; подписка — существующим helper-ом
+ * getCurrentSubscription; поля онбординга (цель/уровень/место/частота/
+ * формат, имя/направление — D079/D080) — существующим loader-ом
+ * getOnboardingState по канонической схеме (profiles.* + avatars.name,
+ * миграция 0012). Null-поля легаси-аккаунтов — честное «Не указано»
+ * в экране, без редиректа в онбординг и без записи дефолтов.
+ * Никаких новых таблиц/миграций.
  */
 type ProfilePageProps = {
   /** ?returnTo=/progress — внутренний путь экрана-источника для «Назад». */
@@ -27,12 +30,22 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const subscription = await getCurrentSubscription();
   const sp = await searchParams;
 
+  // Layout-гард уже отрезает анонимов; fallback — страховка гонки сессии.
+  const onboarding = user
+    ? await getOnboardingState(await createSupabaseServerClient(), user.id)
+    : null;
+
   return (
     <ProfileScreen
       email={user?.email ?? null}
       subscription={subscription}
-      avatarName={null}
-      directionLabel={null}
+      goals={onboarding?.goals ?? []}
+      fitnessLevel={onboarding?.fitnessLevel ?? null}
+      trainingFormat={onboarding?.trainingFormat ?? null}
+      weeklyFrequency={onboarding?.weeklyFrequency ?? null}
+      trainingStructure={onboarding?.trainingStructure ?? null}
+      avatarName={onboarding?.avatarName ?? null}
+      sex={onboarding?.sex ?? null}
       backHref={sanitizeReturnTo(sp?.returnTo)}
     />
   );

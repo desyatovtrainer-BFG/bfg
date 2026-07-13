@@ -3,6 +3,26 @@
 What actually exists in the BFG codebase today (as of 2026-06-12).
 This document reflects reality, not intent. Verify against code when precision matters.
 
+> The body of this document is the 2026-06-12 pre-rebuild snapshot. Work on the
+> `feat/approved-app-rebuild` branch is recorded in dated sections below (most recent first).
+
+---
+
+## feat/approved-app-rebuild — Slice 16: Profile onboarding data wiring and safe editing (2026-07-13)
+
+- **Profile is wired to real persisted data.** `/profile` renders the authenticated account email, the onboarding values (goal, fitness level, training format, weekly frequency, training structure), the avatar name/direction, and the subscription state — read from the canonical schema (`public.profiles.*` + `public.avatars.name`, migration `0012`) via the existing `getOnboardingState` loader and `getCurrentSubscription` helper.
+- **Two safe fields are editable: Goal and Avatar Name (D084 safe-field flow).**
+  - Goal uses multi-select and requires at least one value.
+  - Avatar Name is trimmed, required, and limited to the existing 40-character rule (`AVATAR_NAME_MAX_LENGTH`); shared with onboarding, not a new limit.
+- **Writes use authenticated Server Actions.** `lib/profile/actions.ts` re-authenticates via `getCurrentUser()`; no client `user_id` is trusted; writes run under user-session RLS (no service role). Errors map to calm Russian text; no raw Supabase errors reach the client.
+- **Revalidation.** Goal revalidates `/profile`; Avatar Name revalidates `/profile` and `/dashboard` (Home shows the name, D082).
+- **Legacy/null handling.** Legacy null onboarding values remain supported (no redirect into onboarding, no default persisted); a genuinely missing value displays «Не указано».
+- **Effective Full Body inference is display-only** (shown as Фулбоди when Training Format = home, Fitness Level = beginner, or Weekly Frequency = 2) and performs **no** database write.
+- **Program-changing fields remain read-only** (Hero/Heroine direction, Fitness Level, Training Location, Weekly Frequency, Training Structure) — no chevron, no modal, no tap action.
+- **Program Assignment and Program Replacement are not implemented** in this slice; **no migration** was created.
+- **Subscription and logout behavior are preserved** (existing `getCurrentSubscription` display and the existing `signOut` logout confirmation modal are unchanged).
+- Main Slice 16 implementation files (no source pasted here): `app/(app)/profile/page.tsx`, `app/components/profile/profile-screen.tsx`, `app/components/profile/profile-editable-row.tsx`, `app/components/profile/profile-goal-row.tsx`, `app/components/profile/profile-name-row.tsx`, `lib/profile/actions.ts`, `lib/profile/index.ts`, `lib/onboarding/labels.ts`, `lib/onboarding/types.ts`, `lib/onboarding/index.ts`.
+
 ---
 
 ## Architecture decisions in force
