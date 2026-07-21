@@ -8,6 +8,22 @@ This document reflects reality, not intent. Verify against code when precision m
 
 ---
 
+## feat/avatar-customization-vertical-slice — temporary Avatar Customization (2026-07-21)
+
+> Temporary layered-vector Avatar Customization vertical slice implemented. Final production avatar visual technology remains provisional and is not decided by this implementation.
+
+- **`/appearance` is functional.** The mobile-first editor provides Hero/Heroine direction selection, a large preview, nine appearance categories, immediate draft previews, Save, Cancel, and direction-only Reset.
+- **One versioned visual state.** `AvatarConfigV1` keeps one active direction and independent Hero/Heroine slots; no face, hair, colour, outfit, or accessory value migrates between directions.
+- **One replacement boundary.** Catalog, defaults, validation, draft operations, resolver, and `bfg.avatarConfig.v1` persistence live in `lib/avatar/`; Home, Progress, and the editor render through the same temporary layered-vector `AvatarRenderer`.
+- **Safe local persistence.** Malformed JSON, unavailable storage, null slots, removed catalog entries, and unknown option IDs fall back to direction defaults without affecting rendering or progression. Storage access happens only on the client after hydration.
+- **Surface parity.** Home keeps its accepted two-ring composition and opens customization from the living avatar; Progress shows the same resolved appearance and current global Stage as a static, non-interactive portrait.
+- **Gameplay remains separate.** Avatar changes do not write XP, Level, Stage, Streak, workout state, history, Program Assignment, or Avatar Name. No migration or Supabase avatar schema was added.
+- **Focused coverage.** Logic tests cover slot independence, no migration, safe fallbacks, malformed persistence, Reset/Cancel/Save, Home/Progress resolution parity, static Progress motion, and progression isolation.
+
+Limitations: local test persistence only; temporary layered-vector renderer; no production 3D/Hybrid decision; no final ten-Stage art system; no Currency, Inventory, pricing, locks, or production catalog.
+
+---
+
 ## feat/approved-app-rebuild — Slice 16: Profile onboarding data wiring and safe editing (2026-07-13)
 
 - **Profile is wired to real persisted data.** `/profile` renders the authenticated account email, the onboarding values (goal, fitness level, training format, weekly frequency, training structure), the avatar name/direction, and the subscription state — read from the canonical schema (`public.profiles.*` + `public.avatars.name`, migration `0012`) via the existing `getOnboardingState` loader and `getCurrentSubscription` helper.

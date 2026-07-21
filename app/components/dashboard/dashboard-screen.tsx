@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import type { DailyQuest, QuestState } from "@/lib/quests";
 import { GameButton } from "../ui/game-button";
 import { GameCard } from "../ui/game-card";
@@ -109,9 +108,7 @@ export function DashboardScreen({
   companionPrimary,
 }: DashboardScreenProps) {
   const prefersReduced = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const reduced = mounted && prefersReduced === true;
+  const reduced = prefersReduced === true;
 
   const xpCurrent = xpInLevel;
   const xpMax = xpForNextLevel;

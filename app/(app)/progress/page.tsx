@@ -20,14 +20,10 @@ export const metadata: Metadata = {
  * теми же чистыми helper-ами, что использует awardXp и Home, поэтому
  * все экраны показывают одно и то же состояние.
  *
- * ВРЕМЕННАЯ ПРОВОДКА (как на Home, слайс 3A): направление аватара —
- * "hero" до онбординга (D079/D083); портрет обязан визуально совпадать
- * с Home-Presence, поэтому константа зеркалит TEMP_DIRECTION дашборда.
+ * Визуальное направление и appearance-слот читает общий AvatarStateProvider;
+ * Home и Progress разрешают одну сохранённую конфигурацию через один resolver.
  * История/Статистика/Достижения — placeholder-входы без логики.
  */
-
-/** Временное направление Presence — зеркалит Home (см. dashboard/page.tsx). */
-const TEMP_DIRECTION = "hero" as const;
 
 export default async function ProgressPage() {
   const user = await getCurrentUser();
@@ -72,7 +68,6 @@ export default async function ProgressPage() {
       streak={streak}
       evolutionStage={evolution.stage}
       evolutionFormLabel={getAvatarFormLabel(evolution.form)}
-      direction={user ? TEMP_DIRECTION : "neutral"}
       historyCount={historyCount}
     />
   );

@@ -2168,9 +2168,12 @@ correctness invariant be settled now, while content depth follows later scope
 without reopening the navigation model.
 
 Implementation Status:
-Not Implemented — the current dashboard shows a static stage-colored avatar; the
-living Presence, the tap-to-customize entry, the customization surface, and the
-shared avatar visual state do not exist.
+Implemented as a temporary vertical slice (2026-07-21) — tapping the Home Living
+Presence opens `/appearance`; the editor, Home, and the static non-interactive
+Progress portrait resolve one shared `AvatarConfigV1`. Persistence is isolated in
+local client storage and the renderer is a temporary layered-vector implementation;
+neither choice decides final Supabase persistence, production catalog depth, or final
+avatar visual technology.
 
 Related Documents:
 BFG_UI_RULES.md §15 (Home); ui/BFG_SCREEN_WIREFRAMES.md (Home annotation);
@@ -3170,11 +3173,13 @@ cross-direction migration, no frozen-Stage avatars, and no backward evolution �
 preserving the single unified Presence (D001) and all progression.
 
 Implementation Status:
-Not Implemented. (Clarification: rebuild slice 16 only **displays** the active avatar
-direction as a read-only Profile row and shows the **global** Avatar Name — it does
-**not** implement direction switching, Hero/Heroine visual slots, slot persistence,
-customization switching, or the default-avatar-at-current-Stage fallback. The D083
-persistence/switching model remains unbuilt.)
+Partially Implemented via the temporary local vertical slice (2026-07-21). The
+versioned test config stores independent Hero and Heroine visual slots, switches only
+the active direction, preserves the inactive slot, performs no migration, and resolves
+a null/invalid slot to the direction default at the current global Stage. Avatar Name
+and progression remain outside the cosmetic state. The accepted Profile
+program-changing direction flow and final Supabase persistence remain unbuilt; the
+temporary local model does not decide the production schema or avatar technology.
 
 Related Documents:
 BFG_UI_RULES.md §15 / §20 / §23; BFG_MVP_SCOPE.md §2.1;

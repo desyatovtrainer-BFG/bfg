@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import type { DailyQuest, QuestKind, QuestState } from "@/lib/quests";
 import { GameButton } from "../ui/game-button";
 
@@ -77,22 +76,12 @@ export function QuestCard({
   onComplete,
   isBursting = false,
 }: QuestCardProps) {
-  const [claimBurst, setClaimBurst] = useState(false);
+  const claimBurst = isBursting && !reducedMotion;
   const s = stateStyles(quest.state);
   const pct =
     quest.progress && quest.progress.max > 0
       ? Math.min(100, Math.round((quest.progress.current / quest.progress.max) * 100))
       : 0;
-
-  // Burst запускается после server-success (isBursting=true из экрана),
-  // а не при нажатии кнопки — гарантирует, что анимация соответствует
-  // реальному начислению XP.
-  useEffect(() => {
-    if (!isBursting || reducedMotion) return;
-    setClaimBurst(true);
-    const t = window.setTimeout(() => setClaimBurst(false), 700);
-    return () => { window.clearTimeout(t); setClaimBurst(false); };
-  }, [isBursting, reducedMotion]);
 
   return (
     <motion.article

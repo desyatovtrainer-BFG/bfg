@@ -1,6 +1,10 @@
+"use client";
+
+import { describeResolvedAvatar, resolveAvatar } from "@/lib/avatar";
+import { AvatarRenderer } from "../avatar/avatar-renderer";
+import { useAvatarState } from "../avatar/avatar-provider";
 import { CinematicCanvas } from "../ui/cinematic-canvas";
 import { GameCard } from "../ui/game-card";
-import { PresenceFigure, type PresenceDirection } from "../ui/presence-figure";
 import { ProfileHeaderButton } from "../ui/profile-header-button";
 import { ScreenHeader } from "../ui/screen-header";
 
@@ -37,7 +41,6 @@ export type ProgressScreenProps = {
   streak: number;
   evolutionStage: number;
   evolutionFormLabel: string;
-  direction: PresenceDirection;
   /** Лёгкая сводка Хроники: всего завершённых тренировок (read-only). */
   historyCount: number;
 };
@@ -52,10 +55,11 @@ export function ProgressScreen({
   streak,
   evolutionStage,
   evolutionFormLabel,
-  direction,
   historyCount,
 }: ProgressScreenProps) {
   const xpPct = Math.round(Math.min(1, Math.max(0, levelProgress)) * 100);
+  const { savedConfig } = useAvatarState();
+  const resolvedAvatar = resolveAvatar(savedConfig, evolutionStage);
 
   return (
     <CinematicCanvas className="min-h-dvh" contentClassName="flex min-h-dvh flex-col pb-28">
@@ -65,7 +69,12 @@ export function ProgressScreen({
       <section className="mt-4 flex flex-col items-center text-center">
         {/* Статичный портрет: без дыхания, без тапа, без перехода —
             идентичность-якорь, не второй живой центр (D072/D073). */}
-        <PresenceFigure direction={direction} size="md" animated={false} alt="Твой портрет" />
+        <AvatarRenderer
+          config={resolvedAvatar}
+          presentation="progress"
+          motion="none"
+          label={`Статичный портрет: ${describeResolvedAvatar(resolvedAvatar)}`}
+        />
 
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-zinc-400 [font-family:var(--font-onest)]">
           {evolutionFormLabel}

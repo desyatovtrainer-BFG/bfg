@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { AvatarEvolutionBlock } from "./avatar-evolution-block";
 import { StreakPanel } from "./streak-panel";
 import { UserLevelCard } from "./user-level-card";
@@ -57,9 +56,7 @@ export function ProgressionHub({
   streakMotivation,
 }: ProgressionHubProps) {
   const prefersReduced = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const reducedMotion = mounted && prefersReduced === true;
+  const reducedMotion = prefersReduced === true;
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-black text-zinc-100">

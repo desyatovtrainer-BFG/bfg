@@ -38,7 +38,6 @@ export const metadata: Metadata = {
  * ВРЕМЕННЫЕ МОСТЫ (до соответствующих слайсов):
  *   - «цикл программы» = длина активного каталога, зажатая в принятый
  *     диапазон 2–5 (D061); Program-модель (D061/D085) не реализована;
- *   - направление аватара = "hero" (Герой/Героиня — онбординг, D079/D083);
  *   - имя аватара = null → «Твой спутник» (наречение — S4, D079);
  *   - копия Voice-строк — временная implementation copy.
  * D070-память колец НЕ реализована: кольца показывают текущее состояние
@@ -46,8 +45,6 @@ export const metadata: Metadata = {
  */
 
 /** Временное направление Presence до онбординга (D079/D083). */
-const TEMP_DIRECTION = "hero" as const;
-
 /** Принятый диапазон длины цикла программы (D061) для временного моста. */
 const CYCLE_MIN = 2;
 const CYCLE_MAX = 5;
@@ -85,7 +82,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         evolutionFormLabel={getAvatarFormLabel(evolution.form)}
         avatarName={null}
         voiceLine={null}
-        direction="neutral"
         evolutionArrival={false}
         ctaHref={pointer.nextWorkoutId ? `/workouts/${pointer.nextWorkoutId}` : "/workouts"}
         ctaLabel="Продолжить путь"
@@ -96,7 +92,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const [profileRes, avatarRes, weeklyDoneRaw, pointer] = await Promise.all([
     supabase
       .from("profiles")
-      .select("xp, streak, last_active_on, sex")
+      .select("xp, streak, last_active_on")
       .eq("id", user.id)
       .maybeSingle(),
     supabase.from("avatars").select("name").eq("id", user.id).maybeSingle(),
@@ -117,12 +113,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ? String(profileRes.data.last_active_on).slice(0, 10)
     : null;
 
-  // Реальные имя и направление из онбординга (D079/D082/D083);
-  // fallback на временную проводку для аккаунтов без ответов (backfill).
+  // Реальное имя из онбординга (D079/D082); визуальное направление и оба
+  // appearance-слота читает единый AvatarStateProvider (D073/D083).
   const avatarName = avatarRes.data?.name ? String(avatarRes.data.name) : null;
-  const sex = profileRes.data?.sex ? String(profileRes.data.sex) : null;
-  const direction =
-    sex === "male" ? ("hero" as const) : sex === "female" ? ("heroine" as const) : TEMP_DIRECTION;
   const lp = getLevelProgress(totalXp);
   const evolution = getAvatarEvolutionForLevel(lp.level);
 
@@ -168,7 +161,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       evolutionFormLabel={getAvatarFormLabel(evolution.form)}
       avatarName={avatarName}
       voiceLine={voiceLine}
-      direction={direction}
       evolutionArrival={evolutionArrival}
       ctaHref={ctaHref}
       ctaLabel={ctaLabel}

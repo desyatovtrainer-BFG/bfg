@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AvatarStateProvider } from "@/app/components/avatar/avatar-provider";
 import { getCurrentUser } from "@/lib/auth/get-user";
 import { ensureBfgProfile } from "@/lib/profile";
 import { createSupabaseServerClient } from "@/lib/supabase";
@@ -39,7 +40,7 @@ export default async function AppShellLayout({
   // Существующие аккаунты защищены backfill'ом миграции 0012.
   const { data: onboardingRow, error: onboardingError } = await supabase
     .from("profiles")
-    .select("onboarding_completed_at")
+    .select("onboarding_completed_at, sex")
     .eq("id", user.id)
     .maybeSingle();
   if (onboardingError) {
@@ -49,9 +50,13 @@ export default async function AppShellLayout({
     redirect("/onboarding");
   }
 
+  const initialDirection = onboardingRow?.sex === "female" ? "heroine" : "hero";
+
   return (
     <div className="relative min-h-dvh bg-black text-zinc-100">
-      {children}
+      <AvatarStateProvider initialDirection={initialDirection}>
+        {children}
+      </AvatarStateProvider>
       <BottomNav />
     </div>
   );

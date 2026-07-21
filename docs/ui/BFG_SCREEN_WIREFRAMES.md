@@ -738,10 +738,44 @@ Logout deletes/resets nothing (account, progress, onboarding, avatar, subscripti
 
 ---
 
+# 11. Avatar Customization (Temporary Vertical Slice, D073/D083)
+
+Entered only by tapping the Home Living Presence. This records the implemented test
+editor structure; it does not decide final avatar technology, final catalog depth,
+Currency, Inventory, or production Stage art.
+
+```text
+┌─────────────────────────────┐
+│ Отмена  Настройка аватара  Сохранить │  header actions
+├─────────────────────────────┤
+│ [ Герой ]      [ Героиня ]  │  active direction only; slots stay separate
+│                             │
+│       LARGE LIVE PREVIEW    │  layered vector · editor idle · no pedestal
+│       Стадия N              │  current global Stage
+│                             │
+│ Лицо · Глаза · Брови · ...  │  horizontally scrollable categories
+│ ┌──────────┐  ┌──────────┐  │
+│ │ option ✓ │  │ option   │  │  touch targets · immediate draft preview
+│ └──────────┘  └──────────┘  │
+│                             │
+│ [ Сбросить ] [ Сохранить ]  │  Reset = current direction only
+│          [ Отмена ]         │  Cancel/back = discard draft
+└─────────────────────────────┘
+```
+
+- Save commits and persists the complete draft atomically, then Home and Progress read it.
+- Cancel and browser Back persist nothing.
+- Switching direction preserves both draft slots and copies no appearance value.
+- Accessories are the only multi-select category; outfits are complete presets.
+- Preview and Home use restrained motion with `prefers-reduced-motion`; Progress remains static.
+- Current implementation uses the isolated `AvatarRenderer` layered-vector test boundary and local `bfg.avatarConfig.v1` persistence.
+
+---
+
 ## Decisions referenced
 
 **D074 (Entry / Auth Start Screen)**, **D075 (Adaptive Cinematic Canvas Responsive Model)**, **D076 (Sign Up / Log In Auth Surface)**, **D077 (Required Email Verification Before Onboarding)**, **D078 (MVP Onboarding Flow Structure)**, **D079 (Onboarding Copy & Answer Taxonomies)**, **D080 (Editable Onboarding Inputs After Onboarding)**, **D081 (Conditional Weekly Frequency & Program Family Model)**, D031 (no-shame), D035 (evolution as milestone), D039 (Home composition), D040/D041/D044 (tracking philosophy, library, weight placement), D042–D068 (Activity + workout-session architecture), **D067 (Reward Modal, final)**, **D069 (Evolution Flow, final)**, **D070 (Deferred Progress Visualization)**, **D071 (Final Home Product Structure)**, **D072 (Final Progress Product Structure)**, **D073 (Avatar Customization Entry & Interaction)**, **D082 (First Home After Onboarding and Avatar Name Placement)**, **D083 (Avatar Direction Slots and Default Stage Forms)**, **D084 (Profile Editability and Change Confirmation Model)**, **D085 (Training Structure Choice and Reduced Program Family Model)**, **D086 (Profile Screen Structure and Single-Modal Edit Flow)**. UI rules: BFG_UI_RULES §15, §16, §17, §18, §19, §20, §21, §23, §24.
 
 ## Out of scope for this slice (later wireframe passes)
 
-The per-state Activity screen mockups, the Reward Modal value variants in detail, the Avatar Customization surface itself (D073 catalog depth), and any new screens. No new product decisions are created by this document.
+The per-state Activity screen mockups, the Reward Modal value variants in detail, the final Avatar Customization catalog/technology, and any additional new screens. No new product decisions are created by this document.

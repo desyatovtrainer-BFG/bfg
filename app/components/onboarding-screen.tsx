@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 /** Детерминированный «шум» для позиций частиц (без Math.random — одинаково на сервере и в браузере) */
 function hash01(n: number) {
@@ -238,13 +238,7 @@ function EvolvingAvatar({ reduced }: { reduced: boolean }) {
 
 export function OnboardingScreen() {
   const prefersReduced = useReducedMotion();
-  const [clientReady, setClientReady] = useState(false);
-
-  useEffect(() => {
-    setClientReady(true);
-  }, []);
-
-  const reducedMotion = clientReady && prefersReduced === true;
+  const reducedMotion = prefersReduced === true;
 
   return (
     <div className="relative isolate flex min-h-dvh flex-col overflow-hidden bg-black text-zinc-100">
@@ -256,7 +250,7 @@ export function OnboardingScreen() {
         className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:48px_48px]"
       />
 
-      <FloatingParticles reduced={reducedMotion} show={clientReady} />
+      <FloatingParticles reduced={reducedMotion} show />
 
       <motion.div
         aria-hidden

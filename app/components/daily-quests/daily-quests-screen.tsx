@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   completeDailyQuestAction,
   type CompleteDailyQuestResponse,
@@ -25,9 +25,7 @@ type QuestFeedback = NonNullable<CompleteDailyQuestResponse["data"]>;
 
 export function DailyQuestsScreen({ initialQuests }: DailyQuestsScreenProps) {
   const prefersReduced = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const reducedMotion = mounted && prefersReduced === true;
+  const reducedMotion = prefersReduced === true;
 
   const [quests, setQuests] = useState<DailyQuest[]>(() => [...initialQuests]);
   const [pendingId, setPendingId] = useState<string | null>(null);

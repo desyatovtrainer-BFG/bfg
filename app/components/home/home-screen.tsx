@@ -2,11 +2,13 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import { describeResolvedAvatar, resolveAvatar } from "@/lib/avatar";
+import { AvatarRenderer } from "../avatar/avatar-renderer";
+import { useAvatarState } from "../avatar/avatar-provider";
 import { CinematicCanvas } from "../ui/cinematic-canvas";
 import { GameButton } from "../ui/game-button";
 import { EvolutionArrival } from "./evolution-arrival";
 import { OpenRing } from "../ui/open-ring";
-import { PresenceFigure, type PresenceDirection } from "../ui/presence-figure";
 import { ProfileHeaderButton } from "../ui/profile-header-button";
 import { ScreenHeader } from "../ui/screen-header";
 
@@ -45,7 +47,6 @@ export type HomeScreenProps = {
   avatarName: string | null;
   /** Реплика Голоса; null/пустая строка → слот молчит (это нормально, D071). */
   voiceLine: string | null;
-  direction: PresenceDirection;
   /**
    * Одноразовый сигнал прибытия эволюции (?evolution=1 от Reward Modal,
    * D067/D069). true → поверх Home показывается EvolutionArrival.
@@ -69,13 +70,14 @@ export function HomeScreen({
   evolutionFormLabel,
   avatarName,
   voiceLine,
-  direction,
   evolutionArrival = false,
   ctaHref,
   ctaLabel,
 }: HomeScreenProps) {
   const reduced = useReducedMotion() === true;
   const name = avatarName?.trim() || "Твой спутник";
+  const { savedConfig } = useAvatarState();
+  const resolvedAvatar = resolveAvatar(savedConfig, evolutionStage);
 
   return (
     <CinematicCanvas
@@ -119,7 +121,12 @@ export function HomeScreen({
               aria-label="Внешний вид"
               className="rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-400/60"
             >
-              <PresenceFigure direction={direction} size="md" alt="Твоё Presence" />
+              <AvatarRenderer
+                config={resolvedAvatar}
+                presentation="home"
+                motion="live"
+                label={`Живой аватар: ${describeResolvedAvatar(resolvedAvatar)}`}
+              />
             </Link>
           </OpenRing>
         </OpenRing>
@@ -154,7 +161,7 @@ export function HomeScreen({
       {/* Одноразовое прибытие эволюции (D069): Home — сцена стадии. */}
       {evolutionArrival ? (
         <EvolutionArrival
-          direction={direction}
+          direction={resolvedAvatar.direction}
           stageLabel={evolutionFormLabel}
           stageNumber={evolutionStage}
         />
