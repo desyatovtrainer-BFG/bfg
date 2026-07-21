@@ -7,6 +7,7 @@ import {
   getAvatarFormLabel,
   getLevelProgress,
 } from "@/lib/progression";
+import { getHomeCtaHref } from "@/lib/routes";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { listActiveWorkouts } from "@/lib/workouts";
 import { HomeScreen } from "../../components/home/home-screen";
@@ -21,9 +22,7 @@ export const metadata: Metadata = {
  *
  * Continue Journey (D043/D046/D058/D059) — через общий lib/journey:
  *   активная сессия → «Вернуться к тренировке» (к активной);
- *   иначе → «Продолжить путь» к следующей по циклу от фактически
- *   завершённой; ноль завершений → Тренировка 1; пустой каталог →
- *   спокойно на /workouts.
+ *   иначе → «Продолжить путь» на безопасную поверхность Activity (/workouts).
  *
  * Кольца (D071): внутреннее — реальный прогресс уровня (getLevelProgress);
  * внешнее — реальные завершения текущей UTC-недели (1 тренировка = 1 акт,
@@ -83,7 +82,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         avatarName={null}
         voiceLine={null}
         evolutionArrival={false}
-        ctaHref={pointer.nextWorkoutId ? `/workouts/${pointer.nextWorkoutId}` : "/workouts"}
+        ctaHref={getHomeCtaHref(pointer.activeWorkoutId)}
         ctaLabel="Продолжить путь"
       />
     );
@@ -120,11 +119,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const evolution = getAvatarEvolutionForLevel(lp.level);
 
   // ── Continue Journey (D043/D046/D058/D059) ─────────────────────────
-  const ctaHref = pointer.activeWorkoutId
-    ? `/workouts/${pointer.activeWorkoutId}`
-    : pointer.nextWorkoutId
-      ? `/workouts/${pointer.nextWorkoutId}`
-      : "/workouts";
+  const ctaHref = getHomeCtaHref(pointer.activeWorkoutId);
   const ctaLabel = pointer.activeWorkoutId
     ? "Вернуться к тренировке"
     : "Продолжить путь";

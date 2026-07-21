@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ACTIVITY_ROUTE } from "@/lib/routes";
 
 /**
  * Нижняя навигация BFG — принятая структура D003:
@@ -20,7 +21,7 @@ import { usePathname } from "next/navigation";
  */
 
 const items = [
-  { href: "/workouts", label: "Активность", icon: DumbbellIcon },
+  { href: ACTIVITY_ROUTE, label: "Активность", icon: DumbbellIcon },
   { href: "/nutrition", label: "Питание", icon: NutritionIcon },
   { href: "/dashboard", label: "Home", icon: HomeIcon },
   { href: "/progress", label: "Прогресс", icon: ChartIcon },
